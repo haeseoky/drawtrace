@@ -3,7 +3,20 @@
     <header class="game-header">
       <div class="header-left"><span class="level-badge">Round {{ round }}</span></div>
       <div class="header-center">
-        <div class="timer"><span class="timer-text">{{ timeLeft }}s</span></div>
+        <div class="timer" :class="{ urgent: timeLeft <= 10 }">
+          <svg viewBox="0 0 40 40" class="timer-ring">
+            <circle cx="20" cy="20" r="17" fill="none" stroke="#eee" stroke-width="3" />
+            <circle cx="20" cy="20" r="17" fill="none"
+              :stroke="timeLeft <= 10 ? '#ef4444' : '#4D9BC6'"
+              stroke-width="3"
+              stroke-linecap="round"
+              :stroke-dasharray="timerCircumference"
+              :stroke-dashoffset="timerCircumference * (1 - timeLeft / timeLimit)"
+              transform="rotate(-90 20 20)"
+            />
+          </svg>
+          <span class="timer-text">{{ timeLeft }}s</span>
+        </div>
       </div>
       <div class="header-right">
         <span class="pairs-found">🧩 {{ found }}/{{ totalPairs }}</span>
@@ -49,6 +62,7 @@ const EMOJIS = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', 
 const cols = 4
 const rows = 4
 const totalPairs = (cols * rows) / 2
+const timerCircumference = 2 * Math.PI * 17
 
 const gameState = ref('idle') // idle | playing | done
 const cards = ref([])
@@ -141,7 +155,10 @@ onUnmounted(() => { clearInterval(timerInterval) })
 .game-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid #eee; flex-shrink: 0; }
 .header-left { display: flex; align-items: center; gap: 10px; }
 .level-badge { background: #1B355A; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px; }
-.timer-text { font-size: 14px; font-weight: 700; color: #333; }
+.timer { position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+.timer-ring { position: absolute; width: 40px; height: 40px; }
+.timer-text { font-size: 13px; font-weight: 700; color: #333; }
+.timer.urgent .timer-text { color: #ef4444; }
 .pairs-found { font-size: 13px; color: #666; }
 .game-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; }
 .card-grid { display: grid; gap: 8px; width: 100%; max-width: 340px; }

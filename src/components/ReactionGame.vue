@@ -61,7 +61,8 @@ const waitDone = ref(false)
 let waitTimeout = null
 let goTimestamp = 0
 
-const bestMs = ref(getBestScore('reaction'))
+// bestMs는 '반응시간 ms'이므로 localStorage에서 직접 읽기 (getBestScore는 점수 기준)
+const bestMs = ref(parseInt(localStorage.getItem('reaction-best-ms') || '0', 10))
 
 const avgTime = computed(() => {
   if (rounds.value.length === 0) return 0
@@ -103,7 +104,10 @@ function onTap() {
       const avg = avgTime.value
       const score = Math.max(0, Math.round(100 - (avg - 150) * 0.2))
       addScore({ gameId: 'reaction', score, name: '나', detail: `${avg}ms` })
-      if (avg < bestMs.value || bestMs.value === 0) bestMs.value = avg
+      if (avg < bestMs.value || bestMs.value === 0) {
+        bestMs.value = avg
+        localStorage.setItem('reaction-best-ms', String(avg))
+      }
       emit('score', { score, detail: { avgMs: avg, rounds: [...rounds.value] } })
     }
   } else if (phase.value === 'result' || phase.value === 'fail') {

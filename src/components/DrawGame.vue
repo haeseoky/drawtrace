@@ -90,7 +90,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { calculateScore } from '../lib/scorer.js'
-import { shapes, getRandomShape } from '../data/shapes.js'
+import { getRandomShape } from '../data/shapes.js'
 import { addScore } from '../lib/leaderboard.js'
 import { shareResult as shareUtil } from '../lib/share.js'
 
@@ -282,6 +282,8 @@ function onTouchStart(e) {
   isDrawing.value = true
   userPath.length = 0
   userPath.push(getPos(e))
+  // 햅틱 피드백 (모바일 터치 반응성 향상)
+  if (navigator.vibrate) navigator.vibrate(10)
   requestDraw()
 }
 

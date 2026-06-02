@@ -31,6 +31,17 @@ function getCenter(points) {
 }
 
 /**
+ * 중심 정렬 — 사용자 경로를 타겟 경로의 중심에 맞춤
+ */
+function alignCenters(userPts, targetPts) {
+  const uCenter = getCenter(userPts)
+  const tCenter = getCenter(targetPts)
+  const dx = tCenter.x - uCenter.x
+  const dy = tCenter.y - uCenter.y
+  return userPts.map(p => ({ x: p.x + dx, y: p.y + dy }))
+}
+
+/**
  * 경로를 등간격으로 다운샘플링 — O(n*m) 비교 성능 향상
  * maxPoints개 이하로 줄이되 경로 길이에 비례하여 균등 분포
  */
@@ -86,15 +97,8 @@ const MIN_DIST_THRESHOLD = 2 // px
  * 크기가 다르면 거리가 멀어져 자동으로 감점.
  */
 function calcShapeScore(userPts, targetPts) {
-  // 중심 정렬
-  const uCenter = getCenter(userPts)
-  const tCenter = getCenter(targetPts)
-  const dx = tCenter.x - uCenter.x
-  const dy = tCenter.y - uCenter.y
+  const aligned = alignCenters(userPts, targetPts)
 
-  const aligned = userPts.map(p => ({ x: p.x + dx, y: p.y + dy }))
-
-  // 타겟 바운딩박스 대각선을 기준 거리로 사용
   const tBB = getBBox(targetPts)
   const refDist = Math.sqrt(tBB.w ** 2 + tBB.h ** 2)
 
@@ -213,12 +217,7 @@ function calcDirectionScore(userPts, targetPts) {
  * 타겟 경로에서 사용자 경로까지의 최근접 거리 평균 (역방향).
  */
 function calcCoverageScore(userPts, targetPts) {
-  // 중심 정렬
-  const uCenter = getCenter(userPts)
-  const tCenter = getCenter(targetPts)
-  const dx = tCenter.x - uCenter.x
-  const dy = tCenter.y - uCenter.y
-  const aligned = userPts.map(p => ({ x: p.x + dx, y: p.y + dy }))
+  const aligned = alignCenters(userPts, targetPts)
 
   const tBB = getBBox(targetPts)
   const refDist = Math.sqrt(tBB.w ** 2 + tBB.h ** 2)
