@@ -74,6 +74,15 @@ const options = ref([])
 let timerInterval = null
 let gameStartTime = 0
 
+function shuffle(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
 function generateRound() {
   const textColor = COLORS[Math.floor(Math.random() * COLORS.length)]
   let textWord
@@ -85,10 +94,10 @@ function generateRound() {
   displayColor.value = textColor.hex
   correctHex.value = textColor.hex
 
-  // 보기 생성: 정답 + 3개 오답
+  // 보기 생성: 정답 + 3개 오답 (Fisher-Yates 셔플)
   const wrongColors = COLORS.filter(c => c.hex !== textColor.hex)
-  const shuffledWrong = wrongColors.sort(() => Math.random() - 0.5).slice(0, 3)
-  options.value = [...shuffledWrong, textColor].sort(() => Math.random() - 0.5)
+  const shuffledWrong = shuffle(wrongColors).slice(0, 3)
+  options.value = shuffle([...shuffledWrong, textColor])
 }
 
 function startGame() {

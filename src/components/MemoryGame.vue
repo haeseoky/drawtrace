@@ -75,6 +75,7 @@ const timeLimit = ref(60)
 const moves = ref(0)
 let timerInterval = null
 let gameStartTime = 0
+let flipTimeout = null
 
 function shuffle(arr) {
   const a = [...arr]
@@ -92,6 +93,7 @@ function startGame() {
   timeLeft.value = 60
   timeLimit.value = 60
   flipped.value = []
+  clearTimeout(flipTimeout)
 
   const selected = shuffle(EMOJIS).slice(0, totalPairs)
   const pairs = shuffle([...selected, ...selected])
@@ -124,7 +126,7 @@ function flipCard(index) {
       flipped.value = []
       if (found.value >= totalPairs) endGame()
     } else {
-      setTimeout(() => {
+      flipTimeout = setTimeout(() => {
         cards.value[a].flipped = false
         cards.value[b].flipped = false
         flipped.value = []
@@ -147,7 +149,7 @@ function endGame() {
   emit('score', { score: score.value, detail: { found: found.value, totalPairs, moves: moves.value, timeLeft: timeLeft.value } })
 }
 
-onUnmounted(() => { clearInterval(timerInterval) })
+onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout) })
 </script>
 
 <style scoped>

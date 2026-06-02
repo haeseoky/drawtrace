@@ -151,6 +151,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearInterval(timerInterval)
+  clearTimeout(resizeTimer)
   cancelAnimationFrame(animFrameId)
   window.removeEventListener('resize', onResize)
   if (gridCanvas) {
@@ -455,11 +456,19 @@ function drawUserPath() {
   ctx.shadowColor = 'rgba(27, 53, 90, 0.3)'
   ctx.shadowBlur = 8
 
-  // 메인 경로
+  // 메인 경로 — 베지어 곡선으로 부드러운 렌더링
   ctx.beginPath()
   ctx.moveTo(userPath[0].x, userPath[0].y)
-  for (let i = 1; i < userPath.length; i++) {
-    ctx.lineTo(userPath[i].x, userPath[i].y)
+  if (userPath.length === 2) {
+    ctx.lineTo(userPath[1].x, userPath[1].y)
+  } else {
+    for (let i = 1; i < userPath.length - 1; i++) {
+      const mx = (userPath[i].x + userPath[i + 1].x) / 2
+      const my = (userPath[i].y + userPath[i + 1].y) / 2
+      ctx.quadraticCurveTo(userPath[i].x, userPath[i].y, mx, my)
+    }
+    const last = userPath[userPath.length - 1]
+    ctx.lineTo(last.x, last.y)
   }
   ctx.strokeStyle = '#1B355A'
   ctx.lineWidth = 4
@@ -580,7 +589,6 @@ function shareResult() {
   height: 100%;
   display: block;
   cursor: crosshair;
-  will-change: contents;
 }
 
 .game-footer {
