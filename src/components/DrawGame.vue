@@ -51,6 +51,7 @@
       <button v-if="gameState === 'idle' || gameState === 'result'" class="btn-start" @click="startGame">
         {{ gameState === 'result' ? '다시하기' : '시작!' }}
       </button>
+      <button v-if="gameState === 'result'" class="btn-share" @click="shareResult">📤 공유</button>
     </footer>
 
     <!-- 결과 오버레이 -->
@@ -90,6 +91,8 @@
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { calculateScore } from '../lib/scorer.js'
 import { shapes, getRandomShape } from '../data/shapes.js'
+import { addScore } from '../lib/leaderboard.js'
+import { shareResult as shareUtil } from '../lib/share.js'
 
 // Refs
 const canvasRef = ref(null)
@@ -129,6 +132,8 @@ const resultEmoji = computed(() => {
   const map = { perfect: '💎', great: '🌟', good: '👍', ok: '🤔', miss: '😅' }
   return map[resultGrade.value]
 })
+
+const emit = defineEmits(['score', 'share'])
 
 // Init
 onMounted(() => {
@@ -221,6 +226,9 @@ function endGame() {
 
   gameState.value = 'result'
   level.value++
+
+  addScore({ gameId: 'draw-trace', score: result.score, name: '나', detail: `${currentShape.value?.name} ${result.score}점` })
+  emit('score', result)
   drawFrame()
 }
 
@@ -423,6 +431,11 @@ function loadHighScore() {
 function saveHighScore() {
   localStorage.setItem('drawtrace-highscore', String(highScore.value))
 }
+
+function shareResult() {
+  emit('share')
+  shareUtil('모양 따라그리기', lastScore.score)
+}
 </script>
 
 <style scoped>
@@ -528,6 +541,7 @@ function saveHighScore() {
   box-shadow: 0 4px 12px rgba(77, 155, 198, 0.3);
 }
 .btn-start:active { transform: scale(0.95); }
+.btn-share { background: #1B355A; color: #fff; border: none; padding: 14px 24px; border-radius: 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
 
 /* Result overlay */
 .result-overlay {

@@ -11,6 +11,21 @@ const routes = [
     name: 'DrawTrace',
     component: () => import('../views/DrawTracePage.vue'),
   },
+  {
+    path: '/reaction',
+    name: 'Reaction',
+    component: () => import('../views/ReactionPage.vue'),
+  },
+  {
+    path: '/memory',
+    name: 'Memory',
+    component: () => import('../views/MemoryPage.vue'),
+  },
+  {
+    path: '/color-match',
+    name: 'ColorMatch',
+    component: () => import('../views/ColorMatchPage.vue'),
+  },
 ]
 
 const router = createRouter({
