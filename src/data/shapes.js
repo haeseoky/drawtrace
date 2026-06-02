@@ -207,11 +207,9 @@ export const shapes = [
   },
 ]
 
-export function getRandomShape(difficulty = null) {
-  const filtered = difficulty
-    ? shapes.filter(s => s.difficulty === difficulty)
-    : shapes
-  return filtered[Math.floor(Math.random() * filtered.length)]
+export function getRandomShape() {
+  const allowed = shapes.filter(s => ['circle', 'triangle', 'star'].includes(s.id))
+  return allowed[Math.floor(Math.random() * allowed.length)]
 }
 
 export function getShapeById(id) {
