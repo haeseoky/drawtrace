@@ -14,8 +14,8 @@
               :stroke="timeLeft <= 5 ? '#ef4444' : '#4D9BC6'"
               stroke-width="3"
               stroke-linecap="round"
-              :stroke-dasharray="107"
-              :stroke-dashoffset="107 * (1 - timeLeft / timeLimit)"
+              :stroke-dasharray="timerCircumference"
+              :stroke-dashoffset="timerCircumference * (1 - timeLeft / timeLimit)"
               transform="rotate(-90 20 20)"
             />
           </svg>
@@ -133,6 +133,8 @@ const resultGrade = computed(() => {
   return 'miss'
 })
 
+const timerCircumference = 2 * Math.PI * 17 // ≈ 106.81
+
 const resultEmoji = computed(() => {
   const map = { perfect: '💎', great: '🌟', good: '👍', ok: '🤔', miss: '😅' }
   return map[resultGrade.value]
@@ -151,7 +153,11 @@ onUnmounted(() => {
   clearInterval(timerInterval)
   cancelAnimationFrame(animFrameId)
   window.removeEventListener('resize', onResize)
-  gridCanvas = null // 오프스크린 캔버스 메모리 해제
+  if (gridCanvas) {
+    gridCanvas.width = 0
+    gridCanvas.height = 0
+    gridCanvas = null
+  }
   ctx = null
 })
 
@@ -340,6 +346,12 @@ function drawFrame() {
 // 오프스크린 캔버스에 그리드 캐싱 — 리사이즈 시에만 재생성
 function buildGridCache() {
   const dpr = window.devicePixelRatio || 1
+  // 이전 오프스크린 캔버스 메모리 해제
+  if (gridCanvas) {
+    gridCanvas.width = 0
+    gridCanvas.height = 0
+    gridCanvas = null
+  }
   gridCanvas = document.createElement('canvas')
   gridCanvas.width = canvasW * dpr
   gridCanvas.height = canvasH * dpr
@@ -465,14 +477,10 @@ function drawUserPath() {
 }
 
 function drawResultOverlay() {
-  // 결과 배경
+  // 반투명 배경만 (타겟+경로는 이미 drawFrame에서 그려짐)
   ctx.save()
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
   ctx.fillRect(0, 0, canvasW, canvasH)
-
-  // 사용자 경로 + 타겟 오버레이
-  drawTarget()
-  drawUserPath()
   ctx.restore()
 }
 
@@ -566,6 +574,7 @@ function shareResult() {
   height: 100%;
   display: block;
   cursor: crosshair;
+  will-change: contents;
 }
 
 .game-footer {

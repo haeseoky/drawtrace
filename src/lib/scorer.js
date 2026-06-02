@@ -44,10 +44,17 @@ function downsample(points, maxPoints) {
   let nextThreshold = step
   for (let i = 1; i < points.length; i++) {
     accumulated += dist(points[i - 1], points[i])
-    if (accumulated >= nextThreshold) {
-      result.push({ ...points[i] })
-      // 한 구간에서 여러 threshold를 넘을 수 있음
-      while (accumulated >= nextThreshold) nextThreshold += step
+    // 한 구간에서 여러 threshold를 넘을 때 보간(interpolation)으로 중간 포인트 생성
+    while (accumulated >= nextThreshold && result.length < maxPoints) {
+      const prevAccum = accumulated - dist(points[i - 1], points[i])
+      const segLen = dist(points[i - 1], points[i])
+      const overshoot = nextThreshold - prevAccum
+      const t = segLen > 0 ? overshoot / segLen : 0
+      result.push({
+        x: points[i - 1].x + t * (points[i].x - points[i - 1].x),
+        y: points[i - 1].y + t * (points[i].y - points[i - 1].y),
+      })
+      nextThreshold += step
     }
   }
   // 마지막 점 보장
