@@ -262,8 +262,4 @@ export function calculateScore(userPath, targetPath, canvasSize = { width: 1, he
   }
 }
 
-// 더 이상 사용하지 않지만 export 호환성 유지
-export function resamplePath(points, n = 64) { return points }
-export function normalizePath(points) { return points }
-export function frechetDistance(p, q) { return 0 }
-export function avgNearestDistance(p, q) { return 0 }
+

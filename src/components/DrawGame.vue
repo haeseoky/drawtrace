@@ -88,7 +88,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { calculateScore } from '../lib/scorer.js'
 import { shapes, getRandomShape } from '../data/shapes.js'
 import { addScore } from '../lib/leaderboard.js'
@@ -114,6 +114,8 @@ const targetPoints = ref([])
 const isDrawing = ref(false)
 const userPath = reactive([])
 let animFrameId = null
+let drawPending = false
+let gridCanvas = null
 let timerInterval = null
 
 // Result
@@ -164,8 +166,11 @@ function initCanvas() {
   ctx = canvas.getContext('2d')
   ctx.scale(dpr, dpr)
 
+  // 그리드 오프스크린 캔버스 초기화
+  buildGridCache()
+
   if (targetPoints.value.length > 0) {
-    drawFrame()
+    requestDraw()
   }
 }
 
@@ -174,7 +179,17 @@ function onResize() {
   if (currentShape.value && targetPoints.value.length === 0) {
     generateTarget()
   }
-  drawFrame()
+  requestDraw()
+}
+
+// rAF 배칭 — 매 이벤트마다 drawFrame 직접 호출 대신 1프레임에 1회만 렌더링
+function requestDraw() {
+  if (drawPending) return
+  drawPending = true
+  animFrameId = requestAnimationFrame(() => {
+    drawPending = false
+    drawFrame()
+  })
 }
 
 // Game flow
@@ -249,14 +264,14 @@ function onTouchStart(e) {
   isDrawing.value = true
   userPath.length = 0
   userPath.push(getPos(e))
-  drawFrame()
+  requestDraw()
 }
 
 function onTouchMove(e) {
   if (!isDrawing.value) return
   const pos = getPos(e)
   userPath.push(pos)
-  drawFrame()
+  requestDraw()
 }
 
 function onTouchEnd() {
@@ -272,7 +287,7 @@ function onMouseMove(e) {
   if (!isDrawing.value) return
   const pos = getPos(e)
   userPath.push(pos)
-  drawFrame()
+  requestDraw()
 }
 function onMouseUp() { onTouchEnd() }
 
@@ -296,21 +311,34 @@ function drawFrame() {
   }
 }
 
-function drawGrid() {
-  ctx.strokeStyle = '#f0f0f0'
-  ctx.lineWidth = 1
+// 오프스크린 캔버스에 그리드 캐싱 — 리사이즈 시에만 재생성
+function buildGridCache() {
+  const dpr = window.devicePixelRatio || 1
+  gridCanvas = document.createElement('canvas')
+  gridCanvas.width = canvasW * dpr
+  gridCanvas.height = canvasH * dpr
+  const gCtx = gridCanvas.getContext('2d')
+  gCtx.scale(dpr, dpr)
+  gCtx.strokeStyle = '#f0f0f0'
+  gCtx.lineWidth = 1
   const step = 30
   for (let x = 0; x < canvasW; x += step) {
-    ctx.beginPath()
-    ctx.moveTo(x, 0)
-    ctx.lineTo(x, canvasH)
-    ctx.stroke()
+    gCtx.beginPath()
+    gCtx.moveTo(x, 0)
+    gCtx.lineTo(x, canvasH)
+    gCtx.stroke()
   }
   for (let y = 0; y < canvasH; y += step) {
-    ctx.beginPath()
-    ctx.moveTo(0, y)
-    ctx.lineTo(canvasW, y)
-    ctx.stroke()
+    gCtx.beginPath()
+    gCtx.moveTo(0, y)
+    gCtx.lineTo(canvasW, y)
+    gCtx.stroke()
+  }
+}
+
+function drawGrid() {
+  if (gridCanvas) {
+    ctx.drawImage(gridCanvas, 0, 0, canvasW, canvasH)
   }
 }
 

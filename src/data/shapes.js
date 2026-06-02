@@ -207,8 +207,10 @@ export const shapes = [
   },
 ]
 
-export function getRandomShape() {
-  const allowed = shapes.filter(s => ['circle', 'triangle', 'star'].includes(s.id))
+export function getRandomShape(difficulty = 1) {
+  // 요청 난이도 + 하위 난이도 도형 포함
+  const allowed = shapes.filter(s => s.difficulty <= Math.max(difficulty, 1))
+  if (allowed.length === 0) return shapes[0]
   return allowed[Math.floor(Math.random() * allowed.length)]
 }
 
