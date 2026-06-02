@@ -7,6 +7,7 @@
     </nav>
     <ColorMatchGame @score="onScore" @share="onShare" />
     <Leaderboard :game-id="'color-match'" ref="lbRef" />
+    <ShareModal :visible="showShare" game-name="컬러 매치" :score="shareScore" @close="showShare = false" />
   </div>
 </template>
 <script setup>
@@ -14,10 +15,17 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ColorMatchGame from '../components/ColorMatchGame.vue'
 import Leaderboard from '../components/Leaderboard.vue'
+import ShareModal from '../components/ShareModal.vue'
 const router = useRouter()
 const lbRef = ref()
+const showShare = ref(false)
+const shareScore = ref(0)
 function goBack() { router.push('/') }
-function onScore() { lbRef.value?.load() }
+function onScore(result) {
+  lbRef.value?.load()
+  shareScore.value = result.score || 0
+}
+function onShare() { showShare.value = true }
 </script>
 <style scoped>
 .game-page { height: 100dvh; display: flex; flex-direction: column; overflow-y: auto; }

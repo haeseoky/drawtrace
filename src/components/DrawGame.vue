@@ -185,12 +185,16 @@ function initCanvas() {
   }
 }
 
+let resizeTimer = null
 function onResize() {
-  initCanvas()
-  if (currentShape.value && targetPoints.value.length === 0) {
-    generateTarget()
-  }
-  requestDraw()
+  clearTimeout(resizeTimer)
+  resizeTimer = setTimeout(() => {
+    initCanvas()
+    if (currentShape.value && targetPoints.value.length === 0) {
+      generateTarget()
+    }
+    requestDraw()
+  }, 150)
 }
 
 // rAF 배칭 — 매 이벤트마다 drawFrame 직접 호출 대신 1프레임에 1회만 렌더링

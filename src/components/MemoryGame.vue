@@ -113,9 +113,9 @@ function flipCard(index) {
 
   cards.value[index].flipped = true
   flipped.value.push(index)
-  moves.value++
 
   if (flipped.value.length === 2) {
+    moves.value++
     const [a, b] = flipped.value
     if (cards.value[a].emoji === cards.value[b].emoji) {
       cards.value[a].matched = true

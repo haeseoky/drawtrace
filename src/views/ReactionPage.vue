@@ -7,6 +7,7 @@
     </nav>
     <ReactionGame @score="onScore" @share="onShare" ref="gameRef" />
     <Leaderboard :game-id="'reaction'" ref="lbRef" />
+    <ShareModal :visible="showShare" game-name="반응 속도" :score="shareScore" @close="showShare = false" />
   </div>
 </template>
 <script setup>
@@ -14,11 +15,18 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ReactionGame from '../components/ReactionGame.vue'
 import Leaderboard from '../components/Leaderboard.vue'
+import ShareModal from '../components/ShareModal.vue'
 const router = useRouter()
 const gameRef = ref()
 const lbRef = ref()
+const showShare = ref(false)
+const shareScore = ref(0)
+
 function goBack() { router.push('/') }
-function onScore() { lbRef.value?.load() }
+function onScore(result) {
+  lbRef.value?.load()
+  shareScore.value = result.score || 0
+}
 function onShare() { showShare.value = true }
 </script>
 <style scoped>
