@@ -46,7 +46,8 @@ function downsample(points, maxPoints) {
     accumulated += dist(points[i - 1], points[i])
     if (accumulated >= nextThreshold) {
       result.push({ ...points[i] })
-      nextThreshold += step
+      // 한 구간에서 여러 threshold를 넘을 수 있음
+      while (accumulated >= nextThreshold) nextThreshold += step
     }
   }
   // 마지막 점 보장

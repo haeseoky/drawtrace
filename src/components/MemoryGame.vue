@@ -57,8 +57,10 @@ const round = ref(1)
 const score = ref(0)
 const found = ref(0)
 const timeLeft = ref(60)
+const timeLimit = ref(60)
 const moves = ref(0)
 let timerInterval = null
+let gameStartTime = 0
 
 function shuffle(arr) {
   const a = [...arr]
@@ -74,6 +76,7 @@ function startGame() {
   found.value = 0
   moves.value = 0
   timeLeft.value = 60
+  timeLimit.value = 60
   flipped.value = []
 
   const selected = shuffle(EMOJIS).slice(0, totalPairs)
@@ -81,10 +84,12 @@ function startGame() {
   cards.value = pairs.map(emoji => ({ emoji, flipped: false, matched: false }))
 
   clearInterval(timerInterval)
+  gameStartTime = Date.now()
   timerInterval = setInterval(() => {
-    timeLeft.value--
+    const elapsed = Math.floor((Date.now() - gameStartTime) / 1000)
+    timeLeft.value = Math.max(0, timeLimit.value - elapsed)
     if (timeLeft.value <= 0) endGame()
-  }, 1000)
+  }, 250)
 }
 
 function flipCard(index) {

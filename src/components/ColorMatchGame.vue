@@ -62,6 +62,7 @@ const round = ref(0)
 const score = ref(0)
 const combo = ref(0)
 const timeLeft = ref(30)
+const timeLimit = ref(30)
 const feedback = ref(null)
 const bestScore = ref(getBestScore('color-match'))
 
@@ -71,6 +72,7 @@ const correctHex = ref('')
 const options = ref([])
 
 let timerInterval = null
+let gameStartTime = 0
 
 function generateRound() {
   const textColor = COLORS[Math.floor(Math.random() * COLORS.length)]
@@ -95,12 +97,15 @@ function startGame() {
   combo.value = 0
   round.value = 0
   timeLeft.value = 30
+  timeLimit.value = 30
 
   clearInterval(timerInterval)
+  gameStartTime = Date.now()
   timerInterval = setInterval(() => {
-    timeLeft.value--
+    const elapsed = Math.floor((Date.now() - gameStartTime) / 1000)
+    timeLeft.value = Math.max(0, timeLimit.value - elapsed)
     if (timeLeft.value <= 0) endGame()
-  }, 1000)
+  }, 250)
 
   nextRound()
 }

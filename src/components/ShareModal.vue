@@ -23,17 +23,15 @@ defineProps({ visible: Boolean, gameName: String, score: Number })
 const emit = defineEmits(['close'])
 
 async function share(type) {
-  const props = { visible: true, gameName: '', score: 0 }
-  // 실제 props는 템플릿에서 받아옴
   if (type === 'copy') {
-    const result = await shareResult(document.querySelector('.share-score')?.textContent || '', 0)
+    const result = await shareResult(props.gameName || '', props.score ?? 0)
     alert(result === 'clipboard' ? '클립보드에 복사되었습니다!' : '복사 실패')
   } else if (type === 'kakao') {
-    window.open(getKakaoShareUrl(document.querySelector('.share-score')?.textContent || '', 0), '_blank')
+    window.open(getKakaoShareUrl(props.gameName || '', props.score ?? 0), '_blank')
   } else if (type === 'telegram') {
-    window.open(getTelegramShareUrl(document.querySelector('.share-score')?.textContent || '', 0), '_blank')
+    window.open(getTelegramShareUrl(props.gameName || '', props.score ?? 0), '_blank')
   } else if (type === 'twitter') {
-    window.open(getTwitterShareUrl(document.querySelector('.share-score')?.textContent || '', 0), '_blank')
+    window.open(getTwitterShareUrl(props.gameName || '', props.score ?? 0), '_blank')
   }
 }
 </script>

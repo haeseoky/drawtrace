@@ -118,6 +118,7 @@ let drawPending = false
 let gridCanvas = null
 let timerInterval = null
 let gameStartTime = 0 // Date.now 기반 타이머
+let isTouchDevice = false // 터치 이벤트 감지 플래그
 
 // Result
 const lastScore = reactive({ score: 0, accuracy: 0, details: {} })
@@ -263,6 +264,7 @@ function getPos(e) {
 }
 
 function onTouchStart(e) {
+  isTouchDevice = true
   if (gameState.value !== 'playing') return
   isDrawing.value = true
   userPath.length = 0
@@ -291,9 +293,10 @@ function onTouchEnd() {
   endGame()
 }
 
-// Mouse handlers (desktop)
-function onMouseDown(e) { onTouchStart(e) }
+// Mouse handlers (desktop) — 터치 기기에서는 무시
+function onMouseDown(e) { if (isTouchDevice) return; onTouchStart(e) }
 function onMouseMove(e) {
+  if (isTouchDevice) return
   if (!isDrawing.value) return
   const pos = getPos(e)
   if (userPath.length > 0) {
@@ -305,7 +308,7 @@ function onMouseMove(e) {
   userPath.push(pos)
   requestDraw()
 }
-function onMouseUp() { onTouchEnd() }
+function onMouseUp() { if (isTouchDevice) return; onTouchEnd() }
 
 // Drawing
 function drawFrame() {
