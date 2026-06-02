@@ -117,6 +117,7 @@ let animFrameId = null
 let drawPending = false
 let gridCanvas = null
 let timerInterval = null
+let gameStartTime = 0 // Date.now 기반 타이머
 
 // Result
 const lastScore = reactive({ score: 0, accuracy: 0, details: {} })
@@ -205,14 +206,16 @@ function startGame() {
   generateTarget()
   drawFrame()
 
-  // 타이머 시작
+  // Date.now 기반 타이머 (setInterval 드리프트 방지)
   clearInterval(timerInterval)
+  gameStartTime = Date.now()
   timerInterval = setInterval(() => {
-    timeLeft.value--
+    const elapsed = Math.floor((Date.now() - gameStartTime) / 1000)
+    timeLeft.value = Math.max(0, timeLimit.value - elapsed)
     if (timeLeft.value <= 0) {
       endGame()
     }
-  }, 1000)
+  }, 250)
 }
 
 function generateTarget() {
@@ -270,6 +273,13 @@ function onTouchStart(e) {
 function onTouchMove(e) {
   if (!isDrawing.value) return
   const pos = getPos(e)
+  // 최소 거리 필터링 — 너무 가까운 포인트 무시 (성능 + 채점 품질)
+  if (userPath.length > 0) {
+    const last = userPath[userPath.length - 1]
+    const dx = pos.x - last.x
+    const dy = pos.y - last.y
+    if (dx * dx + dy * dy < 9) return // 3px 미만 무시
+  }
   userPath.push(pos)
   requestDraw()
 }
@@ -286,6 +296,12 @@ function onMouseDown(e) { onTouchStart(e) }
 function onMouseMove(e) {
   if (!isDrawing.value) return
   const pos = getPos(e)
+  if (userPath.length > 0) {
+    const last = userPath[userPath.length - 1]
+    const dx = pos.x - last.x
+    const dy = pos.y - last.y
+    if (dx * dx + dy * dy < 9) return
+  }
   userPath.push(pos)
   requestDraw()
 }

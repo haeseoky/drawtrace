@@ -30,6 +30,34 @@ function getCenter(points) {
   return { x: bb.minX + bb.w / 2, y: bb.minY + bb.h / 2 }
 }
 
+/**
+ * 경로를 등간격으로 다운샘플링 — O(n*m) 비교 성능 향상
+ * maxPoints개 이하로 줄이되 경로 길이에 비례하여 균등 분포
+ */
+function downsample(points, maxPoints) {
+  if (points.length <= maxPoints) return points
+  const totalLen = getPathLength(points)
+  if (totalLen === 0) return [points[0]]
+  const step = totalLen / (maxPoints - 1)
+  const result = [{ ...points[0] }]
+  let accumulated = 0
+  let nextThreshold = step
+  for (let i = 1; i < points.length; i++) {
+    accumulated += dist(points[i - 1], points[i])
+    if (accumulated >= nextThreshold) {
+      result.push({ ...points[i] })
+      nextThreshold += step
+    }
+  }
+  // 마지막 점 보장
+  const last = points[points.length - 1]
+  const rLast = result[result.length - 1]
+  if (rLast.x !== last.x || rLast.y !== last.y) {
+    result.push({ ...last })
+  }
+  return result
+}
+
 function getPathLength(points) {
   let len = 0
   for (let i = 1; i < points.length; i++) {
@@ -230,12 +258,16 @@ export function calculateScore(userPath, targetPath, canvasSize = { width: 1, he
     return { score: 0, accuracy: 0, details: '경로가 너무 짧습니다' }
   }
 
-  const shapeScore = calcShapeScore(userPath, targetPath)
-  const sizeScore = calcSizeScore(userPath, targetPath)
-  const positionScore = calcPositionScore(userPath, targetPath)
-  const directionScore = calcDirectionScore(userPath, targetPath)
-  const coverageScore = calcCoverageScore(userPath, targetPath)
-  const minSizePenalty = calcMinSizePenalty(userPath, canvasSize)
+  // 성능: userPath를 100포인트 이하로 다운샘플링 (O(n*m) 폭발 방지)
+  const userPts = downsample(userPath, 100)
+  const targetPts = targetPath.length > 100 ? downsample(targetPath, 100) : targetPath
+
+  const shapeScore = calcShapeScore(userPts, targetPts)
+  const sizeScore = calcSizeScore(userPts, targetPts)
+  const positionScore = calcPositionScore(userPts, targetPts)
+  const directionScore = calcDirectionScore(userPts, targetPts)
+  const coverageScore = calcCoverageScore(userPts, targetPts)
+  const minSizePenalty = calcMinSizePenalty(userPts, canvasSize)
 
   // 가중 합산
   const rawScore =
