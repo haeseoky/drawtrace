@@ -67,6 +67,9 @@ function getPathLength(points) {
   return len
 }
 
+// 최소 거리 임계값 — 이 이하면 early termination
+const MIN_DIST_THRESHOLD = 2 // px
+
 // ─── 점수 구성요소 ───
 
 /**
@@ -94,7 +97,10 @@ function calcShapeScore(userPts, targetPts) {
     let minD = Infinity
     for (const q of targetPts) {
       const d = dist(p, q)
-      if (d < minD) minD = d
+      if (d < minD) {
+        minD = d
+        if (minD < MIN_DIST_THRESHOLD) break // early termination
+      }
     }
     totalDist += minD
   }
@@ -216,7 +222,10 @@ function calcCoverageScore(userPts, targetPts) {
     let minD = Infinity
     for (const u of aligned) {
       const d = dist(t, u)
-      if (d < minD) minD = d
+      if (d < minD) {
+        minD = d
+        if (minD < MIN_DIST_THRESHOLD) break // early termination
+      }
     }
     totalDist += minD
   }

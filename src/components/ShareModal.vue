@@ -19,7 +19,7 @@
 <script setup>
 import { shareResult, getKakaoShareUrl, getTelegramShareUrl, getTwitterShareUrl } from '../lib/share'
 
-defineProps({ visible: Boolean, gameName: String, score: Number })
+const props = defineProps({ visible: Boolean, gameName: String, score: Number })
 const emit = defineEmits(['close'])
 
 async function share(type) {
@@ -27,11 +27,11 @@ async function share(type) {
     const result = await shareResult(props.gameName || '', props.score ?? 0)
     alert(result === 'clipboard' ? '클립보드에 복사되었습니다!' : '복사 실패')
   } else if (type === 'kakao') {
-    window.open(getKakaoShareUrl(props.gameName || '', props.score ?? 0), '_blank')
+    window.open(getKakaoShareUrl(props.gameName, props.score ?? 0), '_blank')
   } else if (type === 'telegram') {
-    window.open(getTelegramShareUrl(props.gameName || '', props.score ?? 0), '_blank')
+    window.open(getTelegramShareUrl(props.gameName, props.score ?? 0), '_blank')
   } else if (type === 'twitter') {
-    window.open(getTwitterShareUrl(props.gameName || '', props.score ?? 0), '_blank')
+    window.open(getTwitterShareUrl(props.gameName, props.score ?? 0), '_blank')
   }
 }
 </script>

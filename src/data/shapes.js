@@ -208,10 +208,16 @@ export const shapes = [
 ]
 
 export function getRandomShape(difficulty = 1) {
-  // 요청 난이도 + 하위 난이도 도형 포함
-  const allowed = shapes.filter(s => s.difficulty <= Math.max(difficulty, 1))
-  if (allowed.length === 0) return shapes[0]
-  return allowed[Math.floor(Math.random() * allowed.length)]
+  // 요청 난이도 도형을 우선 출현 (70%), 하위 난이도는 보조 (30%)
+  const exact = shapes.filter(s => s.difficulty === difficulty)
+  const lower = shapes.filter(s => s.difficulty < difficulty)
+  
+  if (Math.random() < 0.7 && exact.length > 0) {
+    return exact[Math.floor(Math.random() * exact.length)]
+  }
+  const pool = lower.length > 0 ? [...lower, ...exact] : exact
+  if (pool.length === 0) return shapes[0]
+  return pool[Math.floor(Math.random() * pool.length)]
 }
 
 export function getShapeById(id) {

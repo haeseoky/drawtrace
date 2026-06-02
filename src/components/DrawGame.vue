@@ -119,6 +119,7 @@ let gridCanvas = null
 let timerInterval = null
 let gameStartTime = 0 // Date.now 기반 타이머
 let isTouchDevice = false // 터치 이벤트 감지 플래그
+let isEnding = false // 이중 endGame 방지 가드
 
 // Result
 const lastScore = reactive({ score: 0, accuracy: 0, details: {} })
@@ -150,6 +151,8 @@ onUnmounted(() => {
   clearInterval(timerInterval)
   cancelAnimationFrame(animFrameId)
   window.removeEventListener('resize', onResize)
+  gridCanvas = null // 오프스크린 캔버스 메모리 해제
+  ctx = null
 })
 
 function initCanvas() {
@@ -197,6 +200,7 @@ function requestDraw() {
 // Game flow
 function startGame() {
   gameState.value = 'playing'
+  isEnding = false
   score.value = 0
   userPath.length = 0
   timeLeft.value = Math.max(5, 12 - level.value) // 레벨당 1초 감소
@@ -226,6 +230,8 @@ function generateTarget() {
 }
 
 function endGame() {
+  if (isEnding) return // 이중 호출 방지
+  isEnding = true
   clearInterval(timerInterval)
   isDrawing.value = false
 
@@ -245,6 +251,7 @@ function endGame() {
 
   gameState.value = 'result'
   level.value++
+  isEnding = false
 
   addScore({ gameId: 'draw-trace', score: result.score, name: '나', detail: `${currentShape.value?.name} ${result.score}점` })
   emit('score', result)
