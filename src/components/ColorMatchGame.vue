@@ -128,6 +128,7 @@ function nextRound() {
 function selectAnswer(opt) {
   if (gameState.value !== 'playing') return
   if (feedback.value) return
+  if (navigator.vibrate) navigator.vibrate(10)
 
   if (opt.hex === correctHex.value) {
     combo.value++

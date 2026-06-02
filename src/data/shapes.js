@@ -205,6 +205,71 @@ export const shapes = [
       return pts
     }
   },
+  {
+    id: 'pentagon',
+    name: '오각형',
+    difficulty: 2,
+    generatePoints(cx, cy, size) {
+      const pts = []
+      const vertices = []
+      for (let i = 0; i < 5; i++) {
+        const angle = (i / 5) * Math.PI * 2 - Math.PI / 2
+        vertices.push({
+          x: cx + Math.cos(angle) * size,
+          y: cy + Math.sin(angle) * size,
+        })
+      }
+      for (let i = 0; i < 5; i++) {
+        const next = (i + 1) % 5
+        const steps = 18
+        for (let s = 0; s < steps; s++) {
+          const t = s / steps
+          pts.push({
+            x: vertices[i].x + t * (vertices[next].x - vertices[i].x),
+            y: vertices[i].y + t * (vertices[next].y - vertices[i].y),
+          })
+        }
+      }
+      pts.push({ ...pts[0] })
+      return pts
+    }
+  },
+  {
+    id: 'cross',
+    name: '십자가',
+    difficulty: 3,
+    generatePoints(cx, cy, size) {
+      const pts = []
+      const w = size * 0.35
+      const corners = [
+        { x: cx - w, y: cy - size },
+        { x: cx + w, y: cy - size },
+        { x: cx + w, y: cy - w },
+        { x: cx + size, y: cy - w },
+        { x: cx + size, y: cy + w },
+        { x: cx + w, y: cy + w },
+        { x: cx + w, y: cy + size },
+        { x: cx - w, y: cy + size },
+        { x: cx - w, y: cy + w },
+        { x: cx - size, y: cy + w },
+        { x: cx - size, y: cy - w },
+        { x: cx - w, y: cy - w },
+      ]
+      for (let i = 0; i < 12; i++) {
+        const next = (i + 1) % 12
+        const steps = 8
+        for (let s = 0; s < steps; s++) {
+          const t = s / steps
+          pts.push({
+            x: corners[i].x + t * (corners[next].x - corners[i].x),
+            y: corners[i].y + t * (corners[next].y - corners[i].y),
+          })
+        }
+      }
+      pts.push({ ...pts[0] })
+      return pts
+    }
+  },
 ]
 
 export function getRandomShape(difficulty = 1) {

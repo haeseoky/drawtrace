@@ -39,6 +39,7 @@
         @mousemove.prevent="onMouseMove"
         @mouseup.prevent="onMouseUp"
         @mouseleave.prevent="onMouseUp"
+        @contextmenu.prevent
       />
     </main>
 
@@ -589,6 +590,7 @@ function shareResult() {
   height: 100%;
   display: block;
   cursor: crosshair;
+  touch-action: none;
 }
 
 .game-footer {

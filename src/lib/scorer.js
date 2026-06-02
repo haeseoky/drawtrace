@@ -96,8 +96,8 @@ const MIN_DIST_THRESHOLD = 2 // px
  * 정규화 없이 원본 픽셀 좌표를 사용하되, 두 도형의 중심을 맞춤.
  * 크기가 다르면 거리가 멀어져 자동으로 감점.
  */
-function calcShapeScore(userPts, targetPts) {
-  const aligned = alignCenters(userPts, targetPts)
+function calcShapeScore(userPts, targetPts, precomputedAligned = null) {
+  const aligned = precomputedAligned || alignCenters(userPts, targetPts)
 
   const tBB = getBBox(targetPts)
   const refDist = Math.sqrt(tBB.w ** 2 + tBB.h ** 2)
@@ -216,8 +216,8 @@ function calcDirectionScore(userPts, targetPts) {
  * 타겟 도형을 얼마나 따라 그렸는지.
  * 타겟 경로에서 사용자 경로까지의 최근접 거리 평균 (역방향).
  */
-function calcCoverageScore(userPts, targetPts) {
-  const aligned = alignCenters(userPts, targetPts)
+function calcCoverageScore(userPts, targetPts, precomputedAligned = null) {
+  const aligned = precomputedAligned || alignCenters(userPts, targetPts)
 
   const tBB = getBBox(targetPts)
   const refDist = Math.sqrt(tBB.w ** 2 + tBB.h ** 2)
@@ -278,11 +278,14 @@ export function calculateScore(userPath, targetPath, canvasSize = { width: 1, he
   const userPts = downsample(userPath, 100)
   const targetPts = targetPath.length > 100 ? downsample(targetPath, 100) : targetPath
 
-  const shapeScore = calcShapeScore(userPts, targetPts)
+  // alignCenters 캐싱 — shape/coverage에서 중복 호출 방지
+  const alignedUserPts = alignCenters(userPts, targetPts)
+
+  const shapeScore = calcShapeScore(userPts, targetPts, alignedUserPts)
   const sizeScore = calcSizeScore(userPts, targetPts)
   const positionScore = calcPositionScore(userPts, targetPts)
   const directionScore = calcDirectionScore(userPts, targetPts)
-  const coverageScore = calcCoverageScore(userPts, targetPts)
+  const coverageScore = calcCoverageScore(userPts, targetPts, alignedUserPts)
   const minSizePenalty = calcMinSizePenalty(userPts, canvasSize)
 
   // 가중 합산

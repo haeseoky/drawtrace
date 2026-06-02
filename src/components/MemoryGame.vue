@@ -113,6 +113,7 @@ function flipCard(index) {
   if (cards.value[index].flipped || cards.value[index].matched) return
   if (flipped.value.length >= 2) return
 
+  if (navigator.vibrate) navigator.vibrate(10)
   cards.value[index].flipped = true
   flipped.value.push(index)
 
