@@ -60,7 +60,13 @@
           <div class="result-grade">{{ resultEmoji }} {{ resultGrade.toUpperCase() }}</div>
           <div class="result-score">{{ lastScore.score }}점</div>
           <div class="result-detail">
-            정확도 {{ lastScore.accuracy }}% · 크기 {{ lastScore.details?.areaRatio || '-' }}
+            <div class="detail-grid">
+              <span>형태</span><span>{{ lastScore.details?.shape ?? '-' }}점</span>
+              <span>크기</span><span>{{ lastScore.details?.size ?? '-' }}점</span>
+              <span>커버리지</span><span>{{ lastScore.details?.coverage ?? '-' }}점</span>
+              <span>방향</span><span>{{ lastScore.details?.direction ?? '-' }}점</span>
+              <span>위치</span><span>{{ lastScore.details?.position ?? '-' }}점</span>
+            </div>
           </div>
         </div>
       </div>
@@ -550,6 +556,9 @@ function saveHighScore() {
 .result-grade { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
 .result-score { font-size: 42px; font-weight: 800; color: #1B355A; }
 .result-detail { font-size: 13px; color: #888; margin-top: 8px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 16px; text-align: left; }
+.detail-grid span:nth-child(odd) { color: #aaa; font-size: 12px; }
+.detail-grid span:nth-child(even) { color: #333; font-weight: 600; }
 
 /* Intro overlay */
 .intro-overlay {
