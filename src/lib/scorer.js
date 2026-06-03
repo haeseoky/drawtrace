@@ -106,7 +106,7 @@ class SpatialGrid {
   _key(x, y) {
     const cx = Math.floor(x / this.cellSize)
     const cy = Math.floor(y / this.cellSize)
-    return (cx * 73856093) ^ (cy * 19349663) // 해시 조합
+    return `${cx},${cy}`
   }
 
   /**
@@ -120,7 +120,7 @@ class SpatialGrid {
 
     for (let dx = -1; dx <= 1; dx++) {
       for (let dy = -1; dy <= 1; dy++) {
-        const key = ((cx + dx) * 73856093) ^ ((cy + dy) * 19349663)
+        const key = `${cx + dx},${cy + dy}`
         const cell = this.cells.get(key)
         if (!cell) continue
         for (const idx of cell) {

@@ -270,6 +270,36 @@ export const shapes = [
       return pts
     }
   },
+  {
+    id: 'arrow',
+    name: '화살표',
+    difficulty: 3,
+    generatePoints(cx, cy, size) {
+      const pts = []
+      const vertices = [
+        { x: cx + size, y: cy },
+        { x: cx + size * 0.3, y: cy - size * 0.7 },
+        { x: cx + size * 0.3, y: cy - size * 0.3 },
+        { x: cx - size, y: cy - size * 0.3 },
+        { x: cx - size, y: cy + size * 0.3 },
+        { x: cx + size * 0.3, y: cy + size * 0.3 },
+        { x: cx + size * 0.3, y: cy + size * 0.7 },
+      ]
+      for (let i = 0; i < vertices.length; i++) {
+        const next = (i + 1) % vertices.length
+        const steps = 12
+        for (let s = 0; s < steps; s++) {
+          const t = s / steps
+          pts.push({
+            x: vertices[i].x + t * (vertices[next].x - vertices[i].x),
+            y: vertices[i].y + t * (vertices[next].y - vertices[i].y),
+          })
+        }
+      }
+      pts.push({ ...pts[0] })
+      return pts
+    }
+  },
 ]
 
 export function getRandomShape(difficulty = 1) {

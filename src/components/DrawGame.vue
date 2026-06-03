@@ -16,6 +16,7 @@
               stroke-linecap="round"
               :stroke-dasharray="timerCircumference"
               :stroke-dashoffset="timerCircumference * (1 - timeLeft / timeLimit)"
+              style="transition: stroke-dashoffset 0.25s linear;"
               transform="rotate(-90 20 20)"
             />
           </svg>
@@ -35,6 +36,7 @@
         @touchstart.prevent="onTouchStart"
         @touchmove.prevent="onTouchMove"
         @touchend.prevent="onTouchEnd"
+        @touchcancel.prevent="onTouchEnd"
         @mousedown.prevent="onMouseDown"
         @mousemove.prevent="onMouseMove"
         @mouseup.prevent="onMouseUp"
@@ -529,6 +531,8 @@ function shareResult() {
   -webkit-user-select: none;
   touch-action: none;
   overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
 }
 
 .game-header {
