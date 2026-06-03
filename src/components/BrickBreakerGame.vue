@@ -785,6 +785,7 @@ onUnmounted(() => {
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
+  touch-action: none;
 }
 
 .hud {
@@ -841,6 +842,7 @@ canvas {
   flex: 1;
   display: block;
   touch-action: none;
+  -webkit-touch-callout: none;
 }
 
 .overlay {
