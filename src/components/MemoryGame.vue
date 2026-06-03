@@ -87,6 +87,7 @@ function startGame() {
   timeLeft.value = 60
   timeLimit.value = 60
   flipped.value = []
+  isChecking = false
   clearTimeout(flipTimeout)
 
   const selected = shuffle(EMOJIS).slice(0, totalPairs)

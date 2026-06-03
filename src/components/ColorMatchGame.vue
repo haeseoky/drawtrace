@@ -89,6 +89,7 @@ const options = ref([])
 
 let timerInterval = null
 let gameStartTime = 0
+let feedbackTimeout = null
 
 function generateRound() {
   const textColor = COLORS[Math.floor(Math.random() * COLORS.length)]
@@ -146,13 +147,15 @@ function selectAnswer(opt) {
     feedback.value = 'wrong'
   }
 
-  setTimeout(() => {
+  clearTimeout(feedbackTimeout)
+  feedbackTimeout = setTimeout(() => {
     if (gameState.value === 'playing') nextRound()
   }, 500)
 }
 
 function endGame() {
   clearInterval(timerInterval)
+  clearTimeout(feedbackTimeout)
   gameState.value = 'done'
   feedback.value = null
   addScore({ gameId: 'color-match', score: score.value, name: '나', detail: `${round.value}rounds` })
@@ -160,7 +163,7 @@ function endGame() {
   emit('score', { score: score.value, detail: { rounds: round.value } })
 }
 
-onUnmounted(() => { clearInterval(timerInterval) })
+onUnmounted(() => { clearInterval(timerInterval); clearTimeout(feedbackTimeout) })
 </script>
 
 <style scoped>

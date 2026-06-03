@@ -312,9 +312,18 @@ function onTouchMove(e) {
 function onTouchEnd() {
   if (!isDrawing.value) return
   isDrawing.value = false
-  // 최소 포인트 미충족 시 타이머가 자연 종료되도록 함 (빈 터치 → 0점 방지)
+  // 최소 이동 거리 + 포인트 수 확인 — 터치 지터로 인한 실수 종료 방지
   if (userPath.length >= 5) {
-    endGame()
+    let pathLen = 0
+    for (let i = 1; i < userPath.length; i++) {
+      const dx = userPath[i].x - userPath[i - 1].x
+      const dy = userPath[i].y - userPath[i - 1].y
+      pathLen += Math.sqrt(dx * dx + dy * dy)
+    }
+    const minLen = Math.min(canvasW, canvasH) * 0.05
+    if (pathLen >= minLen) {
+      endGame()
+    }
   }
 }
 
