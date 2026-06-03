@@ -18,23 +18,23 @@
       </span>
     </div>
     <canvas ref="canvasRef" @click="handleClick" @touchstart.prevent="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend.prevent="handleTouchEnd" @mousemove="handleMouseMove"></canvas>
-    <div v-if="gameState === 'idle'" class="overlay">
+    <div v-if="gameState === 'idle'" class="overlay" @click="handleOverlayClick" @touchstart.prevent="handleOverlayTouch">
       <div class="overlay-content">
         <div class="overlay-icon">🧱</div>
         <div class="overlay-title">핑퐁 벽돌깨기</div>
         <div class="overlay-sub">터치해서 시작</div>
       </div>
     </div>
-    <div v-if="gameState === 'gameover'" class="overlay">
+    <div v-if="gameState === 'gameover'" class="overlay" @click="handleOverlayClick" @touchstart.prevent="handleOverlayTouch">
       <div class="overlay-content">
         <div class="overlay-icon">💥</div>
         <div class="overlay-title">게임 오버</div>
         <div class="overlay-score">점수: {{ score }}</div>
         <div class="overlay-best">최고: {{ bestScore }}</div>
-        <button class="overlay-btn" @click="restart">다시하기</button>
+        <button class="overlay-btn" @click.stop="restart">다시하기</button>
       </div>
     </div>
-    <div v-if="gameState === 'stageclear'" class="overlay">
+    <div v-if="gameState === 'stageclear'" class="overlay" @click="handleOverlayClick" @touchstart.prevent="handleOverlayTouch">
       <div class="overlay-content">
         <div class="overlay-icon">🎉</div>
         <div class="overlay-title">Stage {{ stage }} 클리어!</div>
@@ -696,6 +696,16 @@ function roundRect(ctx, x, y, w, h, r) {
 }
 
 // -- Input handlers --
+function handleOverlayClick() {
+  if (gameState.value === 'idle') { startGame(); return }
+  if (gameState.value === 'stageclear') { nextStage(); return }
+}
+
+function handleOverlayTouch(e) {
+  if (gameState.value === 'idle') { startGame(); return }
+  if (gameState.value === 'stageclear') { nextStage(); return }
+}
+
 function handleClick(e) {
   if (gameState.value === 'idle') {
     startGame()
