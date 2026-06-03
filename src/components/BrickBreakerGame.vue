@@ -31,7 +31,7 @@
         <div class="overlay-title">게임 오버</div>
         <div class="overlay-score">점수: {{ score }}</div>
         <div class="overlay-best">최고: {{ bestScore }}</div>
-        <button class="overlay-btn" @click.stop="restart">다시하기</button>
+        <button class="overlay-btn" @click.stop="restart" @touchstart.prevent.stop="restart">다시하기</button>
       </div>
     </div>
     <div v-if="gameState === 'stageclear'" class="overlay" @click="handleOverlayClick" @touchstart.prevent="handleOverlayTouch">
@@ -237,12 +237,13 @@ function startGame() {
 }
 
 function restart() {
-  gameState.value = 'idle'
+  gameState.value = 'playing'
   score.value = 0
   lives.value = 3
   stage.value = 1
   speedMultiplier = 1
   resetStage()
+  ensureLoop()
 }
 
 function loseLife() {
