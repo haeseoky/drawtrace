@@ -212,7 +212,7 @@ function requestDraw() {
 // Game flow
 function startGame() {
   gameState.value = 'playing'
-  isEnding = false
+  isEnding = false // 이전 endGame 가드 리셋
   score.value = 0
   userPath.length = 0
   timeLeft.value = Math.max(5, 12 - level.value) // 레벨당 1초 감소
@@ -263,7 +263,7 @@ function endGame() {
 
   gameState.value = 'result'
   level.value++
-  isEnding = false
+  // isEnding은 다음 startGame()에서 리셋 — 타이머 콜백 중복 호출 완전 차단
 
   addScore({ gameId: 'draw-trace', score: result.score, name: '나', detail: `${currentShape.value?.name} ${result.score}점` })
   emit('score', result)

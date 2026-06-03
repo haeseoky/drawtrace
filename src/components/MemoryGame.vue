@@ -55,6 +55,7 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
 import { addScore } from '../lib/leaderboard'
+import { shuffle } from '../lib/utils'
 
 const emit = defineEmits(['score', 'share'])
 
@@ -76,15 +77,7 @@ const moves = ref(0)
 let timerInterval = null
 let gameStartTime = 0
 let flipTimeout = null
-
-function shuffle(arr) {
-  const a = [...arr]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
+let isChecking = false // 더블탭 치팅 방지
 
 function startGame() {
   gameState.value = 'playing'
@@ -112,6 +105,7 @@ function flipCard(index) {
   if (gameState.value !== 'playing') return
   if (cards.value[index].flipped || cards.value[index].matched) return
   if (flipped.value.length >= 2) return
+  if (isChecking) return // 매칭 체크 중에는 추가 클릭 무시
 
   if (navigator.vibrate) navigator.vibrate(10)
   cards.value[index].flipped = true
@@ -127,10 +121,12 @@ function flipCard(index) {
       flipped.value = []
       if (found.value >= totalPairs) endGame()
     } else {
+      isChecking = true
       flipTimeout = setTimeout(() => {
         cards.value[a].flipped = false
         cards.value[b].flipped = false
         flipped.value = []
+        isChecking = false
       }, 600)
     }
   }

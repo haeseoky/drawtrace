@@ -88,6 +88,54 @@ function getPathLength(points) {
 // 최소 거리 임계값 — 이 이하면 early termination
 const MIN_DIST_THRESHOLD = 2 // px
 
+/**
+ * 공간 해시 그리드 — 최근접이웃 탐색 O(n) → 대규모 경로에서 성능 향상
+ */
+class SpatialGrid {
+  constructor(points, cellSize) {
+    this.cells = new Map()
+    this.cellSize = cellSize
+    for (let i = 0; i < points.length; i++) {
+      const key = this._key(points[i].x, points[i].y)
+      if (!this.cells.has(key)) this.cells.set(key, [])
+      this.cells.get(key).push(i)
+    }
+    this.points = points
+  }
+
+  _key(x, y) {
+    const cx = Math.floor(x / this.cellSize)
+    const cy = Math.floor(y / this.cellSize)
+    return (cx * 73856093) ^ (cy * 19349663) // 해시 조합
+  }
+
+  /**
+   * point에서 points 배열 내 최근접점까지의 거리 반환
+   * 인접 9셀만 검사 → 평균 O(1)
+   */
+  nearestDist(point) {
+    const cx = Math.floor(point.x / this.cellSize)
+    const cy = Math.floor(point.y / this.cellSize)
+    let minD = Infinity
+
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        const key = ((cx + dx) * 73856093) ^ ((cy + dy) * 19349663)
+        const cell = this.cells.get(key)
+        if (!cell) continue
+        for (const idx of cell) {
+          const d = dist(point, this.points[idx])
+          if (d < minD) {
+            minD = d
+            if (minD < MIN_DIST_THRESHOLD) return minD
+          }
+        }
+      }
+    }
+    return minD
+  }
+}
+
 // ─── 점수 구성요소 ───
 
 /**
@@ -102,17 +150,13 @@ function calcShapeScore(userPts, targetPts, precomputedAligned = null) {
   const tBB = getBBox(targetPts)
   const refDist = Math.sqrt(tBB.w ** 2 + tBB.h ** 2)
 
-  // 각 사용자 점에서 타겟 최근접 거리
+  // 공간 그리드로 O(n) 최근접이웃 탐색
+  const cellSize = Math.max(10, refDist / 10)
+  const grid = new SpatialGrid(targetPts, cellSize)
+
   let totalDist = 0
   for (const p of aligned) {
-    let minD = Infinity
-    for (const q of targetPts) {
-      const d = dist(p, q)
-      if (d < minD) {
-        minD = d
-        if (minD < MIN_DIST_THRESHOLD) break // early termination
-      }
-    }
+    const minD = grid.nearestDist(p)
     totalDist += minD
   }
   const avgDist = totalDist / aligned.length
@@ -222,17 +266,13 @@ function calcCoverageScore(userPts, targetPts, precomputedAligned = null) {
   const tBB = getBBox(targetPts)
   const refDist = Math.sqrt(tBB.w ** 2 + tBB.h ** 2)
 
-  // 타겟 → 사용자 방향 (역방향 최근접)
+  // 공간 그리드: 타겟→사용자 방향
+  const cellSize = Math.max(10, refDist / 10)
+  const grid = new SpatialGrid(aligned, cellSize)
+
   let totalDist = 0
   for (const t of targetPts) {
-    let minD = Infinity
-    for (const u of aligned) {
-      const d = dist(t, u)
-      if (d < minD) {
-        minD = d
-        if (minD < MIN_DIST_THRESHOLD) break // early termination
-      }
-    }
+    const minD = grid.nearestDist(t)
     totalDist += minD
   }
   const avgDist = totalDist / targetPts.length

@@ -45,6 +45,7 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
 import { addScore, getBestScore } from '../lib/leaderboard'
+import { shuffle } from '../lib/utils'
 
 const emit = defineEmits(['score', 'share'])
 
@@ -73,15 +74,6 @@ const options = ref([])
 
 let timerInterval = null
 let gameStartTime = 0
-
-function shuffle(arr) {
-  const a = [...arr]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
 
 function generateRound() {
   const textColor = COLORS[Math.floor(Math.random() * COLORS.length)]

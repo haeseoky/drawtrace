@@ -60,6 +60,8 @@ const reactionTime = ref(0)
 const waitDone = ref(false)
 let waitTimeout = null
 let goTimestamp = 0
+// performance.now() 사용 — Date.now()보다 서브밀리초 정밀도
+const getTimestamp = () => performance.now()
 
 // bestMs는 '반응시간 ms'이므로 localStorage에서 직접 읽기 (getBestScore는 점수 기준)
 const bestMs = ref(parseInt(localStorage.getItem('reaction-best-ms') || '0', 10))
@@ -96,7 +98,7 @@ function onTap() {
     clearTimeout(waitTimeout)
     phase.value = 'fail'
   } else if (phase.value === 'go') {
-    reactionTime.value = Date.now() - goTimestamp
+    reactionTime.value = Math.round(getTimestamp() - goTimestamp)
     rounds.value.push(reactionTime.value)
     phase.value = 'result'
 
@@ -128,7 +130,7 @@ function startRound() {
   const delay = 1500 + Math.random() * 3000
   waitTimeout = setTimeout(() => {
     phase.value = 'go'
-    goTimestamp = Date.now()
+    goTimestamp = getTimestamp()
     waitDone.value = true
   }, delay)
 }
