@@ -12,10 +12,12 @@
         <span class="hud-best">🏆 {{ bestScore }}</span>
       </div>
     </div>
-    <div class="active-effects" v-if="activeEffects.length > 0">
-      <span v-for="ef in activeEffects" :key="ef.name" class="effect-badge" :style="{ background: ef.bg }">
-        {{ ef.icon }} {{ ef.name }} <span class="effect-timer">{{ ef.remaining }}s</span>
-      </span>
+    <div class="active-effects">
+      <template v-if="activeEffects.length > 0">
+        <span v-for="ef in activeEffects" :key="ef.name" class="effect-badge" :style="{ background: ef.bg }">
+          {{ ef.icon }} {{ ef.name }} <span class="effect-timer">{{ ef.remaining }}s</span>
+        </span>
+      </template>
     </div>
     <canvas ref="canvasRef" @click="handleClick" @touchstart.prevent="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend.prevent="handleTouchEnd" @mousemove="handleMouseMove"></canvas>
     <div v-if="gameState === 'idle'" class="overlay" @click="handleOverlayClick" @touchstart.prevent="handleOverlayTouch">
