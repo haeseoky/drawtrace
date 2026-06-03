@@ -141,9 +141,9 @@ function setupCanvas() {
 
   dpr = window.devicePixelRatio || 1
   const rect = container.getBoundingClientRect()
-  // HUD 높이를 CSS min-height(40px) + 이펙트 배지(최대 30px) 기준 고정값 사용
-  // — setupCanvas 시점에 activeEffects를 읽으면 이펙트 활성화 시 캔버스 영역 침범 버그 발생
-  const hudH = 40 + (activeEffects.value.length > 0 ? 30 : 0)
+  // HUD(40px) + 이펙트 배지(최대 30px) 항상 고정 여유 확보
+  // — 이펙트 활성화/만료 시 캔버스 리사이즈 방지
+  const hudH = 70
   canvasW = rect.width
   canvasH = rect.height - hudH
 
@@ -751,9 +751,13 @@ function handleMouseMove(e) {
   useMouseControl = true
 }
 
+let resizeTimeout = null
 function handleResize() {
-  setupCanvas()
-  if (gameState.value === 'idle') resetStage()
+  clearTimeout(resizeTimeout)
+  resizeTimeout = setTimeout(() => {
+    setupCanvas()
+    if (gameState.value === 'idle') resetStage()
+  }, 200)
 }
 
 onMounted(() => {
@@ -814,6 +818,7 @@ onUnmounted(() => {
   padding: 4px 14px 6px;
   background: #16213e;
   flex-shrink: 0;
+  min-height: 30px;
 }
 
 .effect-badge {
