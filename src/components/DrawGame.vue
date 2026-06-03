@@ -233,20 +233,24 @@ function requestDraw() {
 
 // Game flow
 function startGame() {
+  // 이전 타이머 완전 정리 — 예외 발생 방지
+  clearInterval(timerInterval)
+  timerInterval = null
+  isEnding = false
+
   gameState.value = 'playing'
-  isEnding = false // 이전 endGame 가드 리셋
   score.value = 0
   userPath.length = 0
   timeLeft.value = Math.max(5, 12 - level.value) // 레벨당 1초 감소
   timeLimit.value = timeLeft.value
 
+  // 레벨 진행에 따른 난이도 설정
   const difficulty = Math.min(3, Math.ceil(level.value / 3))
   currentShape.value = getRandomShape(difficulty)
   generateTarget()
   drawFrame()
 
   // Date.now 기반 타이머 (150ms 간격 — transition과 정렬)
-  clearInterval(timerInterval)
   gameStartTime = Date.now()
   startTimerLoop()
 }
@@ -267,8 +271,11 @@ function startTimerLoop() {
 
 function generateTarget() {
   const shape = currentShape.value
-  const size = Math.min(canvasW, canvasH) * 0.3
-  targetPoints.value = shape.generatePoints(canvasW / 2, canvasH / 2, size)
+  // 레벨 진행에 따른 타겟 크기 조정 — 고레벨에서 약간 작아짐
+  const baseRatio = 0.3
+  const levelShrink = Math.min(0.08, (level.value - 1) * 0.008) // 레벨당 0.8% 축소
+  const size = Math.min(canvasW, canvasH) * (baseRatio - levelShrink)
+  targetPoints.value = shape.generatePoints(canvasW / 2, canvasH / 2, Math.max(40, size))
 }
 
 function endGame() {
@@ -302,6 +309,8 @@ function endGame() {
 }
 
 // Touch handlers
+let lastInputWasTouch = false // 최근 입력 타입 추적 — 터치/마우스 혼합 환경 안정성
+
 function getPos(e) {
   const rect = canvasRef.value.getBoundingClientRect()
   if (e.touches) {
@@ -315,6 +324,7 @@ function getPos(e) {
 
 function onTouchStart(e) {
   isTouchDevice = true
+  lastInputWasTouch = true
   if (gameState.value !== 'playing') return
   isDrawing.value = true
   userPath.length = 0
@@ -360,11 +370,14 @@ function onTouchEnd() {
   }
 }
 
-// Mouse handlers (desktop) — 터치 기기에서는 무시
-function onMouseDown(e) { if (isTouchDevice) return; onTouchStart(e) }
+// Mouse handlers (desktop) — 최근 터치 직후 mouse 이벤트 무시 (터치 기기 mouse 이벤트 중복 방지)
+function onMouseDown(e) {
+  if (lastInputWasTouch) { lastInputWasTouch = false; return }
+  isTouchDevice = false
+  onTouchStart(e)
+}
 function onMouseMove(e) {
-  if (isTouchDevice) return
-  if (!isDrawing.value) return
+  if (isTouchDevice || !isDrawing.value) return
   const pos = getPos(e)
   if (userPath.length > 0) {
     const last = userPath[userPath.length - 1]
@@ -375,7 +388,10 @@ function onMouseMove(e) {
   userPath.push(pos)
   requestDraw()
 }
-function onMouseUp() { if (isTouchDevice) return; onTouchEnd() }
+function onMouseUp() {
+  if (isTouchDevice) return
+  onTouchEnd()
+}
 
 // Drawing
 function drawFrame() {
@@ -400,11 +416,9 @@ function drawFrame() {
 // 오프스크린 캔버스에 그리드 캐싱 — 리사이즈 시에만 재생성
 function buildGridCache() {
   const dpr = window.devicePixelRatio || 1
-  // 기존 오프스크린 캔버스 메모리 해제
   if (gridCanvas) {
     gridCanvas.width = 0
     gridCanvas.height = 0
-    gridCanvas.getContext('2d').clearRect(0, 0, 0, 0)
     gridCanvas = null
   }
   gridCanvas = document.createElement('canvas')
@@ -414,24 +428,25 @@ function buildGridCache() {
   gCtx.scale(dpr, dpr)
   gCtx.strokeStyle = '#f0f0f0'
   gCtx.lineWidth = 1
-  const step = 30
-  for (let x = 0; x < canvasW; x += step) {
-    gCtx.beginPath()
+  // 그리드 간격 40px로 증가 — 모바일에서 라인 수 감소로 렌더링 성능 향상
+  const step = 40
+  // 배치 패스 — 개별 stroke() 대신 단일 패스로 묶어서 드로우콜 최소화
+  gCtx.beginPath()
+  for (let x = 0; x <= canvasW; x += step) {
     gCtx.moveTo(x, 0)
     gCtx.lineTo(x, canvasH)
-    gCtx.stroke()
   }
-  for (let y = 0; y < canvasH; y += step) {
-    gCtx.beginPath()
+  for (let y = 0; y <= canvasH; y += step) {
     gCtx.moveTo(0, y)
     gCtx.lineTo(canvasW, y)
-    gCtx.stroke()
   }
+  gCtx.stroke()
 }
 
 function drawGrid() {
   if (gridCanvas) {
-    ctx.drawImage(gridCanvas, 0, 0, canvasW, canvasH)
+    const dpr = window.devicePixelRatio || 1
+    ctx.drawImage(gridCanvas, 0, 0, canvasW * dpr, canvasH * dpr, 0, 0, canvasW, canvasH)
   }
 }
 
@@ -498,6 +513,9 @@ function drawTarget() {
 function drawUserPath() {
   if (userPath.length < 2) return
 
+  // 렌더링 성능: 긴 경로는 150포인트로 간춌려서 드로잉 (채점은 전체 포인트 사용)
+  const pts = userPath.length > 150 ? downsamplePath(userPath, 150) : userPath
+
   ctx.save()
 
   // 그림자
@@ -506,16 +524,16 @@ function drawUserPath() {
 
   // 메인 경로 — 베지어 곡선으로 부드러운 렌더링
   ctx.beginPath()
-  ctx.moveTo(userPath[0].x, userPath[0].y)
-  if (userPath.length === 2) {
-    ctx.lineTo(userPath[1].x, userPath[1].y)
+  ctx.moveTo(pts[0].x, pts[0].y)
+  if (pts.length === 2) {
+    ctx.lineTo(pts[1].x, pts[1].y)
   } else {
-    for (let i = 1; i < userPath.length - 1; i++) {
-      const mx = (userPath[i].x + userPath[i + 1].x) / 2
-      const my = (userPath[i].y + userPath[i + 1].y) / 2
-      ctx.quadraticCurveTo(userPath[i].x, userPath[i].y, mx, my)
+    for (let i = 1; i < pts.length - 1; i++) {
+      const mx = (pts[i].x + pts[i + 1].x) / 2
+      const my = (pts[i].y + pts[i + 1].y) / 2
+      ctx.quadraticCurveTo(pts[i].x, pts[i].y, mx, my)
     }
-    const last = userPath[userPath.length - 1]
+    const last = pts[pts.length - 1]
     ctx.lineTo(last.x, last.y)
   }
   ctx.strokeStyle = '#1B355A'
@@ -526,10 +544,10 @@ function drawUserPath() {
 
   ctx.shadowBlur = 0
 
-  // 끝점 커서
-  const last = userPath[userPath.length - 1]
+  // 끝점 커서 (원본 경로의 마지막 점 사용)
+  const lastPt = userPath[userPath.length - 1]
   ctx.beginPath()
-  ctx.arc(last.x, last.y, 8, 0, Math.PI * 2)
+  ctx.arc(lastPt.x, lastPt.y, 8, 0, Math.PI * 2)
   ctx.fillStyle = isDrawing.value ? '#1B355A' : 'rgba(27, 53, 90, 0.5)'
   ctx.fill()
   ctx.strokeStyle = '#fff'
@@ -537,6 +555,18 @@ function drawUserPath() {
   ctx.stroke()
 
   ctx.restore()
+}
+
+/** 간단한 경로 간추리기 (렌더링 전용, 채점은 영향 없음) */
+function downsamplePath(points, maxPoints) {
+  if (points.length <= maxPoints) return points
+  const step = (points.length - 1) / (maxPoints - 1)
+  const result = []
+  for (let i = 0; i < maxPoints; i++) {
+    const idx = Math.min(Math.round(i * step), points.length - 1)
+    result.push(points[idx])
+  }
+  return result
 }
 
 function drawResultOverlay() {

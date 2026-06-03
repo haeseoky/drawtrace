@@ -143,9 +143,7 @@ function setupCanvas() {
   const rect = container.getBoundingClientRect()
   // HUD 높이를 CSS min-height(40px) + 이펙트 배지(최대 30px) 기준 고정값 사용
   // — setupCanvas 시점에 activeEffects를 읽으면 이펙트 활성화 시 캔버스 영역 침범 버그 발생
-  const hudEl = container.querySelector('.hud')
-  const effectsEl = container.querySelector('.active-effects')
-  const hudH = (hudEl?.offsetHeight || 40) + (effectsEl?.offsetHeight || 0)
+  const hudH = 40 + (activeEffects.value.length > 0 ? 30 : 0)
   canvasW = rect.width
   canvasH = rect.height - hudH
 
@@ -249,6 +247,7 @@ function restart() {
 
 function loseLife() {
   lives.value--
+  if (navigator.vibrate) navigator.vibrate([20, 50, 20]) // 라이프 상실 햅틱
   if (lives.value <= 0) {
     endGame()
   } else {
@@ -261,6 +260,7 @@ function endGame() {
   bestScore.value = Math.max(bestScore.value, score.value)
   addScore({ gameId: 'brick-breaker', score: score.value })
   emit('score', { score: score.value })
+  draw() // gameover overlay 전 최종 프레임
 }
 
 function nextStage() {
@@ -376,13 +376,16 @@ function updateEffects() {
 
   // Build active effects display
   const eff = []
-  if (fireball.active) eff.push({ name: '파이어볼', icon: '🔥', bg: '#FF4444', remaining: Math.ceil((fireball.endTime - now) / 1000) })
-  if (magnet.active) eff.push({ name: '자석', icon: '🧲', bg: '#9944FF', remaining: Math.ceil((magnet.endTime - now) / 1000) })
-  if (paddleExpand.active) eff.push({ name: '확장', icon: '📏', bg: '#FFCC00', remaining: Math.ceil((paddleExpand.endTime - now) / 1000) })
-  if (paddleShrink.active) eff.push({ name: '축소', icon: '📉', bg: '#888888', remaining: Math.ceil((paddleShrink.endTime - now) / 1000) })
-  if (reverseControl.active) eff.push({ name: '역방향', icon: '🌀', bg: '#FF8800', remaining: Math.ceil((reverseControl.endTime - now) / 1000) })
-  if (ghostBall.active) eff.push({ name: '고스트', icon: '👻', bg: '#88DDFF', remaining: Math.ceil((ghostBall.endTime - now) / 1000) })
-  if (chaosBounce.active) eff.push({ name: '혼란', icon: '🔀', bg: '#FF66AA', remaining: Math.ceil((chaosBounce.endTime - now) / 1000) })
+  const checkEffect = (obj, name, icon, bg) => {
+    if (obj.active) eff.push({ name, icon, bg, remaining: Math.ceil((obj.endTime - now) / 1000) })
+  }
+  checkEffect(fireball, '파이어볼', '🔥', '#FF4444')
+  checkEffect(magnet, '자석', '🧲', '#9944FF')
+  checkEffect(paddleExpand, '확장', '📏', '#FFCC00')
+  checkEffect(paddleShrink, '축소', '📉', '#888888')
+  checkEffect(reverseControl, '역방향', '🌀', '#FF8800')
+  checkEffect(ghostBall, '고스트', '👻', '#88DDFF')
+  checkEffect(chaosBounce, '혼란', '🔀', '#FF66AA')
   if (shieldActive) eff.push({ name: '쉴드', icon: '🛡️', bg: '#44CC44', remaining: '1' })
   activeEffects.value = eff
 }
@@ -391,13 +394,19 @@ function updateEffects() {
 function gameLoop() {
   if (gameState.value !== 'playing') {
     draw()
-    animId = null // idle/gameover/stageclear에서는 루프 중단 (불필요한 CPU 소비 방지)
+    animId = null
     return
   }
 
   update()
   draw()
   animId = requestAnimationFrame(gameLoop)
+}
+
+// overlay 상태에서 초기 화면 렌더링 (idle/gameover/stageclear)
+function drawOverlay() {
+  if (!ctx) return
+  draw()
 }
 
 /** idle → playing 전환 시 루프 재시작 */
@@ -559,6 +568,7 @@ function update() {
   // Check stage clear
   if (bricks.every(b => !b.alive)) {
     gameState.value = 'stageclear'
+    draw() // overlay 표시 전 최종 프레임 렌더링
   }
 }
 

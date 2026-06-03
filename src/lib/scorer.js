@@ -94,23 +94,23 @@ const MIN_DIST_THRESHOLD = 2 // px
  */
 class SpatialGrid {
   constructor(points, cellSize) {
-    this.cells = new Map()
+    // Object.create(null)이 Map보다 작은 데이터셋에서 더 빠름 (Map 오버헤드 제거)
+    this.cells = Object.create(null)
     this.cellSize = cellSize
     for (let i = 0; i < points.length; i++) {
       const key = this._key(points[i].x, points[i].y)
-      let cell = this.cells.get(key)
-      if (!cell) { cell = []; this.cells.set(key, cell) }
+      let cell = this.cells[key]
+      if (!cell) { cell = []; this.cells[key] = cell }
       cell.push(i)
     }
     this.points = points
   }
 
   _key(x, y) {
-    // 비트연산 기반 숫자 키 — 문자열 할당 오버헤드 제거
     const cx = (x / this.cellSize) | 0
     const cy = (y / this.cellSize) | 0
-    // 안전한 해시: cx, cy가 음수일 수 있으므로 offset 적용
-    return ((cx + 50000) << 16) ^ (cy + 50000)
+    // 32비트 해시 — XOR 대신 곱셈+시프트로 충돌 최소화
+    return ((cx + 50000) * 1315423911) ^ ((cy + 50000) * 2654435761)
   }
 
   /**
@@ -125,8 +125,8 @@ class SpatialGrid {
 
     for (let dx = -1; dx <= 1; dx++) {
       for (let dy = -1; dy <= 1; dy++) {
-        const key = ((cx + dx + 50000) << 16) ^ (cy + dy + 50000)
-        const cell = this.cells.get(key)
+        const key = ((cx + dx + 50000) * 1315423911) ^ ((cy + dy + 50000) * 2654435761)
+        const cell = this.cells[key]
         if (!cell) continue
         for (let idx of cell) {
           const d = dist(point, this.points[idx])

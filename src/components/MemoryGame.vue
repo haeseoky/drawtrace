@@ -46,6 +46,7 @@
         <span class="score-label">SCORE</span>
         <span class="score-value">{{ score }}</span>
       </div>
+      <div class="moves-info" v-if="gameState === 'playing'">{{ moves }}수</div>
       <button v-if="gameState === 'idle'" class="btn-start" @click="startGame">시작!</button>
       <button v-if="gameState === 'done'" class="btn-start" @click="startGame">다시하기</button>
       <button v-if="gameState === 'done'" class="btn-share" @click="$emit('share')">📤 공유</button>
@@ -121,6 +122,7 @@ function flipCard(index) {
       cards.value[b].matched = true
       found.value++
       flipped.value = []
+      if (navigator.vibrate) navigator.vibrate([10, 30, 10]) // 매칭 성공 햅틱 패턴
       if (found.value >= totalPairs) endGame()
     } else {
       isChecking = true
@@ -136,6 +138,8 @@ function flipCard(index) {
 
 function endGame() {
   clearInterval(timerInterval)
+  clearTimeout(flipTimeout)
+  isChecking = false
   gameState.value = 'done'
 
   // 점수: 짝 찾기 보너스 + 시간 보너스 - 무브 패널티
@@ -185,4 +189,5 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout) })
 .btn-start:active { transform: scale(0.95); }
 .btn-share { background: #1B355A; color: #fff; border: none; padding: 12px 20px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
 .btn-share:active { transform: scale(0.95); }
+.moves-info { font-size: 13px; color: #888; font-weight: 600; }
 </style>

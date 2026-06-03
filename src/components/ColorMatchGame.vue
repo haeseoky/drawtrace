@@ -35,8 +35,11 @@
           :key="i"
           class="color-btn"
           :style="{ background: opt.hex }"
+          :aria-label="opt.name"
           @click="selectAnswer(opt)"
-        />
+        >
+          <span class="color-label">{{ opt.name }}</span>
+        </button>
       </div>
       <Transition name="pop">
         <div v-if="feedback" class="feedback" :class="feedback">{{ feedback === 'correct' ? '✅ 정답!' : '❌ 틀림!' }}</div>
@@ -135,7 +138,7 @@ function nextRound() {
 
 function selectAnswer(opt) {
   if (gameState.value !== 'playing') return
-  if (feedback.value) return
+  if (feedback.value) return // 피드백 표시 중 중복 클릭 방지
   if (navigator.vibrate) navigator.vibrate(10)
 
   if (opt.hex === correctHex.value) {
@@ -149,12 +152,14 @@ function selectAnswer(opt) {
 
   clearTimeout(feedbackTimeout)
   feedbackTimeout = setTimeout(() => {
+    feedback.value = null
     if (gameState.value === 'playing') nextRound()
   }, 500)
 }
 
 function endGame() {
   clearInterval(timerInterval)
+  timerInterval = null
   clearTimeout(feedbackTimeout)
   gameState.value = 'done'
   feedback.value = null
@@ -181,7 +186,8 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(feedbackTimeout) 
 .color-word { font-size: 48px; font-weight: 800; margin-bottom: 12px; }
 .color-hint { font-size: 14px; color: #888; }
 .color-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 280px; }
-.color-btn { aspect-ratio: 1.6; border: none; border-radius: 16px; cursor: pointer; transition: transform 0.1s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.color-btn { aspect-ratio: 1.6; border: none; border-radius: 16px; cursor: pointer; transition: transform 0.1s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; }
+.color-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 .color-btn:active { transform: scale(0.92); }
 .feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: 800; z-index: 10; }
 .feedback.correct { color: #16A34A; }
