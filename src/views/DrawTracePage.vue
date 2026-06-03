@@ -6,7 +6,7 @@
       <span class="nav-spacer"></span>
     </nav>
     <DrawGame @score="onScore" @share="onShare" />
-    <Leaderboard :game-id="'draw-trace'" ref="lbRef" />
+    <Leaderboard v-show="false" :game-id="'draw-trace'" ref="lbRef" />
     <ShareModal
       :visible="showShare"
       :game-name="shareData.name"

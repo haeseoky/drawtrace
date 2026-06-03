@@ -6,7 +6,7 @@
       <span class="nav-spacer"></span>
     </nav>
     <BrickBreakerGame @score="onScore" @share="onShare" />
-    <Leaderboard :game-id="'brick-breaker'" ref="lbRef" />
+    <Leaderboard v-show="false" :game-id="'brick-breaker'" ref="lbRef" />
     <ShareModal :visible="showShare" game-name="핑퐁 벽돌깨기" :score="shareScore" @close="showShare = false" />
   </div>
 </template>

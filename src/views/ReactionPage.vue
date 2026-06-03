@@ -6,7 +6,7 @@
       <span class="nav-spacer"></span>
     </nav>
     <ReactionGame @score="onScore" @share="onShare" ref="gameRef" />
-    <Leaderboard :game-id="'reaction'" ref="lbRef" />
+    <Leaderboard v-show="false" :game-id="'reaction'" ref="lbRef" />
     <ShareModal :visible="showShare" game-name="반응 속도" :score="shareScore" @close="showShare = false" />
   </div>
 </template>

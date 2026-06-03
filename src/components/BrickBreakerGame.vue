@@ -142,12 +142,15 @@ function setupCanvas() {
   if (!container || !canvas) return
 
   dpr = window.devicePixelRatio || 1
-  const rect = container.getBoundingClientRect()
-  // HUD(40px) + 이펙트 배지(최대 30px) 항상 고정 여유 확보
-  // — 이펙트 활성화/만료 시 캔버스 리사이즈 방지
-  const hudH = 70
-  canvasW = rect.width
-  canvasH = rect.height - hudH
+
+  // viewport 전체 높이에서 nav + hud + effects 영역 제외
+  const navH = 48 // game-nav 높이
+  const hudH = 40 // hud min-height
+  const effectsH = 30 // active-effects min-height
+  const viewH = window.innerHeight
+
+  canvasW = Math.min(window.innerWidth, 600)
+  canvasH = viewH - navH - hudH - effectsH
 
   canvas.width = canvasW * dpr
   canvas.height = canvasH * dpr

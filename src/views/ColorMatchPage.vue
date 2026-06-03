@@ -6,7 +6,7 @@
       <span class="nav-spacer"></span>
     </nav>
     <ColorMatchGame @score="onScore" @share="onShare" />
-    <Leaderboard :game-id="'color-match'" ref="lbRef" />
+    <Leaderboard v-show="false" :game-id="'color-match'" ref="lbRef" />
     <ShareModal :visible="showShare" game-name="컬러 매치" :score="shareScore" @close="showShare = false" />
   </div>
 </template>

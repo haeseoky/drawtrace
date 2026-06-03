@@ -6,7 +6,7 @@
       <span class="nav-spacer"></span>
     </nav>
     <MemoryGame @score="onScore" @share="onShare" />
-    <Leaderboard :game-id="'memory'" ref="lbRef" />
+    <Leaderboard v-show="false" :game-id="'memory'" ref="lbRef" />
     <ShareModal :visible="showShare" game-name="기억력 카드" :score="shareScore" @close="showShare = false" />
   </div>
 </template>
