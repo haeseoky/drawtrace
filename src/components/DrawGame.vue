@@ -595,6 +595,7 @@ function shareResult() {
   display: block;
   cursor: crosshair;
   touch-action: none;
+  will-change: transform;
 }
 
 .game-footer {

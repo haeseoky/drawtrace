@@ -4,6 +4,42 @@
  * 실제 렌더링 시 캔버스 크기에 맞게 스케일링
  */
 
+/**
+ * 다각형 정점 배열을 등간격 보간 포인트로 변환 (닫힌 경로)
+ * 다각형 도형(triangle, square, hexagon 등)의 공통 로직 추출
+ */
+function interpolatePolygon(vertices, stepsPerEdge = 25) {
+  const pts = []
+  const n = vertices.length
+  for (let i = 0; i < n; i++) {
+    const next = (i + 1) % n
+    for (let s = 0; s < stepsPerEdge; s++) {
+      const t = s / stepsPerEdge
+      pts.push({
+        x: vertices[i].x + t * (vertices[next].x - vertices[i].x),
+        y: vertices[i].y + t * (vertices[next].y - vertices[i].y),
+      })
+    }
+  }
+  pts.push({ ...pts[0] })
+  return pts
+}
+
+/**
+ * 정다각형 정점 생성 헬퍼
+ */
+function regularPolygon(cx, cy, size, sides, startAngle = -Math.PI / 2) {
+  const vertices = []
+  for (let i = 0; i < sides; i++) {
+    const angle = (i / sides) * Math.PI * 2 + startAngle
+    vertices.push({
+      x: cx + Math.cos(angle) * size,
+      y: cy + Math.sin(angle) * size,
+    })
+  }
+  return vertices
+}
+
 export const shapes = [
   {
     id: 'circle',
@@ -27,29 +63,7 @@ export const shapes = [
     name: '삼각형',
     difficulty: 1,
     generatePoints(cx, cy, size) {
-      const pts = []
-      const vertices = []
-      for (let i = 0; i < 3; i++) {
-        const angle = (i / 3) * Math.PI * 2 - Math.PI / 2
-        vertices.push({
-          x: cx + Math.cos(angle) * size,
-          y: cy + Math.sin(angle) * size,
-        })
-      }
-      // 각 변을 부드럽게 보간
-      for (let i = 0; i < 3; i++) {
-        const next = (i + 1) % 3
-        const steps = 25
-        for (let s = 0; s < steps; s++) {
-          const t = s / steps
-          pts.push({
-            x: vertices[i].x + t * (vertices[next].x - vertices[i].x),
-            y: vertices[i].y + t * (vertices[next].y - vertices[i].y),
-          })
-        }
-      }
-      pts.push({ ...pts[0] })
-      return pts
+      return interpolatePolygon(regularPolygon(cx, cy, size, 3), 25)
     }
   },
   {
@@ -57,7 +71,6 @@ export const shapes = [
     name: '사각형',
     difficulty: 1,
     generatePoints(cx, cy, size) {
-      const pts = []
       const s = size * 0.85
       const corners = [
         { x: cx - s, y: cy - s },
@@ -65,19 +78,7 @@ export const shapes = [
         { x: cx + s, y: cy + s },
         { x: cx - s, y: cy + s },
       ]
-      for (let i = 0; i < 4; i++) {
-        const next = (i + 1) % 4
-        const steps = 25
-        for (let s = 0; s < steps; s++) {
-          const t = s / steps
-          pts.push({
-            x: corners[i].x + t * (corners[next].x - corners[i].x),
-            y: corners[i].y + t * (corners[next].y - corners[i].y),
-          })
-        }
-      }
-      pts.push({ ...pts[0] })
-      return pts
+      return interpolatePolygon(corners, 25)
     }
   },
   {
@@ -85,7 +86,6 @@ export const shapes = [
     name: '별',
     difficulty: 2,
     generatePoints(cx, cy, size) {
-      const pts = []
       const vertices = []
       for (let i = 0; i < 10; i++) {
         const angle = (i / 10) * Math.PI * 2 - Math.PI / 2
@@ -95,19 +95,7 @@ export const shapes = [
           y: cy + Math.sin(angle) * r,
         })
       }
-      for (let i = 0; i < 10; i++) {
-        const next = (i + 1) % 10
-        const steps = 8
-        for (let s = 0; s < steps; s++) {
-          const t = s / steps
-          pts.push({
-            x: vertices[i].x + t * (vertices[next].x - vertices[i].x),
-            y: vertices[i].y + t * (vertices[next].y - vertices[i].y),
-          })
-        }
-      }
-      pts.push({ ...pts[0] })
-      return pts
+      return interpolatePolygon(vertices, 8)
     }
   },
   {
@@ -135,26 +123,13 @@ export const shapes = [
     name: '다이아몬드',
     difficulty: 2,
     generatePoints(cx, cy, size) {
-      const pts = []
       const vertices = [
         { x: cx, y: cy - size },
         { x: cx + size * 0.7, y: cy },
         { x: cx, y: cy + size },
         { x: cx - size * 0.7, y: cy },
       ]
-      for (let i = 0; i < 4; i++) {
-        const next = (i + 1) % 4
-        const steps = 25
-        for (let s = 0; s < steps; s++) {
-          const t = s / steps
-          pts.push({
-            x: vertices[i].x + t * (vertices[next].x - vertices[i].x),
-            y: vertices[i].y + t * (vertices[next].y - vertices[i].y),
-          })
-        }
-      }
-      pts.push({ ...pts[0] })
-      return pts
+      return interpolatePolygon(vertices, 25)
     }
   },
   {
@@ -162,28 +137,7 @@ export const shapes = [
     name: '육각형',
     difficulty: 2,
     generatePoints(cx, cy, size) {
-      const pts = []
-      const vertices = []
-      for (let i = 0; i < 6; i++) {
-        const angle = (i / 6) * Math.PI * 2 - Math.PI / 6
-        vertices.push({
-          x: cx + Math.cos(angle) * size,
-          y: cy + Math.sin(angle) * size,
-        })
-      }
-      for (let i = 0; i < 6; i++) {
-        const next = (i + 1) % 6
-        const steps = 15
-        for (let s = 0; s < steps; s++) {
-          const t = s / steps
-          pts.push({
-            x: vertices[i].x + t * (vertices[next].x - vertices[i].x),
-            y: vertices[i].y + t * (vertices[next].y - vertices[i].y),
-          })
-        }
-      }
-      pts.push({ ...pts[0] })
-      return pts
+      return interpolatePolygon(regularPolygon(cx, cy, size, 6, -Math.PI / 6), 15)
     }
   },
   {
@@ -210,28 +164,7 @@ export const shapes = [
     name: '오각형',
     difficulty: 2,
     generatePoints(cx, cy, size) {
-      const pts = []
-      const vertices = []
-      for (let i = 0; i < 5; i++) {
-        const angle = (i / 5) * Math.PI * 2 - Math.PI / 2
-        vertices.push({
-          x: cx + Math.cos(angle) * size,
-          y: cy + Math.sin(angle) * size,
-        })
-      }
-      for (let i = 0; i < 5; i++) {
-        const next = (i + 1) % 5
-        const steps = 18
-        for (let s = 0; s < steps; s++) {
-          const t = s / steps
-          pts.push({
-            x: vertices[i].x + t * (vertices[next].x - vertices[i].x),
-            y: vertices[i].y + t * (vertices[next].y - vertices[i].y),
-          })
-        }
-      }
-      pts.push({ ...pts[0] })
-      return pts
+      return interpolatePolygon(regularPolygon(cx, cy, size, 5), 18)
     }
   },
   {
@@ -239,7 +172,6 @@ export const shapes = [
     name: '십자가',
     difficulty: 3,
     generatePoints(cx, cy, size) {
-      const pts = []
       const w = size * 0.35
       const corners = [
         { x: cx - w, y: cy - size },
@@ -255,19 +187,7 @@ export const shapes = [
         { x: cx - size, y: cy - w },
         { x: cx - w, y: cy - w },
       ]
-      for (let i = 0; i < 12; i++) {
-        const next = (i + 1) % 12
-        const steps = 8
-        for (let s = 0; s < steps; s++) {
-          const t = s / steps
-          pts.push({
-            x: corners[i].x + t * (corners[next].x - corners[i].x),
-            y: corners[i].y + t * (corners[next].y - corners[i].y),
-          })
-        }
-      }
-      pts.push({ ...pts[0] })
-      return pts
+      return interpolatePolygon(corners, 8)
     }
   },
   {
@@ -275,7 +195,6 @@ export const shapes = [
     name: '화살표',
     difficulty: 3,
     generatePoints(cx, cy, size) {
-      const pts = []
       const vertices = [
         { x: cx + size, y: cy },
         { x: cx + size * 0.3, y: cy - size * 0.7 },
@@ -285,19 +204,7 @@ export const shapes = [
         { x: cx + size * 0.3, y: cy + size * 0.3 },
         { x: cx + size * 0.3, y: cy + size * 0.7 },
       ]
-      for (let i = 0; i < vertices.length; i++) {
-        const next = (i + 1) % vertices.length
-        const steps = 12
-        for (let s = 0; s < steps; s++) {
-          const t = s / steps
-          pts.push({
-            x: vertices[i].x + t * (vertices[next].x - vertices[i].x),
-            y: vertices[i].y + t * (vertices[next].y - vertices[i].y),
-          })
-        }
-      }
-      pts.push({ ...pts[0] })
-      return pts
+      return interpolatePolygon(vertices, 12)
     }
   },
 ]

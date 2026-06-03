@@ -12,6 +12,7 @@
               stroke-linecap="round"
               :stroke-dasharray="timerCircumference"
               :stroke-dashoffset="timerCircumference * (1 - timeLeft / timeLimit)"
+              style="transition: stroke-dashoffset 0.25s linear;"
               transform="rotate(-90 20 20)"
             />
           </svg>
