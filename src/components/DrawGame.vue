@@ -16,7 +16,7 @@
               stroke-linecap="round"
               :stroke-dasharray="timerCircumference"
               :stroke-dashoffset="timerCircumference * (1 - timeLeft / timeLimit)"
-              style="transition: stroke-dashoffset 0.25s linear;"
+              style="transition: stroke-dashoffset 0.15s linear;"
               transform="rotate(-90 20 20)"
             />
           </svg>
@@ -150,6 +150,7 @@ onMounted(() => {
   initCanvas()
   loadHighScore()
   window.addEventListener('resize', onResize)
+  document.addEventListener('visibilitychange', onVisibilityChange)
 })
 
 onUnmounted(() => {
@@ -157,6 +158,7 @@ onUnmounted(() => {
   clearTimeout(resizeTimer)
   cancelAnimationFrame(animFrameId)
   window.removeEventListener('resize', onResize)
+  document.removeEventListener('visibilitychange', onVisibilityChange)
   if (gridCanvas) {
     gridCanvas.width = 0
     gridCanvas.height = 0
@@ -164,6 +166,24 @@ onUnmounted(() => {
   }
   ctx = null
 })
+
+function onVisibilityChange() {
+  if (document.hidden) {
+    // 탭 비활성화 시 타이머 일시정지
+    clearInterval(timerInterval)
+  } else if (gameState.value === 'playing') {
+    // 탭 복귀 시 타이머 재시작 — 남은 시간 기준으로 재계산
+    clearInterval(timerInterval)
+    const elapsed = Math.floor((Date.now() - gameStartTime) / 1000)
+    const remaining = Math.max(0, timeLimit.value - elapsed)
+    timeLeft.value = remaining
+    if (remaining <= 0) {
+      endGame()
+      return
+    }
+    startTimerLoop()
+  }
+}
 
 function initCanvas() {
   const canvas = canvasRef.value
@@ -225,16 +245,24 @@ function startGame() {
   generateTarget()
   drawFrame()
 
-  // Date.now 기반 타이머 (setInterval 드리프트 방지)
+  // Date.now 기반 타이머 (150ms 간격 — transition과 정렬)
   clearInterval(timerInterval)
   gameStartTime = Date.now()
+  startTimerLoop()
+}
+
+function startTimerLoop() {
+  clearInterval(timerInterval)
   timerInterval = setInterval(() => {
-    const elapsed = Math.floor((Date.now() - gameStartTime) / 1000)
-    timeLeft.value = Math.max(0, timeLimit.value - elapsed)
-    if (timeLeft.value <= 0) {
+    if (isEnding) { clearInterval(timerInterval); return }
+    const elapsed = (Date.now() - gameStartTime) / 1000
+    const remaining = Math.max(0, Math.ceil(timeLimit.value - elapsed))
+    timeLeft.value = remaining
+    if (remaining <= 0) {
+      clearInterval(timerInterval)
       endGame()
     }
-  }, 250)
+  }, 150)
 }
 
 function generateTarget() {
@@ -247,6 +275,7 @@ function endGame() {
   if (isEnding) return // 이중 호출 방지
   isEnding = true
   clearInterval(timerInterval)
+  timerInterval = null
   isDrawing.value = false
 
   const result = calculateScore(
@@ -289,9 +318,12 @@ function onTouchStart(e) {
   if (gameState.value !== 'playing') return
   isDrawing.value = true
   userPath.length = 0
-  userPath.push(getPos(e))
+  const pos = getPos(e)
+  userPath.push(pos)
   // 햅틱 피드백 (모바일 터치 반응성 향상)
   if (navigator.vibrate) navigator.vibrate(10)
+  // 즉시 첫 프레임 드로잉 — rAF 지연 없이 터치 응답성 극대화
+  drawFrame()
   requestDraw()
 }
 

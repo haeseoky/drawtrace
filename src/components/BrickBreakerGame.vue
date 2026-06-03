@@ -201,6 +201,11 @@ function resetStage() {
 
   // Clear timed effects
   clearAllEffects()
+
+  // 캔버스 리사이즈 시 그라디언트 캐시 무효화
+  brickGradCache.clear()
+  lastPaddleColor = ''
+  paddleGradCache = null
 }
 
 function resetBall() {
@@ -562,6 +567,11 @@ function ballHitsBrick(ball, brick) {
   return dx * dx + dy * dy <= BALL_RADIUS * BALL_RADIUS
 }
 
+// 그라디언트 캐시 — 벽돌 색상별로 1회만 생성 후 재사용
+let brickGradCache = new Map()
+let lastPaddleColor = ''
+let paddleGradCache = null
+
 function draw() {
   if (!ctx) return
   ctx.clearRect(0, 0, canvasW, canvasH)
@@ -582,12 +592,17 @@ function draw() {
     ctx.setLineDash([])
   }
 
-  // Bricks
+  // Bricks — 캐시된 그라디언트 재사용
   for (const brick of bricks) {
     if (!brick.alive) continue
-    const grad = ctx.createLinearGradient(brick.x, brick.y, brick.x, brick.y + brick.h)
-    grad.addColorStop(0, brick.color)
-    grad.addColorStop(1, brick.colorAlt)
+    const cacheKey = `${brick.color}|${brick.colorAlt}|${brick.h}`
+    let grad = brickGradCache.get(cacheKey)
+    if (!grad) {
+      grad = ctx.createLinearGradient(0, 0, 0, brick.h)
+      grad.addColorStop(0, brick.color)
+      grad.addColorStop(1, brick.colorAlt)
+      brickGradCache.set(cacheKey, grad)
+    }
     ctx.fillStyle = grad
     roundRect(ctx, brick.x, brick.y, brick.w, brick.h, 4)
     ctx.fill()
@@ -614,11 +629,15 @@ function draw() {
     ctx.fillText(item.icon, item.x, item.y)
   }
 
-  // Paddle
-  const padGrad = ctx.createLinearGradient(paddle.x, paddle.y, paddle.x, paddle.y + paddle.h)
-  padGrad.addColorStop(0, reverseControl.active ? '#FF8800' : '#4D9BC6')
-  padGrad.addColorStop(1, reverseControl.active ? '#CC6600' : '#3A7CA5')
-  ctx.fillStyle = padGrad
+  // Paddle — 색상 변경 시에만 그라디언트 재생성
+  const pColor = reverseControl.active ? 'rev' : 'norm'
+  if (pColor !== lastPaddleColor) {
+    paddleGradCache = ctx.createLinearGradient(0, 0, 0, paddle.h)
+    paddleGradCache.addColorStop(0, reverseControl.active ? '#FF8800' : '#4D9BC6')
+    paddleGradCache.addColorStop(1, reverseControl.active ? '#CC6600' : '#3A7CA5')
+    lastPaddleColor = pColor
+  }
+  ctx.fillStyle = paddleGradCache
   roundRect(ctx, paddle.x, paddle.y, paddle.w, paddle.h, 7)
   ctx.fill()
 

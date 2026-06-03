@@ -98,16 +98,19 @@ class SpatialGrid {
     this.cellSize = cellSize
     for (let i = 0; i < points.length; i++) {
       const key = this._key(points[i].x, points[i].y)
-      if (!this.cells.has(key)) this.cells.set(key, [])
-      this.cells.get(key).push(i)
+      let cell = this.cells.get(key)
+      if (!cell) { cell = []; this.cells.set(key, cell) }
+      cell.push(i)
     }
     this.points = points
   }
 
   _key(x, y) {
-    const cx = Math.floor(x / this.cellSize)
-    const cy = Math.floor(y / this.cellSize)
-    return `${cx},${cy}`
+    // 비트연산 기반 숫자 키 — 문자열 할당 오버헤드 제거
+    const cx = (x / this.cellSize) | 0
+    const cy = (y / this.cellSize) | 0
+    // 안전한 해시: cx, cy가 음수일 수 있으므로 offset 적용
+    return ((cx + 50000) << 16) ^ (cy + 50000)
   }
 
   /**
@@ -115,16 +118,17 @@ class SpatialGrid {
    * 인접 9셀만 검사 → 평균 O(1)
    */
   nearestDist(point) {
-    const cx = Math.floor(point.x / this.cellSize)
-    const cy = Math.floor(point.y / this.cellSize)
+    const cellSize = this.cellSize
+    const cx = (point.x / cellSize) | 0
+    const cy = (point.y / cellSize) | 0
     let minD = Infinity
 
     for (let dx = -1; dx <= 1; dx++) {
       for (let dy = -1; dy <= 1; dy++) {
-        const key = `${cx + dx},${cy + dy}`
+        const key = ((cx + dx + 50000) << 16) ^ (cy + dy + 50000)
         const cell = this.cells.get(key)
         if (!cell) continue
-        for (const idx of cell) {
+        for (let idx of cell) {
           const d = dist(point, this.points[idx])
           if (d < minD) {
             minD = d
