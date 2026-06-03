@@ -5,9 +5,7 @@
       <span class="nav-title">✏️ 모양 따라그리기</span>
       <span class="nav-spacer"></span>
     </nav>
-    <DrawGame @score="onScore" @share="onShare" />
-    <Leaderboard v-show="false" :game-id="'draw-trace'" ref="lbRef" />
-    <ShareModal
+    <DrawGame @score="onScore" @share="onShare" />    <ShareModal
       :visible="showShare"
       :game-name="shareData.name"
       :score="shareData.score"
@@ -20,11 +18,9 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import DrawGame from '../components/DrawGame.vue'
-import Leaderboard from '../components/Leaderboard.vue'
 import ShareModal from '../components/ShareModal.vue'
 
 const router = useRouter()
-const lbRef = ref()
 const showShare = ref(false)
 const shareData = reactive({ name: '모양 따라그리기', score: 0 })
 
