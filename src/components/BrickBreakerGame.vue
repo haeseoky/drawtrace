@@ -643,6 +643,13 @@ function draw() {
 }
 
 function roundRect(ctx, x, y, w, h, r) {
+  // 네이티브 Canvas roundRect API 사용 (성능 향상)
+  if (ctx.roundRect) {
+    ctx.beginPath()
+    ctx.roundRect(x, y, w, h, r)
+    return
+  }
+  // Fallback: 구형 브라우저
   ctx.beginPath()
   ctx.moveTo(x + r, y)
   ctx.lineTo(x + w - r, y)
@@ -711,11 +718,14 @@ onMounted(() => {
   // idle 상태에서는 루프를 돌지 않음 — 시작 시 ensureLoop()로 진입
   draw() // 초기 화면 1회 렌더링
   window.addEventListener('resize', handleResize)
+  // 화면 방향 전환 감지 (모바일)
+  screen.orientation?.addEventListener?.('change', handleResize)
 })
 
 onUnmounted(() => {
   if (animId) { cancelAnimationFrame(animId); animId = null }
   window.removeEventListener('resize', handleResize)
+  screen.orientation?.removeEventListener?.('change', handleResize)
 })
 </script>
 

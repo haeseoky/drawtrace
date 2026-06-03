@@ -368,10 +368,11 @@ function drawFrame() {
 // 오프스크린 캔버스에 그리드 캐싱 — 리사이즈 시에만 재생성
 function buildGridCache() {
   const dpr = window.devicePixelRatio || 1
-  // 이전 오프스크린 캔버스 메모리 해제
+  // 기존 오프스크린 캔버스 메모리 해제
   if (gridCanvas) {
     gridCanvas.width = 0
     gridCanvas.height = 0
+    gridCanvas.getContext('2d').clearRect(0, 0, 0, 0)
     gridCanvas = null
   }
   gridCanvas = document.createElement('canvas')

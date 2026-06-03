@@ -191,8 +191,10 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(feedbackTimeout) 
 .score-label { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 1px; }
 .score-value { font-size: 24px; font-weight: 800; color: #1B355A; }
 .combo { font-size: 16px; font-weight: 700; color: #DC2626; }
-.btn-start { background: linear-gradient(135deg, #4D9BC6, #3A8AB5); color: #fff; border: none; padding: 12px 28px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
-.btn-share { background: #1B355A; color: #fff; border: none; padding: 12px 20px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-start { background: linear-gradient(135deg, #4D9BC6, #3A8AB5); color: #fff; border: none; padding: 12px 28px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: transform 0.1s; box-shadow: 0 4px 12px rgba(77, 155, 198, 0.3); }
+.btn-start:active { transform: scale(0.95); }
+.btn-share { background: #1B355A; color: #fff; border: none; padding: 12px 20px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
+.btn-share:active { transform: scale(0.95); }
 .pop-enter-active { transition: all 0.2s ease-out; }
 .pop-leave-active { transition: all 0.15s ease-in; }
 .pop-enter-from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }

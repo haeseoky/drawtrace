@@ -159,7 +159,14 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout) })
 .timer { position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
 .timer-ring { position: absolute; width: 40px; height: 40px; }
 .timer-text { font-size: 13px; font-weight: 700; color: #333; }
-.timer.urgent .timer-text { color: #ef4444; }
+.timer.urgent .timer-text { color: #ef4444; animation: pulse-urgent 0.6s ease-in-out infinite; }
+@keyframes pulse-urgent {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .timer.urgent .timer-text { animation: none; }
+}
 .pairs-found { font-size: 13px; color: #666; }
 .game-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; }
 .card-grid { display: grid; gap: 8px; width: 100%; max-width: 340px; }
@@ -170,10 +177,12 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout) })
 .card-front { background: linear-gradient(135deg, #4D9BC6, #1B355A); color: #fff; }
 .card-back { background: #f0f5fa; transform: rotateY(180deg); }
 .card.matched .card-back { background: #E8F5E9; }
-.game-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid #eee; flex-shrink: 0; }
+.game-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid #eee; flex-shrink: 0; gap: 8px; }
 .score-display { display: flex; flex-direction: column; }
 .score-label { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 1px; }
 .score-value { font-size: 24px; font-weight: 800; color: #1B355A; }
-.btn-start { background: linear-gradient(135deg, #4D9BC6, #3A8AB5); color: #fff; border: none; padding: 12px 28px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
-.btn-share { background: #1B355A; color: #fff; border: none; padding: 12px 20px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-start { background: linear-gradient(135deg, #4D9BC6, #3A8AB5); color: #fff; border: none; padding: 12px 28px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: transform 0.1s; box-shadow: 0 4px 12px rgba(77, 155, 198, 0.3); }
+.btn-start:active { transform: scale(0.95); }
+.btn-share { background: #1B355A; color: #fff; border: none; padding: 12px 20px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
+.btn-share:active { transform: scale(0.95); }
 </style>
