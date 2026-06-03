@@ -312,8 +312,10 @@ function onTouchMove(e) {
 function onTouchEnd() {
   if (!isDrawing.value) return
   isDrawing.value = false
-  // 그리기 완료 → 바로 채점
-  endGame()
+  // 최소 포인트 미충족 시 타이머가 자연 종료되도록 함 (빈 터치 → 0점 방지)
+  if (userPath.length >= 5) {
+    endGame()
+  }
 }
 
 // Mouse handlers (desktop) — 터치 기기에서는 무시
@@ -579,7 +581,11 @@ function shareResult() {
   color: #333;
 }
 
-.timer.urgent .timer-text { color: #ef4444; }
+.timer.urgent .timer-text { color: #ef4444; animation: pulse-urgent 0.6s ease-in-out infinite; }
+@keyframes pulse-urgent {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
 
 .best-score { font-size: 13px; color: #666; }
 
@@ -595,7 +601,7 @@ function shareResult() {
   display: block;
   cursor: crosshair;
   touch-action: none;
-  will-change: transform;
+  /* will-change removed — canvas doesn't transform, saves GPU memory */
 }
 
 .game-footer {
