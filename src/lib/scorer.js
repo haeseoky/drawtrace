@@ -46,6 +46,7 @@ function alignCenters(userPts, targetPts) {
  * maxPoints개 이하로 줄이되 경로 길이에 비례하여 균등 분포
  */
 function downsample(points, maxPoints) {
+  if (points.length === 0) return []
   if (points.length <= maxPoints) return points
   const totalLen = getPathLength(points)
   if (totalLen === 0) return [points[0]]

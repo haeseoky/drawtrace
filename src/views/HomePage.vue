@@ -80,6 +80,14 @@ const games = [
     route: '/color-match',
     status: 'playable',
   },
+  {
+    id: 'brick-breaker',
+    name: '핑퐁 벽돌깨기',
+    desc: '벽돌을 깨고 아이템을 모아보세요!',
+    icon: '🧱',
+    route: '/brick',
+    status: 'playable',
+  },
 ]
 
 const gameLabels = {
@@ -87,6 +95,7 @@ const gameLabels = {
   'reaction': '⚡ 반응속도',
   'memory': '🧠 기억력카드',
   'color-match': '🎨 컬러매치',
+  'brick-breaker': '🧱 벽돌깨기',
 }
 
 onMounted(() => {

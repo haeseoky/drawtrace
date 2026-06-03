@@ -26,6 +26,11 @@ const routes = [
     name: 'ColorMatch',
     component: () => import('../views/ColorMatchPage.vue'),
   },
+  {
+    path: '/brick',
+    name: 'BrickBreaker',
+    component: () => import('../views/BrickBreakerPage.vue'),
+  },
 ]
 
 const router = createRouter({

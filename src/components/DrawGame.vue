@@ -312,6 +312,7 @@ function onTouchMove(e) {
 function onTouchEnd() {
   if (!isDrawing.value) return
   isDrawing.value = false
+  if (gameState.value !== 'playing') return
   // 최소 이동 거리 + 포인트 수 확인 — 터치 지터로 인한 실수 종료 방지
   if (userPath.length >= 5) {
     let pathLen = 0
@@ -594,6 +595,9 @@ function shareResult() {
 @keyframes pulse-urgent {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .timer.urgent .timer-text { animation: none; }
 }
 
 .best-score { font-size: 13px; color: #666; }
