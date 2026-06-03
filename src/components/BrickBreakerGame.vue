@@ -141,8 +141,13 @@ function setupCanvas() {
 
   dpr = window.devicePixelRatio || 1
   const rect = container.getBoundingClientRect()
+  // HUD 높이를 CSS min-height(40px) + 이펙트 배지(최대 30px) 기준 고정값 사용
+  // — setupCanvas 시점에 activeEffects를 읽으면 이펙트 활성화 시 캔버스 영역 침범 버그 발생
+  const hudEl = container.querySelector('.hud')
+  const effectsEl = container.querySelector('.active-effects')
+  const hudH = (hudEl?.offsetHeight || 40) + (effectsEl?.offsetHeight || 0)
   canvasW = rect.width
-  canvasH = rect.height - getHudHeight()
+  canvasH = rect.height - hudH
 
   canvas.width = canvasW * dpr
   canvas.height = canvasH * dpr
@@ -153,15 +158,9 @@ function setupCanvas() {
   ctx.scale(dpr, dpr)
 }
 
-function getHudHeight() {
-  let h = 40
-  if (activeEffects.value.length > 0) h += 30
-  return h
-}
-
 function resetStage() {
-  const rows = Math.min(4 + stage.value, 8)
-  const cols = Math.min(7 + Math.floor(stage.value / 2), 10)
+  const rows = Math.min(3 + Math.floor(stage.value * 0.7), 8)
+  const cols = Math.min(6 + Math.floor(stage.value * 0.5), 10)
   const brickW = (canvasW - 20) / cols
   const brickH = 22
   const topOffset = 30
@@ -321,11 +320,15 @@ function activateItem(item) {
       paddleShrink = { active: false, endTime: 0 }
       break
     case 'speedup':
-      speedMultiplier = Math.min(speedMultiplier * 1.5, 3)
+      speedMultiplier = Math.min(speedMultiplier * 1.3, 2.5)
       balls.forEach(b => {
         const s = Math.sqrt(b.dx * b.dx + b.dy * b.dy)
-        if (s > 0) { b.dx *= speedMultiplier / (s / b.speed); b.dy *= speedMultiplier / (s / b.speed) }
-        b.speed = BALL_BASE_SPEED * speedMultiplier
+        if (s > 0) {
+          const newSpeed = BALL_BASE_SPEED * speedMultiplier
+          b.dx = (b.dx / s) * newSpeed
+          b.dy = (b.dy / s) * newSpeed
+          b.speed = newSpeed
+        }
       })
       break
     case 'shrink':
@@ -415,7 +418,7 @@ function update() {
   }
   const dir = reverseControl.active ? -1 : 1
   const diff = (targetX - paddle.x) * dir
-  paddle.x += diff * 0.3
+  paddle.x += diff * 0.55
   paddle.x = Math.max(0, Math.min(canvasW - paddle.w, paddle.x))
 
   // Stuck ball follows paddle

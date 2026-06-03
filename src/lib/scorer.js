@@ -69,10 +69,10 @@ function downsample(points, maxPoints) {
       nextThreshold += step
     }
   }
-  // 마지막 점 보장
+  // 마지막 점 보장 — float exact match 대신 거리 기반 비교
   const last = points[points.length - 1]
   const rLast = result[result.length - 1]
-  if (rLast.x !== last.x || rLast.y !== last.y) {
+  if (dist(rLast, last) > 0.5) {
     result.push({ ...last })
   }
   return result
