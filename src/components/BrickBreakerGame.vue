@@ -779,6 +779,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (animId) { cancelAnimationFrame(animId); animId = null }
+  clearTimeout(resizeTimeout)
   window.removeEventListener('resize', handleResize)
   screen.orientation?.removeEventListener?.('change', handleResize)
 })
