@@ -204,6 +204,9 @@ function resetStage() {
   // Clear timed effects
   clearAllEffects()
 
+  // Reset speed to base — speedup item effect does not carry across stages
+  speedMultiplier = 1
+
   // 캔버스 리사이즈 시 그라디언트 캐시 무효화
   brickGradCache.clear()
   lastPaddleColor = ''
