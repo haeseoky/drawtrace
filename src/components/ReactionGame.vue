@@ -61,7 +61,11 @@ const waitDone = ref(false)
 let waitTimeout = null
 let goTimestamp = 0
 // performance.now() 사용 — Date.now()보다 서브밀리초 정밀도
-const getTimestamp = () => performance.now()
+// 백그라운드 탭에서 performance.now()가 멈추는 이슈 대응
+const getTimestamp = () => {
+  if (document.hidden) return Date.now()
+  return performance.now()
+}
 
 // bestMs는 '반응시간 ms'이므로 localStorage에서 직접 읽기 (getBestScore는 점수 기준)
 const bestMs = ref(parseInt(localStorage.getItem('reaction-best-ms') || '0', 10))
