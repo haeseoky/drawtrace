@@ -594,10 +594,10 @@ function shareResult() {
 
 <style scoped>
 .game-wrapper {
-  flex: 1;
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  width: 100%;
   max-width: 480px;
   margin: 0 auto;
   background: #fff;
@@ -606,7 +606,6 @@ function shareResult() {
   touch-action: none;
   overflow: hidden;
   overscroll-behavior: none;
-  -webkit-overflow-scrolling: auto;
 }
 
 .game-header {
