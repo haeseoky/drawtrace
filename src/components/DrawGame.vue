@@ -596,9 +596,8 @@ function shareResult() {
 .game-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
-  flex-shrink: 0;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   max-width: 480px;
   margin: 0 auto;
   background: #fff;
