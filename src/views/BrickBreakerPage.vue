@@ -6,6 +6,7 @@
       <span class="nav-spacer"></span>
     </nav>
     <BrickBreakerGame @score="onScore" @share="onShare" />
+    <Leaderboard ref="lbRef" game-id="brick-breaker" />
     <ShareModal :visible="showShare" game-name="핑퐁 벽돌깨기" :score="shareScore" @close="showShare = false" />
   </div>
 </template>
@@ -14,12 +15,15 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import BrickBreakerGame from '../components/BrickBreakerGame.vue'
 import ShareModal from '../components/ShareModal.vue'
+import Leaderboard from '../components/Leaderboard.vue'
 const router = useRouter()
 const showShare = ref(false)
 const shareScore = ref(0)
+const lbRef = ref(null)
 function goBack() { router.push('/') }
 function onScore(result) {
   shareScore.value = result.score || 0
+  lbRef.value?.load()
 }
 function onShare() { showShare.value = true }
 </script>

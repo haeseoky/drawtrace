@@ -2,7 +2,7 @@
  * 공유 유틸리티 — Web Share API + 클립보드 + 메신저 링크
  */
 
-const BASE_URL = 'https://game.nutalk.co.kr'
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://game.nutalk.co.kr'
 
 export function getGameUrl(gameId) {
   return `${BASE_URL}/#/${gameId}`

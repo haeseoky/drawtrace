@@ -6,7 +6,7 @@
       <span class="nav-spacer"></span>
     </nav>
     <DrawGame @score="onScore" @share="onShare" />
-    <Leaderboard ref="lbRef" game-id="draw" />
+    <Leaderboard ref="lbRef" game-id="draw-trace" />
     <ShareModal
       :visible="showShare"
       :game-name="shareData.name"
@@ -29,7 +29,10 @@ const shareData = reactive({ name: '모양 따라그리기', score: 0 })
 const lbRef = ref(null)
 
 function goBack() { router.push('/') }
-function onScore() { lbRef.value?.load() }
+function onScore(result) {
+  shareData.score = result?.score || 0
+  lbRef.value?.load()
+}
 function onShare() { showShare.value = true }
 </script>
 

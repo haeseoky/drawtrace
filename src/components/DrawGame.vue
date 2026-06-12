@@ -94,7 +94,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { calculateScore } from '../lib/scorer.js'
 import { getRandomShape } from '../data/shapes.js'
-import { addScore } from '../lib/leaderboard.js'
+import { addScore, getBestScore } from '../lib/leaderboard.js'
 import { shareResult as shareUtil } from '../lib/share.js'
 
 // Refs
@@ -579,12 +579,11 @@ function drawResultOverlay() {
 
 // Persistence
 function loadHighScore() {
-  const saved = localStorage.getItem('drawtrace-highscore')
-  if (saved) highScore.value = parseInt(saved, 10)
+  highScore.value = getBestScore('draw-trace')
 }
 
 function saveHighScore() {
-  localStorage.setItem('drawtrace-highscore', String(highScore.value))
+  // highScore는 leaderboard에 addScore로 이미 저장됨
 }
 
 function shareResult() {

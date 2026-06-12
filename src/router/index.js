@@ -31,6 +31,10 @@ const routes = [
     name: 'BrickBreaker',
     component: () => import('../views/BrickBreakerPage.vue'),
   },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/',
+  },
 ]
 
 const router = createRouter({

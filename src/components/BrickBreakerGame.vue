@@ -501,6 +501,11 @@ function update() {
         const angle = -Math.PI / 2 + (hitPos - 0.5) * 1.2
         ball.dx = Math.cos(angle) * ball.speed
         ball.dy = Math.sin(angle) * ball.speed
+        // 최소 수직 속도 보장 — 수평각으로 인한 무한 반복 방지
+        const MIN_DY = ball.speed * 0.25
+        if (Math.abs(ball.dy) < MIN_DY) {
+          ball.dy = ball.dy >= 0 ? MIN_DY : -MIN_DY
+        }
         ball.y = paddle.y - BALL_RADIUS - 1
       }
     }

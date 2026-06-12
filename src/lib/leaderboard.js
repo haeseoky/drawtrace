@@ -35,18 +35,22 @@ function migrateLegacy() {
 migrateLegacy()
 
 export function getLeaderboard(gameId = null) {
-  if (gameId) {
-    return JSON.parse(localStorage.getItem(storageKey(gameId)) || '[]')
-  }
-  const all = []
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i)
-    if (key && key.startsWith(STORAGE_KEY_PREFIX)) {
-      const entries = JSON.parse(localStorage.getItem(key) || '[]')
-      all.push(...entries)
+  try {
+    if (gameId) {
+      return JSON.parse(localStorage.getItem(storageKey(gameId)) || '[]')
     }
+    const all = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && key.startsWith(STORAGE_KEY_PREFIX)) {
+        const entries = JSON.parse(localStorage.getItem(key) || '[]')
+        all.push(...entries)
+      }
+    }
+    return all.sort((a, b) => b.score - a.score)
+  } catch {
+    return []
   }
-  return all.sort((a, b) => b.score - a.score)
 }
 
 export function addScore(entry) {
