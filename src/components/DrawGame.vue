@@ -597,6 +597,7 @@ function shareResult() {
   display: flex;
   flex-direction: column;
   height: 100dvh;
+  flex-shrink: 0;
   width: 100vw;
   max-width: 480px;
   margin: 0 auto;
