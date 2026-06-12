@@ -5,9 +5,7 @@
       <span class="nav-title">✏️ 모양 따라그리기</span>
       <span class="nav-spacer"></span>
     </nav>
-    <div class="game-area">
-      <DrawGame @score="onScore" @share="onShare" />
-    </div>
+    <DrawGame @score="onScore" @share="onShare" />
     <Leaderboard ref="lbRef" game-id="draw-trace" />
     <ShareModal
       :visible="showShare"
@@ -39,9 +37,8 @@ function onShare() { showShare.value = true }
 </script>
 
 <style scoped>
-.game-page { position: fixed; inset: 0; display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
-.game-nav { display: flex; align-items: center; padding: 10px 16px; background: #fff; border-bottom: 1px solid #eee; flex-shrink: 0; gap: 12px; z-index: 1; }
-.game-area { flex: 1 0 0; min-height: 0; position: relative; overflow: hidden; touch-action: none; }
+.game-page { position: fixed; inset: 0; height: 100%; width: 100%; display: flex; flex-direction: column; overflow: hidden; touch-action: none; }
+.game-nav { display: flex; align-items: center; padding: 10px 16px; background: #fff; border-bottom: 1px solid #eee; flex-shrink: 0; gap: 12px; }
 .btn-back { background: none; border: none; font-size: 14px; color: #4D9BC6; font-weight: 600; cursor: pointer; }
 .nav-title { font-size: 15px; font-weight: 700; color: #1B355A; }
 .nav-spacer { flex: 1; }

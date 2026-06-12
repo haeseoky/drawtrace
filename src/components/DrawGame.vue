@@ -594,9 +594,9 @@ function shareResult() {
 
 <style scoped>
 .game-wrapper {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
