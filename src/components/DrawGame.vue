@@ -684,6 +684,7 @@ function shareResult() {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   background: #fff;
   border-top: 1px solid #eee;
   flex-shrink: 0;
