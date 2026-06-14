@@ -143,14 +143,19 @@ function setupCanvas() {
 
   dpr = window.devicePixelRatio || 1
 
-  // viewport 전체 높이에서 nav + hud + effects 영역 제외
-  const navH = 48 // game-nav 높이
-  const hudH = 40 // hud min-height
-  const effectsH = 30 // active-effects min-height
-  const viewH = window.innerHeight
+  // 실제 DOM 레이아웃에서 캔버스의 가용 영역 측정
+  // hud + effects 영역을 제외한 나머지가 캔버스 영역
+  const containerRect = container.getBoundingClientRect()
+  const hudEl = container.querySelector('.hud')
+  const effectsEl = container.querySelector('.active-effects')
+  const hudH = hudEl ? hudEl.getBoundingClientRect().height : 40
+  const effectsH = effectsEl ? effectsEl.getBoundingClientRect().height : 30
 
-  canvasW = Math.min(window.innerWidth, 600)
-  canvasH = viewH - navH - hudH - effectsH
+  canvasW = Math.min(containerRect.width, 600)
+  canvasH = containerRect.height - hudH - effectsH
+
+  // 최소 높이 보장 — 비정상적으로 작은 경우 방지
+  canvasH = Math.max(canvasH, 200)
 
   canvas.width = canvasW * dpr
   canvas.height = canvasH * dpr
