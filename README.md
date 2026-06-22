@@ -3,7 +3,7 @@
 > 그림 추리 & 캐주얼 게임 서비스
 
 ## 🌐 서비스 URL
-- **메인:** https://drawtrace.nutalk.co.kr
+- **메인:** https://game.nutalk.co.kr
 
 ## 📋 소개
 그림을 추리하고, 색깔을 맞추고, 기억력을 테스트하는 캐주얼 모바일 게임 서비스입니다.
