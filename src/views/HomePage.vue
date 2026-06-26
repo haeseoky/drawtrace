@@ -10,6 +10,7 @@
         v-for="game in games"
         :key="game.id"
         class="game-card"
+        :aria-label="`${game.name} 게임 시작`"
         @click="goGame(game.route)"
       >
         <div class="game-icon">{{ game.icon }}</div>
@@ -33,7 +34,7 @@
 
     <div class="footer-info">
       <p>🚀 더 많은 게임이 추가됩니다!</p>
-      <p class="footer-link">game.nutalk.co.kr</p>
+      <a class="footer-link" href="https://game.nutalk.co.kr" rel="noopener">game.nutalk.co.kr</a>
     </div>
   </div>
 </template>
@@ -203,6 +204,6 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 .rank-score { font-weight: 700; color: #1B355A; }
 .rank-empty { text-align: center; color: #aaa; font-size: 13px; padding: 20px 0; }
 
-.footer-info { text-align: center; margin-top: 28px; color: #aaa; font-size: 12px; }
-.footer-link { margin-top: 4px; color: #4D9BC6; }
+.footer-info { text-align: center; margin-top: 28px; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); color: #aaa; font-size: 12px; }
+.footer-link { display: inline-block; margin-top: 4px; color: #4D9BC6; text-decoration: none; }
 </style>
