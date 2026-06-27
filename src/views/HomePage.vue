@@ -100,8 +100,10 @@ const gameLabels = {
 }
 
 onMounted(() => {
-  const all = getLeaderboard()
-  all.forEach(e => { e.gameLabel = gameLabels[e.gameId] || e.gameId })
+  const all = getLeaderboard().map(e => ({
+    ...e,
+    gameLabel: gameLabels[e.gameId] || e.gameId,
+  }))
   all.sort((a, b) => b.score - a.score)
   globalRank.value = all.slice(0, 5)
 })

@@ -5,7 +5,7 @@
 const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://game.nutalk.co.kr'
 
 export function getGameUrl(gameId) {
-  return `${BASE_URL}/#/${gameId}`
+  return `${BASE_URL}/${gameId}`
 }
 
 export function getShareText(gameName, score) {
