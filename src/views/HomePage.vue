@@ -147,9 +147,10 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
   padding: 16px 18px;
   text-align: left;
   cursor: pointer;
-  transition: transform 0.12s;
+  transition: transform 0.12s, box-shadow 0.12s;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
+.game-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 .game-card:active { transform: scale(0.98); }
 
 .game-icon {
@@ -207,5 +208,6 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 .rank-empty { text-align: center; color: #aaa; font-size: 13px; padding: 20px 0; }
 
 .footer-info { text-align: center; margin-top: 28px; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); color: #aaa; font-size: 12px; }
-.footer-link { display: inline-block; margin-top: 4px; color: #4D9BC6; text-decoration: none; }
+.footer-link { display: inline-block; margin-top: 4px; color: #4D9BC6; text-decoration: none; transition: color 0.2s; }
+.footer-link:hover { color: #3B7FA0; }
 </style>
