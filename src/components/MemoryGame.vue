@@ -156,7 +156,7 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout) })
 </script>
 
 <style scoped>
-.game-wrapper { display: flex; flex-direction: column; height: 100%; user-select: none; -webkit-user-select: none; }
+.game-wrapper { display: flex; flex-direction: column; height: 100%; user-select: none; -webkit-user-select: none; touch-action: none; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .game-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid #eee; flex-shrink: 0; }
 .header-left { display: flex; align-items: center; gap: 10px; }
 .level-badge { background: #1B355A; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px; }
@@ -173,7 +173,7 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout) })
 }
 .pairs-found { font-size: 13px; color: #666; }
 .game-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; }
-.card-grid { display: grid; gap: 8px; width: 100%; max-width: 340px; }
+.card-grid { display: grid; gap: 8px; width: 100%; max-width: 400px; }
 .card { aspect-ratio: 1; perspective: 600px; cursor: pointer; }
 .card-inner { width: 100%; height: 100%; position: relative; transition: transform 0.4s; transform-style: preserve-3d; }
 .card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }

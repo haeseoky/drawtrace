@@ -143,7 +143,7 @@ onUnmounted(() => { clearTimeout(waitTimeout) })
 </script>
 
 <style scoped>
-.game-wrapper { display: flex; flex-direction: column; height: 100%; user-select: none; -webkit-user-select: none; }
+.game-wrapper { display: flex; flex-direction: column; height: 100%; user-select: none; -webkit-user-select: none; touch-action: none; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .game-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid #eee; flex-shrink: 0; }
 .header-left { display: flex; align-items: center; gap: 10px; }
 .level-badge { background: #1B355A; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px; }

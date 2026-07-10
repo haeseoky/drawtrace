@@ -172,7 +172,7 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(feedbackTimeout) 
 </script>
 
 <style scoped>
-.game-wrapper { display: flex; flex-direction: column; height: 100%; user-select: none; -webkit-user-select: none; }
+.game-wrapper { display: flex; flex-direction: column; height: 100%; user-select: none; -webkit-user-select: none; touch-action: none; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .game-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid #eee; flex-shrink: 0; }
 .header-left { display: flex; align-items: center; gap: 10px; }
 .level-badge { background: #1B355A; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px; }
@@ -185,7 +185,7 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(feedbackTimeout) 
 .color-question { text-align: center; margin-bottom: 32px; }
 .color-word { font-size: 48px; font-weight: 800; margin-bottom: 12px; }
 .color-hint { font-size: 14px; color: #888; }
-.color-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 280px; }
+.color-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 320px; }
 .color-btn { aspect-ratio: 1.6; border: none; border-radius: 16px; cursor: pointer; transition: transform 0.1s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; }
 .color-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 .color-btn:active { transform: scale(0.92); }
