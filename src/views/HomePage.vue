@@ -9,6 +9,7 @@
       <button
         v-for="game in games"
         :key="game.id"
+        type="button"
         class="game-card"
         :aria-label="`${game.name} 게임 시작`"
         @click="goGame(game.route)"
@@ -152,6 +153,14 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 }
 .game-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(27, 53, 90, 0.15); }
 .game-card:active { transform: scale(0.98); }
+.game-card:focus-visible {
+  outline: 2px solid #4D9BC6;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-card { transition: none; transform: none !important; }
+  .game-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+}
 
 .game-icon {
   font-size: 32px;
