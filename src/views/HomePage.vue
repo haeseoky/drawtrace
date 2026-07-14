@@ -151,7 +151,7 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
   transition: transform 0.12s, box-shadow 0.12s;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
-.game-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(27, 53, 90, 0.15); }
+.game-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(27, 53, 90, 0.15); will-change: transform; }
 .game-card:active { transform: scale(0.98); }
 .game-card:focus-visible {
   outline: 2px solid #4D9BC6;
