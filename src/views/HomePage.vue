@@ -35,7 +35,7 @@
 
     <div class="footer-info">
       <p>🚀 더 많은 게임이 추가됩니다!</p>
-      <a class="footer-link" href="https://game.nutalk.co.kr" rel="noopener">game.nutalk.co.kr</a>
+      <a class="footer-link" href="https://nutalk.co.kr" rel="noopener">nutalk.co.kr</a>
     </div>
   </div>
 </template>
@@ -176,7 +176,7 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 
 .game-info { flex: 1; min-width: 0; }
 .game-name { font-size: 15px; font-weight: 700; color: #1B355A; }
-.game-desc { font-size: 12px; color: #888; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.game-desc { font-size: 12px; color: #888; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 .game-badge { flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 8px; }
 .game-badge.playable { background: #E8F5E9; color: #16A34A; }
