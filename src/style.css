@@ -14,7 +14,6 @@ html, body {
   /* 모바일 오버스크롤/바운스/풀투리프레시 완전 차단 */
   overflow: hidden;
   overscroll-behavior: none;
-  overscroll-behavior-y: none;
   -webkit-overflow-scrolling: auto;
   position: fixed;
   width: 100%;
