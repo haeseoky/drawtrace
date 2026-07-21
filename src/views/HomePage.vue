@@ -122,7 +122,7 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 
 .home-header {
   text-align: center;
-  padding: 40px 20px 28px;
+  padding: calc(40px + env(safe-area-inset-top, 0px)) 20px 28px;
   color: #fff;
 }
 
