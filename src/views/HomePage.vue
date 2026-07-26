@@ -35,7 +35,7 @@
 
     <div class="footer-info">
       <p>🚀 더 많은 게임이 추가됩니다!</p>
-      <a class="footer-link" href="https://nutalk.co.kr" rel="noopener">nutalk.co.kr</a>
+      <a class="footer-link" href="https://nutalk.co.kr" target="_blank" rel="noopener">nutalk.co.kr</a>
     </div>
   </div>
 </template>
