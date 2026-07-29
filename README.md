@@ -1,5 +1,9 @@
 # 🎮 DrawTrace
 
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Vue](https://img.shields.io/badge/Vue-3.5-brightgreen)
+
 > 그림 추리 & 캐주얼 게임 서비스
 
 ## 🌐 서비스 URL
