@@ -41,7 +41,7 @@ function onShare() { showShare.value = true }
 </script>
 
 <style scoped>
-.game-page { position: fixed; inset: 0; display: flex; flex-direction: column; overflow: hidden; }
+.game-page { position: fixed; inset: 0; display: flex; flex-direction: column; overflow: hidden; overscroll-behavior: none; }
 .game-nav { display: flex; align-items: center; padding: 10px 16px; padding-top: calc(10px + env(safe-area-inset-top, 0px)); background: #fff; border-bottom: 1px solid #eee; flex-shrink: 0; gap: 12px; }
 .game-area { position: relative; flex: 1; min-height: 0; overflow: hidden; }
 .leaderboard-section { flex-shrink: 0; max-height: 35vh; overflow-y: auto; }

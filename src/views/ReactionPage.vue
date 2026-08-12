@@ -30,7 +30,7 @@ function onScore(result) {
 function onShare() { showShare.value = true }
 </script>
 <style scoped>
-.game-page { height: 100dvh; display: flex; flex-direction: column; overflow-y: auto; }
+.game-page { height: 100dvh; display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: none; }
 .game-nav { display: flex; align-items: center; padding: 10px 16px; padding-top: calc(10px + env(safe-area-inset-top, 0px)); background: #fff; border-bottom: 1px solid #eee; flex-shrink: 0; gap: 12px; }
 .btn-back { background: none; border: none; font-size: 14px; color: #4D9BC6; font-weight: 600; cursor: pointer; }
 .nav-title { font-size: 15px; font-weight: 700; color: #1B355A; }
