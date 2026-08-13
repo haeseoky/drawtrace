@@ -61,11 +61,17 @@ import { shuffle } from '../lib/utils'
 
 const emit = defineEmits(['score', 'share'])
 
-const EMOJIS = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮']
-const cols = 4
-const rows = 4
-const totalPairs = (cols * rows) / 2
+const EMOJIS = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐸', '🐵', '🦄', '🐉']
 const timerCircumference = 2 * Math.PI * 17
+
+// 라운드별 그리드 설정 — 난이도 상승
+const ROUND_CONFIGS = [
+  { cols: 3, rows: 4, time: 50 },  // Round 1: 6 pairs (쉬움)
+  { cols: 4, rows: 4, time: 60 },  // Round 2: 8 pairs (보통)
+  { cols: 4, rows: 5, time: 70 },  // Round 3: 10 pairs (어려움)
+  { cols: 5, rows: 4, time: 80 },  // Round 4: 10 pairs (시간제한)
+  { cols: 6, rows: 4, time: 90 },  // Round 5: 12 pairs (최난이도)
+]
 
 const gameState = ref('idle') // idle | playing | done
 const cards = ref([])
@@ -76,6 +82,8 @@ const found = ref(0)
 const timeLeft = ref(60)
 const timeLimit = ref(60)
 const moves = ref(0)
+const cols = ref(4)
+const totalPairs = ref(8)
 let timerInterval = null
 let gameStartTime = 0
 let flipTimeout = null
@@ -83,15 +91,24 @@ let isChecking = false // 더블탭 치팅 방지
 
 function startGame() {
   gameState.value = 'playing'
+  round.value = 1
+  score.value = 0
+  setupRound()
+}
+
+function setupRound() {
+  const config = ROUND_CONFIGS[Math.min(round.value - 1, ROUND_CONFIGS.length - 1)]
+  cols.value = config.cols
+  totalPairs.value = (config.cols * config.rows) / 2
+  timeLimit.value = config.time
+  timeLeft.value = config.time
   found.value = 0
   moves.value = 0
-  timeLeft.value = 60
-  timeLimit.value = 60
   flipped.value = []
   isChecking = false
   clearTimeout(flipTimeout)
 
-  const selected = shuffle(EMOJIS).slice(0, totalPairs)
+  const selected = shuffle(EMOJIS).slice(0, totalPairs.value)
   const pairs = shuffle([...selected, ...selected])
   cards.value = pairs.map(emoji => ({ emoji, flipped: false, matched: false }))
 
@@ -140,16 +157,33 @@ function endGame() {
   clearInterval(timerInterval)
   clearTimeout(flipTimeout)
   isChecking = false
+
+  // 모든 라운드 클리어 여부
+  const isAllClear = found.value >= totalPairs.value && round.value >= ROUND_CONFIGS.length
+
+  if (found.value >= totalPairs.value && !isAllClear) {
+    // 다음 라운드로 진행 — 누적 점수
+    const pairBonus = found.value * 100
+    const timeBonus = Math.max(0, timeLeft.value) * 5
+    const movePenalty = Math.max(0, (moves.value - totalPairs.value * 2) * 3)
+    const roundScore = Math.max(0, pairBonus + timeBonus - movePenalty)
+    score.value += roundScore
+    round.value++
+    setupRound()
+    return
+  }
+
   gameState.value = 'done'
 
-  // 점수: 짝 찾기 보너스 + 시간 보너스 - 무브 패널티
+  // 최종 라운드 점수 합산
   const pairBonus = found.value * 100
   const timeBonus = Math.max(0, timeLeft.value) * 5
-  const movePenalty = Math.max(0, (moves.value - totalPairs * 2) * 3)
-  score.value = Math.max(0, pairBonus + timeBonus - movePenalty)
+  const movePenalty = Math.max(0, (moves.value - totalPairs.value * 2) * 3)
+  const roundScore = Math.max(0, pairBonus + timeBonus - movePenalty)
+  score.value += roundScore
 
-  addScore({ gameId: 'memory', score: score.value, name: '나', detail: `${found.value}/${totalPairs} ${moves.value}moves` })
-  emit('score', { score: score.value, detail: { found: found.value, totalPairs, moves: moves.value, timeLeft: timeLeft.value } })
+  addScore({ gameId: 'memory', score: score.value, name: '나', detail: `Round ${round.value} ${moves.value}moves` })
+  emit('score', { score: score.value, detail: { found: found.value, totalPairs: totalPairs.value, moves: moves.value, timeLeft: timeLeft.value } })
 }
 
 onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout) })

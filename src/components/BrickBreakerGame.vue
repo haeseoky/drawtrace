@@ -302,6 +302,8 @@ function spawnItem(x, y) {
 
 function activateItem(item) {
   score.value += 50
+  // 아이템 획득 햅틱 피드백 — 좋은 아이템과 나쁜 아이템 구분
+  if (navigator.vibrate) navigator.vibrate(item.good ? [10, 30, 10] : [20, 50, 20, 50, 20])
   const now = Date.now()
   switch (item.type) {
     case 'fireball':

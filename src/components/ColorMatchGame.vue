@@ -145,6 +145,7 @@ function selectAnswer(opt) {
     combo.value++
     score.value += 10 * combo.value
     feedback.value = 'correct'
+    if (navigator.vibrate) navigator.vibrate([10, 30, 10]) // 정답 햅틱 패턴
   } else {
     combo.value = 0
     feedback.value = 'wrong'
@@ -154,7 +155,7 @@ function selectAnswer(opt) {
   feedbackTimeout = setTimeout(() => {
     feedback.value = null
     if (gameState.value === 'playing') nextRound()
-  }, 500)
+  }, 450)
 }
 
 function endGame() {
@@ -179,7 +180,14 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(feedbackTimeout) 
 .timer { position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
 .timer-ring { position: absolute; width: 40px; height: 40px; }
 .timer-text { font-size: 13px; font-weight: 700; color: #333; }
-.timer.urgent .timer-text { color: #ef4444; }
+.timer.urgent .timer-text { color: #ef4444; animation: pulse-urgent 0.6s ease-in-out infinite; }
+@keyframes pulse-urgent {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .timer.urgent .timer-text { animation: none; }
+}
 .best-score { font-size: 13px; color: #666; }
 .game-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
 .color-question { text-align: center; margin-bottom: 32px; }

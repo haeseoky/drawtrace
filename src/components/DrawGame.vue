@@ -52,7 +52,7 @@
         <span class="score-value">{{ score }}</span>
       </div>
       <button v-if="gameState === 'idle' || gameState === 'result'" class="btn-start" @click="startGame">
-        {{ gameState === 'result' ? '다시하기' : '시작!' }}
+        {{ gameState === 'result' ? `Lv.${level} 도전!` : '시작!' }}
       </button>
       <button v-if="gameState === 'result'" class="btn-share" @click="shareResult">📤 공유</button>
     </footer>
@@ -239,7 +239,10 @@ function startGame() {
   isEnding = false
 
   gameState.value = 'playing'
-  score.value = 0
+  // 결과에서 재도전 시 기존 점수 유지하지 않음 — 각 도전은 독립 채점
+  if (gameState.value !== 'result' || level.value === 1) {
+    score.value = 0
+  }
   userPath.length = 0
   timeLeft.value = Math.max(5, 12 - level.value) // 레벨당 1초 감소
   timeLimit.value = timeLeft.value
