@@ -207,6 +207,41 @@ export const shapes = [
       return interpolatePolygon(vertices, 12)
     }
   },
+  {
+    id: 'spiral',
+    name: '나선',
+    difficulty: 3,
+    generatePoints(cx, cy, size) {
+      const pts = []
+      const n = 120
+      for (let i = 0; i <= n; i++) {
+        const t = i / n
+        const angle = t * Math.PI * 4
+        const r = size * t
+        pts.push({
+          x: cx + Math.cos(angle) * r,
+          y: cy + Math.sin(angle) * r,
+        })
+      }
+      return pts
+    }
+  },
+  {
+    id: 'lightning',
+    name: '번개',
+    difficulty: 2,
+    generatePoints(cx, cy, size) {
+      const vertices = [
+        { x: cx - size * 0.3, y: cy - size },
+        { x: cx + size * 0.2, y: cy - size * 0.3 },
+        { x: cx - size * 0.1, y: cy - size * 0.3 },
+        { x: cx + size * 0.4, y: cy + size * 0.5 },
+        { x: cx + size * 0.1, y: cy + size * 0.5 },
+        { x: cx + size * 0.5, y: cy + size },
+      ]
+      return interpolatePolygon(vertices, 10)
+    }
+  }
 ]
 
 export function getRandomShape(difficulty = 1) {
