@@ -241,6 +241,86 @@ export const shapes = [
       ]
       return interpolatePolygon(vertices, 10)
     }
+  },
+  {
+    id: 'crescent',
+    name: '초승달',
+    difficulty: 2,
+    generatePoints(cx, cy, size) {
+      const pts = []
+      const n = 80
+      for (let i = 0; i <= n; i++) {
+        const angle = (i / n) * Math.PI * 2 - Math.PI / 2
+        // 외곽 원
+        const x1 = Math.cos(angle) * size
+        const y1 = Math.sin(angle) * size
+        // 내부 원 (offset)
+        const offsetX = size * 0.4
+        const x2 = Math.cos(angle) * (size * 0.6) + offsetX
+        const y2 = Math.sin(angle) * (size * 0.6)
+        // 상반부는 외곽, 하반부는 내곽
+        pts.push({
+          x: cx + (y1 < 0 ? x1 : x2),
+          y: cy + (y1 < 0 ? y1 : y2),
+        })
+      }
+      return pts
+    }
+  },
+  {
+    id: 'zigzag',
+    name: '지그재그',
+    difficulty: 2,
+    generatePoints(cx, cy, size) {
+      const pts = []
+      const peaks = 5
+      const width = size * 2
+      const height = size * 0.6
+      for (let i = 0; i <= peaks * 10; i++) {
+        const t = i / (peaks * 10)
+        const x = cx - width / 2 + t * width
+        const peakIndex = Math.floor(t * peaks)
+        const peakT = (t * peaks) - peakIndex
+        const y = cy + (peakT < 0.5 ? -height / 2 : height / 2)
+        pts.push({ x, y })
+      }
+      return pts
+    }
+  },
+  {
+    id: 'wave',
+    name: '파도',
+    difficulty: 2,
+    generatePoints(cx, cy, size) {
+      const pts = []
+      const cycles = 2
+      const n = 80
+      for (let i = 0; i <= n; i++) {
+        const t = i / n
+        const x = cx - size + t * size * 2
+        const y = cy + Math.sin(t * Math.PI * 2 * cycles) * size * 0.4
+        pts.push({ x, y })
+      }
+      return pts
+    }
+  },
+  {
+    id: 'treble',
+    name: '음표',
+    difficulty: 3,
+    generatePoints(cx, cy, size) {
+      const pts = []
+      const n = 120
+      for (let i = 0; i <= n; i++) {
+        const t = i / n
+        const angle = t * Math.PI * 2.5 - Math.PI / 2
+        const r = size * (0.3 + 0.7 * t)
+        const x = Math.cos(angle) * r
+        const y = Math.sin(angle) * r - size * 0.5 * t
+        pts.push({ x: cx + x, y: cy + y })
+      }
+      return pts
+    }
   }
 ]
 
