@@ -71,6 +71,7 @@
               <span>방향</span><span>{{ lastScore.details?.direction ?? '-' }}점</span>
               <span>위치</span><span>{{ lastScore.details?.position ?? '-' }}점</span>
             </div>
+            <button class="btn-retry" @click="startGame">⏱️ {{ level + 1 }}Lv 바로 도전</button>
           </div>
         </div>
       </div>
@@ -737,10 +738,26 @@ function shareResult() {
 
 .result-grade { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
 .result-score { font-size: 42px; font-weight: 800; color: #1B355A; }
-.result-detail { font-size: 13px; color: #888; margin-top: 8px; }
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 16px; text-align: left; }
+.result-detail { font-size: 13px; color: #888; margin-top: 12px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; text-align: left; }
 .detail-grid span:nth-child(odd) { color: #aaa; font-size: 12px; }
 .detail-grid span:nth-child(even) { color: #333; font-weight: 600; }
+
+.btn-retry {
+  margin-top: 16px;
+  width: 100%;
+  background: linear-gradient(135deg, #4D9BC6, #3A8AB5);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s;
+  box-shadow: 0 4px 12px rgba(77, 155, 198, 0.25);
+}
+.btn-retry:active { transform: scale(0.95); }
 
 /* Intro overlay */
 .intro-overlay {

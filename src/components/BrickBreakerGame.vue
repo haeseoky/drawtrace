@@ -86,6 +86,7 @@ let paddleShrink = { active: false, endTime: 0 }
 let reverseControl = { active: false, endTime: 0 }
 let ghostBall = { active: false, endTime: 0 }
 let chaosBounce = { active: false, endTime: 0 }
+let stoptime = { active: false, endTime: 0 }
 let speedMultiplier = 1
 
 // Ball stuck to paddle (for magnet or initial launch)
@@ -122,6 +123,7 @@ const ITEM_DEFS = [
   { type: 'magnet', icon: '🧲', label: '자석', color: '#9944FF', good: true },
   { type: 'shield', icon: '🛡️', label: '쉴드', color: '#44CC44', good: true },
   { type: 'expand', icon: '📏', label: '패들확장', color: '#FFCC00', good: true },
+  { type: 'stoptime', icon: '⏸️', label: '시간정지', color: '#00CCFF', good: true },
   // Bad items
   { type: 'speedup', icon: '💀', label: '속도업', color: '#222222', good: false },
   { type: 'shrink', icon: '📉', label: '패들축소', color: '#888888', good: false },
@@ -360,6 +362,9 @@ function activateItem(item) {
     case 'chaos':
       chaosBounce = { active: true, endTime: now + 6000 }
       break
+    case 'stoptime':
+      stoptime = { active: true, endTime: now + 5000 }
+      break
   }
 }
 
@@ -371,6 +376,7 @@ function clearAllEffects() {
   reverseControl = { active: false, endTime: 0 }
   ghostBall = { active: false, endTime: 0 }
   chaosBounce = { active: false, endTime: 0 }
+  stoptime = { active: false, endTime: 0 }
 }
 
 function updateEffects() {
@@ -402,6 +408,7 @@ function updateEffects() {
   checkEffect(reverseControl, '역방향', '🌀', '#FF8800')
   checkEffect(ghostBall, '고스트', '👻', '#88DDFF')
   checkEffect(chaosBounce, '혼란', '🔀', '#FF66AA')
+  checkEffect(stoptime, '시간정지', '⏸️', '#00CCFF')
   if (shieldActive) eff.push({ name: '쉴드', icon: '🛡️', bg: '#44CC44', remaining: '1' })
   activeEffects.value = eff
 }
@@ -434,6 +441,8 @@ function ensureLoop() {
 function update() {
   updateEffects()
 
+  const timeSlowed = stoptime.active ? 0.25 : 1
+
   // Move paddle
   let targetX = paddle.x
   if (useMouseControl && mouseX !== null) {
@@ -458,8 +467,8 @@ function update() {
     const ball = balls[i]
     if (!ball.launched) continue
 
-    ball.x += ball.dx
-    ball.y += ball.dy
+    ball.x += ball.dx * timeSlowed
+    ball.y += ball.dy * timeSlowed
 
     // Wall bounce
     if (ball.x - BALL_RADIUS <= 0) {

@@ -59,6 +59,27 @@ export const shapes = [
     }
   },
   {
+    id: 'hourglass',
+    name: '모래시계',
+    difficulty: 2,
+    generatePoints(cx, cy, size) {
+      const pts = []
+      const n = 100
+      for (let i = 0; i <= n; i++) {
+        const t = i / n
+        const angle = t * Math.PI * 2
+        const x = Math.cos(angle)
+        const y = Math.sin(angle)
+        // 모래시계: 가로로 압축한 8자 형태
+        pts.push({
+          x: cx + x * size * 1.2,
+          y: cy + y * size * Math.sin(angle * 2) * 0.8,
+        })
+      }
+      return pts
+    }
+  },
+  {
     id: 'triangle',
     name: '삼각형',
     difficulty: 1,
@@ -318,6 +339,30 @@ export const shapes = [
         const x = Math.cos(angle) * r
         const y = Math.sin(angle) * r - size * 0.5 * t
         pts.push({ x: cx + x, y: cy + y })
+      }
+      return pts
+    }
+  },
+  {
+    id: 'lightbulb',
+    name: '전구',
+    difficulty: 2,
+    generatePoints(cx, cy, size) {
+      const pts = []
+      const n = 80
+      for (let i = 0; i <= n; i++) {
+        const t = i / n
+        const angle = t * Math.PI * 2
+        // 전구 벌브 부분
+        const r = size * (0.6 + 0.4 * Math.sin(angle * 2))
+        const yBase = -size * 0.1
+        const yBulb = yBase + Math.sin(angle) * size * 0.7
+        // 하단 베이스
+        const yFinal = angle > Math.PI ? yBulb : yBulb * 0.7 + size * 0.3
+        pts.push({
+          x: cx + Math.cos(angle) * r,
+          y: cy + yFinal
+        })
       }
       return pts
     }
