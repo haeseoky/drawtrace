@@ -366,6 +366,37 @@ export const shapes = [
       }
       return pts
     }
+  },
+  {
+    id: 'cloud',
+    name: '구름',
+    difficulty: 1,
+    generatePoints(cx, cy, size) {
+      const pts = []
+      const n = 100
+      // 여러 원 겹침으로 구름 형상
+      const circles = [
+        { x: -0.4, y: 0.1, r: 0.5 },
+        { x: 0, y: -0.1, r: 0.6 },
+        { x: 0.4, y: 0.1, r: 0.5 },
+        { x: -0.2, y: 0.2, r: 0.4 },
+        { x: 0.2, y: 0.2, r: 0.4 }
+      ]
+      for (let i = 0; i <= n; i++) {
+        const t = i / n
+        const angle = t * Math.PI * 2 - Math.PI
+        // 외곽轮廓: 각 원의 상반부만 사용하여 구름 형상
+        let maxR = 0
+        for (const c of circles) {
+          const testAngle = angle + Math.atan2(c.y * size, c.x * size)
+          const r = c.r * size + 5
+          if (r > maxR) maxR = r
+        }
+        const y = Math.abs(Math.sin(angle)) * size * 0.3 - size * 0.1
+        pts.push({ x: cx + Math.cos(angle) * maxR * 0.9, y: cy + y })
+      }
+      return pts
+    }
   }
 ]
 

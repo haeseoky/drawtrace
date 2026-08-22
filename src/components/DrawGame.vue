@@ -314,6 +314,7 @@ function endGame() {
 
 // Touch handlers
 let lastInputWasTouch = false // 최근 입력 타입 추적 — 터치/마우스 혼합 환경 안정성
+let touchStartPos = null // 터치 시작점 추적 — 첫 드로잉 방향 힌트
 
 function getPos(e) {
   const rect = canvasRef.value.getBoundingClientRect()
@@ -333,6 +334,7 @@ function onTouchStart(e) {
   isDrawing.value = true
   userPath.length = 0
   const pos = getPos(e)
+  touchStartPos = { x: pos.x, y: pos.y } // 시작점 기록
   userPath.push(pos)
   // 햅틱 피드백 (모바일 터치 반응성 향상)
   if (navigator.vibrate) navigator.vibrate(10)
@@ -358,6 +360,7 @@ function onTouchMove(e) {
 function onTouchEnd() {
   if (!isDrawing.value) return
   isDrawing.value = false
+  touchStartPos = null
   if (gameState.value !== 'playing') return
   // 최소 이동 거리 + 포인트 수 확인 — 터치 지터로 인한 실수 종료 방지
   if (userPath.length >= 5) {
@@ -489,21 +492,40 @@ function drawTarget() {
   ctx.lineWidth = 2
   ctx.stroke()
 
-  // 화살표 방향 표시
+  // 화살표 방향 표시 (현재 드로잉 방향 힌트)
   if (pts.length > 3) {
-    const dx = pts[3].x - pts[0].x
-    const dy = pts[3].y - pts[0].y
+    let hintStart = pts[0]
+    let hintEnd = pts[3]
+    // 사용자 첫 드로잉 방향으로 힌트 동적 조정
+    if (touchStartPos && userPath.length >= 5) {
+      const firstPt = userPath[0]
+      const midIdx = Math.floor(userPath.length / 2)
+      const midPt = userPath[midIdx]
+      // 사용자 드로잉 방향과 타겟 도형 방향 비교하여 힌트 방향 결정
+      const userDx = midPt.x - firstPt.x
+      const userDy = midPt.y - firstPt.y
+      const targetDx = hintEnd.x - hintStart.x
+      const targetDy = hintEnd.y - hintStart.y
+      // 사용자가 타겟과 반대 방향으로 그리면 힌트 뒤집기
+      if (userDx * targetDx + userDy * targetDy < 0) {
+        const temp = hintStart
+        hintStart = hintEnd
+        hintEnd = temp
+      }
+    }
+    const dx = hintEnd.x - hintStart.x
+    const dy = hintEnd.y - hintStart.y
     const angle = Math.atan2(dy, dx)
     ctx.beginPath()
-    ctx.moveTo(pts[0].x + Math.cos(angle) * 14, pts[0].y + Math.sin(angle) * 14)
+    ctx.moveTo(hintStart.x + Math.cos(angle) * 14, hintStart.y + Math.sin(angle) * 14)
     ctx.lineTo(
-      pts[0].x + Math.cos(angle - 0.5) * 22,
-      pts[0].y + Math.sin(angle - 0.5) * 22
+      hintStart.x + Math.cos(angle - 0.5) * 22,
+      hintStart.y + Math.sin(angle - 0.5) * 22
     )
-    ctx.moveTo(pts[0].x + Math.cos(angle) * 14, pts[0].y + Math.sin(angle) * 14)
+    ctx.moveTo(hintStart.x + Math.cos(angle) * 14, hintStart.y + Math.sin(angle) * 14)
     ctx.lineTo(
-      pts[0].x + Math.cos(angle + 0.5) * 22,
-      pts[0].y + Math.sin(angle + 0.5) * 22
+      hintStart.x + Math.cos(angle + 0.5) * 22,
+      hintStart.y + Math.sin(angle + 0.5) * 22
     )
     ctx.strokeStyle = '#4D9BC6'
     ctx.lineWidth = 2
