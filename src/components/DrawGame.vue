@@ -717,7 +717,7 @@ function shareResult() {
 
 .score-display { display: flex; flex-direction: column; }
 .score-label { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 1px; }
-.score-value { font-size: 28px; font-weight: 800; color: #1B355A; }
+.score-value { font-size: 28px; font-weight: 700; color: #1B355A; }
 
 .btn-start {
   background: linear-gradient(135deg, #4D9BC6, #3A8AB5);
@@ -758,8 +758,8 @@ function shareResult() {
 .result-card.ok { border-top: 5px solid #F59E0B; }
 .result-card.miss { border-top: 5px solid #EF4444; }
 
-.result-grade { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
-.result-score { font-size: 42px; font-weight: 800; color: #1B355A; }
+.result-grade { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.result-score { font-size: 42px; font-weight: 700; color: #1B355A; }
 .result-detail { font-size: 13px; color: #888; margin-top: 12px; }
 .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; text-align: left; }
 .detail-grid span:nth-child(odd) { color: #aaa; font-size: 12px; }
@@ -797,7 +797,7 @@ function shareResult() {
   padding: 30px;
 }
 .intro-icon { font-size: 48px; margin-bottom: 12px; }
-.intro-title { font-size: 28px; font-weight: 800; color: #1B355A; }
+.intro-title { font-size: 28px; font-weight: 700; color: #1B355A; }
 .intro-desc { font-size: 16px; color: #666; margin-top: 8px; }
 .intro-hint { font-size: 13px; color: #999; margin-top: 16px; }
 

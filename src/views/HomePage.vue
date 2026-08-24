@@ -14,7 +14,7 @@
         :aria-label="`${game.name} 게임 시작`"
         @click="goGame(game.route)"
       >
-        <div class="game-icon">{{ game.icon }}</div>
+        <div class="game-icon" v-html="icons[game.id]"></div>
         <div class="game-info">
           <div class="game-name">{{ game.name }}</div>
           <div class="game-desc">{{ game.desc }}</div>
@@ -34,7 +34,7 @@
     </div>
 
     <div class="footer-info">
-      <p>🚀 더 많은 게임이 추가됩니다!</p>
+      <p>새 게임을 계속 준비하고 있어요</p>
       <a class="footer-link" href="https://nutalk.co.kr" target="_blank" rel="noopener">nutalk.co.kr</a>
     </div>
   </div>
@@ -54,7 +54,6 @@ const games = [
     id: 'draw-trace',
     name: '모양 따라그리기',
     desc: '보이는 모양을 정확하게 따라 그리세요!',
-    icon: '✏️',
     route: '/draw-trace',
     status: 'playable',
   },
@@ -62,7 +61,6 @@ const games = [
     id: 'reaction',
     name: '반응 속도 테스트',
     desc: '초록색이 되는 순간 최대한 빨리 터치!',
-    icon: '⚡',
     route: '/reaction',
     status: 'playable',
   },
@@ -70,7 +68,6 @@ const games = [
     id: 'memory',
     name: '기억력 카드',
     desc: '카드를 뒤집고 같은 그림 짝 맞추기',
-    icon: '🧠',
     route: '/memory',
     status: 'playable',
   },
@@ -78,7 +75,6 @@ const games = [
     id: 'color-match',
     name: '컬러 매치',
     desc: '글자 색상과 일치하는 버튼을 빠르게!',
-    icon: '🎨',
     route: '/color-match',
     status: 'playable',
   },
@@ -86,18 +82,25 @@ const games = [
     id: 'brick-breaker',
     name: '핑퐁 벽돌깨기',
     desc: '벽돌을 깨고 아이템을 모아보세요!',
-    icon: '🧱',
     route: '/brick',
     status: 'playable',
   },
 ]
 
+const icons = {
+  'draw-trace': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>',
+  'reaction': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+  'memory': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 13l4-4 4 4 3-3 7 7"/></svg>',
+  'color-match': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg>',
+  'brick-breaker': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="6" height="5"/><rect x="10" y="4" width="6" height="5"/><rect x="17" y="4" width="4" height="5"/><rect x="3" y="10" width="6" height="5"/><rect x="10" y="10" width="6" height="5"/><circle cx="12" cy="19" r="1"/></svg>',
+}
+
 const gameLabels = {
-  'draw-trace': '✏️ 따라그리기',
-  'reaction': '⚡ 반응속도',
-  'memory': '🧠 기억력카드',
-  'color-match': '🎨 컬러매치',
-  'brick-breaker': '🧱 벽돌깨기',
+  'draw-trace': '따라그리기',
+  'reaction': '반응속도',
+  'memory': '기억력카드',
+  'color-match': '컬러매치',
+  'brick-breaker': '벽돌깨기',
 }
 
 onMounted(() => {
@@ -116,7 +119,7 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 <style scoped>
 .home {
   min-height: 100dvh;
-  background: linear-gradient(180deg, #1B355A 0%, #2A4A72 35%, #f5f5f5 35%);
+  background: linear-gradient(180deg, #3A3168 0%, #4C4284 35%, #f5f5f5 35%);
   padding-bottom: 40px;
 }
 
@@ -126,7 +129,7 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
   color: #fff;
 }
 
-.logo { font-size: 26px; font-weight: 800; }
+.logo { font-size: 26px; font-weight: 700; }
 .subtitle { font-size: 14px; opacity: 0.7; margin-top: 4px; }
 
 .game-grid {
@@ -151,10 +154,10 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
   transition: transform 0.12s, box-shadow 0.12s;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
-.game-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(27, 53, 90, 0.15); will-change: transform; }
+.game-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(74, 66, 133, 0.15); will-change: transform; }
 .game-card:active { transform: scale(0.98); }
 .game-card:focus-visible {
-  outline: 2px solid #4D9BC6;
+  outline: 2px solid #8B7BC7;
   outline-offset: 2px;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -163,19 +166,23 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 }
 
 .game-icon {
-  font-size: 32px;
   flex-shrink: 0;
   width: 50px;
   height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0f5fa;
+  background: #F1EEF9;
+  color: #4C4284;
   border-radius: 12px;
+}
+.game-icon :deep(svg) {
+  width: 26px;
+  height: 26px;
 }
 
 .game-info { flex: 1; min-width: 0; }
-.game-name { font-size: 15px; font-weight: 700; color: #1B355A; }
+.game-name { font-size: 15px; font-weight: 700; color: #3A3168; }
 .game-desc { font-size: 12px; color: #888; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 .game-badge { flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 8px; }
@@ -188,7 +195,7 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
   padding: 0 20px;
   font-size: 16px;
   font-weight: 700;
-  color: #1B355A;
+  color: #3A3168;
 }
 
 .global-rank {
@@ -213,10 +220,10 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 
 .rank-pos { width: 28px; text-align: center; font-weight: 700; }
 .rank-game { flex: 1; color: #555; }
-.rank-score { font-weight: 700; color: #1B355A; }
+.rank-score { font-weight: 700; color: #3A3168; }
 .rank-empty { text-align: center; color: #aaa; font-size: 13px; padding: 20px 0; }
 
 .footer-info { text-align: center; margin-top: 28px; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); color: #aaa; font-size: 12px; }
-.footer-link { display: inline-block; margin-top: 4px; color: #4D9BC6; text-decoration: none; transition: color 0.2s; }
-.footer-link:hover { color: #3B7FA0; }
+.footer-link { display: inline-block; margin-top: 4px; color: #6B5CA5; text-decoration: none; transition: color 0.2s; }
+.footer-link:hover { color: #584A8F; }
 </style>

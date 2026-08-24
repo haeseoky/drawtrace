@@ -191,19 +191,19 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(feedbackTimeout) 
 .best-score { font-size: 13px; color: #666; }
 .game-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
 .color-question { text-align: center; margin-bottom: 32px; }
-.color-word { font-size: 48px; font-weight: 800; margin-bottom: 12px; }
+.color-word { font-size: 48px; font-weight: 700; margin-bottom: 12px; }
 .color-hint { font-size: 14px; color: #888; }
 .color-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 320px; }
 .color-btn { aspect-ratio: 1.6; border: none; border-radius: 16px; cursor: pointer; transition: transform 0.1s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; }
 .color-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 .color-btn:active { transform: scale(0.92); }
-.feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: 800; z-index: 10; }
+.feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: 700; z-index: 10; }
 .feedback.correct { color: #16A34A; }
 .feedback.wrong { color: #DC2626; }
 .game-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid #eee; flex-shrink: 0; gap: 8px; }
 .score-display { display: flex; flex-direction: column; }
 .score-label { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 1px; }
-.score-value { font-size: 24px; font-weight: 800; color: #1B355A; }
+.score-value { font-size: 24px; font-weight: 700; color: #1B355A; }
 .combo { font-size: 16px; font-weight: 700; color: #DC2626; }
 .btn-start { background: linear-gradient(135deg, #4D9BC6, #3A8AB5); color: #fff; border: none; padding: 12px 28px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: transform 0.1s; box-shadow: 0 4px 12px rgba(77, 155, 198, 0.3); }
 .btn-start:active { transform: scale(0.95); }

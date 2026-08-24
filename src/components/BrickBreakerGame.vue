@@ -898,7 +898,7 @@ canvas {
 
 .overlay-title {
   font-size: 24px;
-  font-weight: 800;
+  font-weight: 700;
   margin-bottom: 8px;
 }
 

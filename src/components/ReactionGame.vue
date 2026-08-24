@@ -158,7 +158,7 @@ onUnmounted(() => { clearTimeout(waitTimeout) })
 .phase-icon { font-size: 64px; margin-bottom: 16px; }
 .phase-text { font-size: 20px; font-weight: 700; }
 .phase-hint { font-size: 13px; opacity: 0.6; margin-top: 16px; }
-.reaction-time { font-size: 56px; font-weight: 800; color: #1B355A; }
+.reaction-time { font-size: 56px; font-weight: 700; color: #1B355A; }
 .reaction-grade { font-size: 20px; font-weight: 700; margin-top: 8px; }
 .reaction-grade.insane { color: #7C3AED; }
 .reaction-grade.fast { color: #DC2626; }
@@ -168,7 +168,7 @@ onUnmounted(() => { clearTimeout(waitTimeout) })
 .game-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid #eee; flex-shrink: 0; }
 .score-display { display: flex; flex-direction: column; }
 .score-label { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 1px; }
-.score-value { font-size: 24px; font-weight: 800; color: #1B355A; }
+.score-value { font-size: 24px; font-weight: 700; color: #1B355A; }
 .round-info { font-size: 14px; color: #888; font-weight: 600; }
 .btn-share { background: #4D9BC6; color: #fff; border: none; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
 </style>

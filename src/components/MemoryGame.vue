@@ -218,7 +218,7 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout) })
 .game-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid #eee; flex-shrink: 0; gap: 8px; }
 .score-display { display: flex; flex-direction: column; }
 .score-label { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 1px; }
-.score-value { font-size: 24px; font-weight: 800; color: #1B355A; }
+.score-value { font-size: 24px; font-weight: 700; color: #1B355A; }
 .btn-start { background: linear-gradient(135deg, #4D9BC6, #3A8AB5); color: #fff; border: none; padding: 12px 28px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: transform 0.1s; box-shadow: 0 4px 12px rgba(77, 155, 198, 0.3); }
 .btn-start:active { transform: scale(0.95); }
 .btn-share { background: #1B355A; color: #fff; border: none; padding: 12px 20px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
