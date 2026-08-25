@@ -140,6 +140,9 @@ function flipCard(index) {
       found.value++
       flipped.value = []
       if (navigator.vibrate) navigator.vibrate([10, 30, 10]) // 매칭 성공 햅틱 패턴
+      // 매칭 보너스: 쌍당 3초 연장 (트렌드: 진행 보상)
+      timeLeft.value += 3
+      timeLimit.value += 3
       if (found.value >= totalPairs) endGame()
     } else {
       isChecking = true

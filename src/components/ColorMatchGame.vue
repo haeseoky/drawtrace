@@ -146,6 +146,11 @@ function selectAnswer(opt) {
     score.value += 10 * combo.value
     feedback.value = 'correct'
     if (navigator.vibrate) navigator.vibrate([10, 30, 10]) // 정답 햅틱 패턴
+    // 콤보 5의 배수마다 5초 연장 (트렌드: 인터미턴트 리워드)
+    if (combo.value > 0 && combo.value % 5 === 0) {
+      timeLeft.value += 5
+      timeLimit.value += 5
+    }
   } else {
     combo.value = 0
     feedback.value = 'wrong'
