@@ -418,6 +418,11 @@ function drawFrame() {
   if (gameState.value === 'result') {
     drawResultOverlay()
   }
+
+  // 진행 중 피드백 화면 (최소 10포인트 이상)
+  if (gameState.value === 'playing' && userPath.length >= 10) {
+    drawProgressFeedback()
+  }
 }
 
 // 오프스크린 캔버스에 그리드 캐싱 — 리사이즈 시에만 재생성
@@ -544,6 +549,17 @@ function drawUserPath() {
 
   ctx.save()
 
+  // 진행 중 색상 피드백 — 점수 예측에 따른 색상 변화
+  if (gameState.value === 'playing' && userPath.length >= 10) {
+    const progressScore = estimateProgressScore()
+    if (progressScore >= 80) ctx.strokeStyle = '#16A34A'
+    else if (progressScore >= 60) ctx.strokeStyle = '#4D9BC6'
+    else if (progressScore >= 40) ctx.strokeStyle = '#F59E0B'
+    else ctx.strokeStyle = '#EF4444'
+  } else {
+    ctx.strokeStyle = '#4D9BC6'
+  }
+
   // 그림자
   ctx.shadowColor = 'rgba(27, 53, 90, 0.3)'
   ctx.shadowBlur = 8
@@ -600,6 +616,34 @@ function drawResultOverlay() {
   ctx.save()
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
   ctx.fillRect(0, 0, canvasW, canvasH)
+  ctx.restore()
+}
+
+// 진행 중 점수 예측 (실시간 피드백용)
+function estimateProgressScore() {
+  if (userPath.length < 10 || targetPoints.value.length < 5) return 0
+  try {
+    const canvasSize = { width: canvasW, height: canvasH }
+    const result = calculateScore(userPath, targetPoints.value, canvasSize)
+    return result.score
+  } catch (e) {
+    return 0
+  }
+}
+
+// 진행 중 피드백 화면
+function drawProgressFeedback() {
+  const progressScore = estimateProgressScore()
+  ctx.save()
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'
+  ctx.fillRect(0, 0, canvasW, canvasH)
+  ctx.restore()
+
+  // 진행률 인디케이터
+  const progressRatio = Math.min(1, userPath.length / targetPoints.value.length)
+  ctx.save()
+  ctx.fillStyle = progressRatio >= 0.8 ? '#16A34A' : '#4D9BC6'
+  ctx.fillRect(0, 0, canvasW * progressRatio, 3)
   ctx.restore()
 }
 
