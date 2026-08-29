@@ -633,17 +633,11 @@ function estimateProgressScore() {
 
 // 진행 중 피드백 화면
 function drawProgressFeedback() {
-  const progressScore = estimateProgressScore()
-  ctx.save()
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'
-  ctx.fillRect(0, 0, canvasW, canvasH)
-  ctx.restore()
-
-  // 진행률 인디케이터
   const progressRatio = Math.min(1, userPath.length / targetPoints.value.length)
+  // 상단 진행률 인디케이터만 — 반투명 오버레이 제거로 게임 시야 확보
   ctx.save()
   ctx.fillStyle = progressRatio >= 0.8 ? '#16A34A' : '#4D9BC6'
-  ctx.fillRect(0, 0, canvasW * progressRatio, 3)
+  ctx.fillRect(0, 0, canvasW * progressRatio, 4)
   ctx.restore()
 }
 
