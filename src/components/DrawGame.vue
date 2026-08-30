@@ -84,6 +84,11 @@
           <div class="intro-icon">✏️</div>
           <div class="intro-title">Draw Trace</div>
           <div class="intro-desc">보이는 모양을 따라 그리세요!</div>
+          <div class="intro-hints">
+            <div class="hint-item">• 시작점(파랑 점)부터 그리세요</div>
+            <div class="hint-item">• 화살표 방향을 따르세요</div>
+            <div class="hint-item">• 시간 내에 완성하세요</div>
+          </div>
           <div class="intro-hint">아래 '시작!' 버튼을 눌러주세요</div>
         </div>
       </div>
@@ -837,6 +842,19 @@ function shareResult() {
 .intro-icon { font-size: 48px; margin-bottom: 12px; }
 .intro-title { font-size: 28px; font-weight: 700; color: #1B355A; }
 .intro-desc { font-size: 16px; color: #666; margin-top: 8px; }
+.intro-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  text-align: left;
+  padding-left: 10px;
+}
+.hint-item {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+}
 .intro-hint { font-size: 13px; color: #999; margin-top: 16px; }
 
 /* Transitions */
