@@ -5,6 +5,9 @@
       <div class="header-left">
         <span class="level-badge">Lv.{{ level }}</span>
         <span class="shape-name">{{ currentShape?.name || '' }}</span>
+        <span v-if="dailyChallenge && !challengeProgress.completed" class="challenge-badge" title="일일 챌린지">
+          🎯 {{ challengeProgress.current }}/{{ dailyChallenge.goal }}
+        </span>
       </div>
       <div class="header-center">
         <div class="timer" :class="{ urgent: timeLeft <= 5 }">
@@ -102,6 +105,7 @@ import { calculateScore } from '../lib/scorer.js'
 import { getRandomShape } from '../data/shapes.js'
 import { addScore, getBestScore } from '../lib/leaderboard.js'
 import { shareResult as shareUtil } from '../lib/share.js'
+import { getDailyChallenge, saveChallengeProgress, loadChallengeProgress, CHALLENGE_TYPES } from '../lib/challenge.js'
 
 // Refs
 const canvasRef = ref(null)
@@ -133,6 +137,10 @@ let isEnding = false // 이중 endGame 방지 가드
 // Result
 const lastScore = reactive({ score: 0, accuracy: 0, details: {} })
 
+// Daily challenge
+const dailyChallenge = ref(null)
+const challengeProgress = reactive({ current: 0, completed: false })
+
 const resultGrade = computed(() => {
   const s = lastScore.score
   if (s >= 90) return 'perfect'
@@ -155,6 +163,7 @@ const emit = defineEmits(['score', 'share'])
 onMounted(() => {
   initCanvas()
   loadHighScore()
+  loadDailyChallenge()
   window.addEventListener('resize', onResize)
   document.addEventListener('visibilitychange', onVisibilityChange)
 })
@@ -255,7 +264,10 @@ function startGame() {
 
   // 레벨 진행에 따른 난이도 설정
   const difficulty = Math.min(3, Math.ceil(level.value / 3))
-  currentShape.value = getRandomShape(difficulty)
+  // 챌린지 난이도 우선 적용
+  const challengeDiff = dailyChallenge.value?.difficulty || 0
+  const effectiveDiff = Math.max(difficulty, challengeDiff)
+  currentShape.value = getRandomShape(effectiveDiff)
   generateTarget()
   drawFrame()
 
@@ -314,6 +326,10 @@ function endGame() {
 
   addScore({ gameId: 'draw-trace', score: result.score, name: '나', detail: `${currentShape.value?.name} ${result.score}점` })
   emit('score', result)
+
+  // 일일 챌린지 진행 체크
+  checkChallengeProgress(result, timeLeft.value / timeLimit.value)
+
   drawFrame()
 }
 
@@ -655,6 +671,60 @@ function saveHighScore() {
   // highScore는 leaderboard에 addScore로 이미 저장됨
 }
 
+// 일일 챌린지 로드
+function loadDailyChallenge() {
+  dailyChallenge.value = getDailyChallenge()
+  const progress = loadChallengeProgress(dailyChallenge.value.id)
+  challengeProgress.current = progress.progress
+  challengeProgress.completed = progress.completed
+}
+
+// 챌린지 진행 체크
+function checkChallengeProgress(result, timeRatio) {
+  if (!dailyChallenge.value || challengeProgress.completed) return
+
+  const { type, goal } = dailyChallenge.value
+  let newProgress = challengeProgress.current
+  let completed = false
+
+  switch (type) {
+    case CHALLENGE_TYPES.ACCURACY:
+      if (result.score >= goal) {
+        newProgress = Math.max(newProgress, result.score)
+        completed = true
+      }
+      break
+    case CHALLENGE_TYPES.SPEED:
+      if (result.score >= 60 && timeRatio * 100 >= goal) {
+        newProgress = Math.max(newProgress, Math.floor(timeRatio * 100))
+        completed = true
+      }
+      break
+    case CHALLENGE_TYPES.STREAK:
+      if (result.score >= 70) {
+        newProgress++
+        completed = newProgress >= goal
+      } else {
+        newProgress = 0 // 실패 시 초기화
+      }
+      break
+    case CHALLENGE_TYPES.SHAPE:
+      // 같은 난이도 모양 연속 성공
+      const shapeDiff = Math.min(3, Math.ceil(level.value / 3))
+      if (result.score >= 70 && shapeDiff === goal) {
+        newProgress++
+        completed = newProgress >= 3 // 3연속
+      } else if (result.score < 70) {
+        newProgress = 0
+      }
+      break
+  }
+
+  challengeProgress.current = newProgress
+  challengeProgress.completed = completed
+  saveChallengeProgress(dailyChallenge.value.id, newProgress, completed)
+}
+
 function shareResult() {
   emit('share')
   shareUtil('모양 따라그리기', lastScore.score)
@@ -702,6 +772,25 @@ function shareResult() {
   font-size: 16px;
   font-weight: 600;
   color: #333;
+}
+
+.challenge-badge {
+  background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 10px;
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .challenge-badge { animation: none; }
 }
 
 .timer {
