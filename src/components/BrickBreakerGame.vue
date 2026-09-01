@@ -12,12 +12,10 @@
         <span class="hud-best">🏆 {{ bestScore }}</span>
       </div>
     </div>
-    <div class="active-effects">
-      <template v-if="activeEffects.length > 0">
-        <span v-for="ef in activeEffects" :key="ef.name" class="effect-badge" :style="{ background: ef.bg }">
-          {{ ef.icon }} {{ ef.name }} <span class="effect-timer">{{ ef.remaining }}s</span>
-        </span>
-      </template>
+    <div v-if="activeEffects.length > 0" class="active-effects">
+      <span v-for="ef in activeEffects" :key="ef.name" class="effect-badge" :style="{ background: ef.bg }">
+        {{ ef.icon }}
+      </span>
     </div>
     <canvas ref="canvasRef" @click="handleClick" @touchstart.prevent="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend.prevent="handleTouchEnd" @mousemove="handleMouseMove"></canvas>
     <div v-if="gameState === 'idle'" class="overlay" @click="handleOverlayClick" @touchstart.prevent="handleOverlayTouch">
@@ -843,29 +841,33 @@ onUnmounted(() => {
 .hud-stage { color: #48DBFB; }
 
 .active-effects {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  padding: 4px 14px 6px;
-  background: #16213e;
-  flex-shrink: 0;
-  min-height: 30px;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 5;
 }
 
 .effect-badge {
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  color: #fff;
-  font-weight: 600;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 18px;
+  background: rgba(22, 33, 62, 0.85);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  animation: effect-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.effect-timer {
-  font-size: 10px;
-  opacity: 0.8;
+@keyframes effect-pop {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
 }
 
 canvas {
