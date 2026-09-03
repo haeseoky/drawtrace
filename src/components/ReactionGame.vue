@@ -49,6 +49,7 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
 import { addScore, getBestScore } from '../lib/leaderboard'
+import { hapticTick, hapticSuccess, hapticError } from '../lib/haptics'
 
 const emit = defineEmits(['score', 'share'])
 
@@ -101,10 +102,12 @@ function onTap() {
     // 너무 빨리 누름
     clearTimeout(waitTimeout)
     phase.value = 'fail'
+    hapticError()
   } else if (phase.value === 'go') {
     reactionTime.value = Math.round(getTimestamp() - goTimestamp)
     rounds.value.push(reactionTime.value)
     phase.value = 'result'
+    hapticTick()
 
     if (rounds.value.length >= totalRounds) {
       const avg = avgTime.value
@@ -135,6 +138,7 @@ function startRound() {
   waitTimeout = setTimeout(() => {
     phase.value = 'go'
     goTimestamp = getTimestamp()
+    hapticTick()
     waitDone.value = true
   }, delay)
 }

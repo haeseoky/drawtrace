@@ -63,6 +63,7 @@
 import { ref, computed, onUnmounted } from 'vue'
 import { addScore, getBestScore } from '../lib/leaderboard'
 import { shuffle } from '../lib/utils'
+import { hapticSuccess } from '../lib/haptics'
 
 const emit = defineEmits(['score', 'share'])
 
@@ -168,6 +169,7 @@ function endGame() {
   timerInterval = null
   clearTimeout(feedbackTimeout)
   gameState.value = 'done'
+  hapticSuccess()
   feedback.value = null
   addScore({ gameId: 'color-match', score: score.value, name: '나', detail: `${round.value}rounds` })
   if (score.value > bestScore.value) bestScore.value = score.value

@@ -48,6 +48,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { addScore, getBestScore } from '../lib/leaderboard'
+import { hapticSuccess, hapticError } from '../lib/haptics'
 
 const emit = defineEmits(['score', 'share'])
 
@@ -271,6 +272,7 @@ function loseLife() {
 
 function endGame() {
   gameState.value = 'gameover'
+  hapticError()
   bestScore.value = Math.max(bestScore.value, score.value)
   addScore({ gameId: 'brick-breaker', score: score.value })
   emit('score', { score: score.value })
@@ -281,6 +283,7 @@ function nextStage() {
   const bonus = lives.value * 100
   score.value += bonus
   stage.value++
+  hapticSuccess()
   resetStage()
   gameState.value = 'playing'
   ensureLoop()

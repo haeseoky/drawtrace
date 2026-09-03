@@ -58,6 +58,7 @@
 import { ref, computed, onUnmounted } from 'vue'
 import { addScore } from '../lib/leaderboard'
 import { shuffle } from '../lib/utils'
+import { hapticSuccess } from '../lib/haptics'
 
 const emit = defineEmits(['score', 'share'])
 
@@ -177,6 +178,7 @@ function endGame() {
   }
 
   gameState.value = 'done'
+  hapticSuccess()
 
   // 최종 라운드 점수 합산
   const pairBonus = found.value * 100
