@@ -389,6 +389,7 @@ function updateEffects() {
   if (reverseControl.active && now > reverseControl.endTime) reverseControl.active = false
   if (ghostBall.active && now > ghostBall.endTime) ghostBall.active = false
   if (chaosBounce.active && now > chaosBounce.endTime) chaosBounce.active = false
+  if (stoptime.active && now > stoptime.endTime) stoptime.active = false
 
   // Update paddle width
   let targetW = paddle.baseW
