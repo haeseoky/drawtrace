@@ -143,7 +143,25 @@ function startRound() {
   }, delay)
 }
 
-onUnmounted(() => { clearTimeout(waitTimeout) })
+const onVisibilityChange = () => {
+  if (!document.hidden) {
+    // 탭 복귀 시 — wait 중이면 라운드 재시작, go 중이면 백그라운드 체류 시간이
+    // 반응시간에 포함되지 않도록 대기 상태로 되돌림 (부정 점수 방지)
+    if (phase.value === 'wait') {
+      clearTimeout(waitTimeout)
+      startRound()
+    } else if (phase.value === 'go') {
+      phase.value = 'wait'
+      startRound()
+    }
+  }
+}
+document.addEventListener('visibilitychange', onVisibilityChange)
+
+onUnmounted(() => {
+  clearTimeout(waitTimeout)
+  document.removeEventListener('visibilitychange', onVisibilityChange)
+})
 </script>
 
 <style scoped>

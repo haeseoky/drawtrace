@@ -361,7 +361,6 @@ function onTouchStart(e) {
   if (navigator.vibrate) navigator.vibrate(10)
   // 즉시 첫 프레임 드로잉 — rAF 지연 없이 터치 응답성 극대화
   drawFrame()
-  requestDraw()
 }
 
 function onTouchMove(e) {
