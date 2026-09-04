@@ -440,6 +440,105 @@ function ensureLoop() {
   animId = requestAnimationFrame(gameLoop)
 }
 
+function updateBall(ball, mdx, mdy, ballsToRemove) {
+  ball.x += mdx
+  ball.y += mdy
+
+  // Wall bounce
+  if (ball.x - BALL_RADIUS <= 0) {
+    ball.x = BALL_RADIUS
+    ball.dx = Math.abs(ball.dx)
+    if (chaosBounce.active) addChaos(ball, 'dy')
+  }
+  if (ball.x + BALL_RADIUS >= canvasW) {
+    ball.x = canvasW - BALL_RADIUS
+    ball.dx = -Math.abs(ball.dx)
+    if (chaosBounce.active) addChaos(ball, 'dy')
+  }
+  if (ball.y - BALL_RADIUS <= 0) {
+    ball.y = BALL_RADIUS
+    ball.dy = Math.abs(ball.dy)
+    if (chaosBounce.active) addChaos(ball, 'dx')
+  }
+
+  // Bottom - lose ball
+  if (ball.y + BALL_RADIUS >= canvasH) {
+    if (shieldActive) {
+      shieldActive = false
+      ball.dy = -Math.abs(ball.dy)
+      ball.y = canvasH - BALL_RADIUS - 1
+    } else {
+      ballsToRemove.push(ball)
+    }
+    return
+  }
+
+  // Paddle collision
+  if (
+    ball.dy > 0 &&
+    ball.y + BALL_RADIUS >= paddle.y &&
+    ball.y + BALL_RADIUS <= paddle.y + paddle.h + 4 &&
+    ball.x >= paddle.x - 2 &&
+    ball.x <= paddle.x + paddle.w + 2
+  ) {
+    if (magnet.active) {
+      ball.launched = false
+      stuckBall = ball
+      ball.dx = 0
+      ball.dy = 0
+    } else {
+      const hitPos = (ball.x - paddle.x) / paddle.w // 0~1
+      const angle = -Math.PI / 2 + (hitPos - 0.5) * 1.2
+      ball.dx = Math.cos(angle) * ball.speed
+      ball.dy = Math.sin(angle) * ball.speed
+      // 최소 수직 속도 보장 — 수평각으로 인한 무한 반복 방지
+      const MIN_DY = ball.speed * 0.25
+      if (Math.abs(ball.dy) < MIN_DY) {
+        ball.dy = ball.dy >= 0 ? MIN_DY : -MIN_DY
+      }
+      ball.y = paddle.y - BALL_RADIUS - 1
+    }
+    return
+  }
+
+  // Brick collision
+  for (const brick of bricks) {
+    if (!brick.alive) continue
+    if (ballHitsBrick(ball, brick)) {
+      brick.hits--
+      if (brick.hits <= 0) {
+        brick.alive = false
+        score.value += brick.points
+        spawnItem(brick.x + brick.w / 2, brick.y + brick.h / 2)
+      }
+      if (!fireball.active) {
+        // Determine bounce direction
+        const bCx = brick.x + brick.w / 2
+        const bCy = brick.y + brick.h / 2
+        const dx = ball.x - bCx
+        const dy = ball.y - bCy
+        if (Math.abs(dx / brick.w) > Math.abs(dy / brick.h)) {
+          ball.dx = dx > 0 ? Math.abs(ball.dx) : -Math.abs(ball.dx)
+        } else {
+          ball.dy = dy > 0 ? Math.abs(ball.dy) : -Math.abs(ball.dy)
+        }
+      }
+      break // one brick per step per ball
+    }
+  }
+}
+
+// chaosBounce 랜덤 왜곡 — 공이 정지하지 않도록 최소 속도 보장 후 정규화
+function addChaos(ball, axis) {
+  ball[axis] += (Math.random() - 0.5) * 2
+  const sp = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy)
+  if (sp < ball.speed * 0.3) {
+    // 거의 정지한 경우 위쪽으로 재발사
+    ball.dx += (Math.random() - 0.5) * ball.speed * 0.5
+    ball.dy = -Math.abs(ball.dy) - ball.speed * 0.3
+  }
+}
+
 function update() {
   updateEffects()
 
@@ -463,95 +562,18 @@ function update() {
     stuckBall.y = paddle.y - BALL_RADIUS - 2
   }
 
-  // Update balls
+  // Update balls — 서브스텝 이동으로 고속 공의 벽돌/패들 터널링 방지
   const ballsToRemove = []
   for (let i = 0; i < balls.length; i++) {
     const ball = balls[i]
     if (!ball.launched) continue
 
-    ball.x += ball.dx * timeSlowed
-    ball.y += ball.dy * timeSlowed
-
-    // Wall bounce
-    if (ball.x - BALL_RADIUS <= 0) {
-      ball.x = BALL_RADIUS
-      ball.dx = Math.abs(ball.dx)
-      if (chaosBounce.active) ball.dy += (Math.random() - 0.5) * 2
-    }
-    if (ball.x + BALL_RADIUS >= canvasW) {
-      ball.x = canvasW - BALL_RADIUS
-      ball.dx = -Math.abs(ball.dx)
-      if (chaosBounce.active) ball.dy += (Math.random() - 0.5) * 2
-    }
-    if (ball.y - BALL_RADIUS <= 0) {
-      ball.y = BALL_RADIUS
-      ball.dy = Math.abs(ball.dy)
-      if (chaosBounce.active) ball.dx += (Math.random() - 0.5) * 2
-    }
-
-    // Bottom - lose ball
-    if (ball.y + BALL_RADIUS >= canvasH) {
-      if (shieldActive) {
-        shieldActive = false
-        ball.dy = -Math.abs(ball.dy)
-        ball.y = canvasH - BALL_RADIUS - 1
-      } else {
-        ballsToRemove.push(i)
-        continue
-      }
-    }
-
-    // Paddle collision
-    if (
-      ball.dy > 0 &&
-      ball.y + BALL_RADIUS >= paddle.y &&
-      ball.y + BALL_RADIUS <= paddle.y + paddle.h + 4 &&
-      ball.x >= paddle.x - 2 &&
-      ball.x <= paddle.x + paddle.w + 2
-    ) {
-      if (magnet.active) {
-        ball.launched = false
-        stuckBall = ball
-        ball.dx = 0
-        ball.dy = 0
-      } else {
-        const hitPos = (ball.x - paddle.x) / paddle.w // 0~1
-        const angle = -Math.PI / 2 + (hitPos - 0.5) * 1.2
-        ball.dx = Math.cos(angle) * ball.speed
-        ball.dy = Math.sin(angle) * ball.speed
-        // 최소 수직 속도 보장 — 수평각으로 인한 무한 반복 방지
-        const MIN_DY = ball.speed * 0.25
-        if (Math.abs(ball.dy) < MIN_DY) {
-          ball.dy = ball.dy >= 0 ? MIN_DY : -MIN_DY
-        }
-        ball.y = paddle.y - BALL_RADIUS - 1
-      }
-    }
-
-    // Brick collision
-    for (const brick of bricks) {
-      if (!brick.alive) continue
-      if (ballHitsBrick(ball, brick)) {
-        brick.hits--
-        if (brick.hits <= 0) {
-          brick.alive = false
-          score.value += brick.points
-          spawnItem(brick.x + brick.w / 2, brick.y + brick.h / 2)
-        }
-        if (!fireball.active) {
-          // Determine bounce direction
-          const bCx = brick.x + brick.w / 2
-          const bCy = brick.y + brick.h / 2
-          const dx = ball.x - bCx
-          const dy = ball.y - bCy
-          if (Math.abs(dx / brick.w) > Math.abs(dy / brick.h)) {
-            ball.dx = dx > 0 ? Math.abs(ball.dx) : -Math.abs(ball.dx)
-          } else {
-            ball.dy = dy > 0 ? Math.abs(ball.dy) : -Math.abs(ball.dy)
-          }
-        }
-        break // one brick per frame per ball
-      }
+    const mdx = ball.dx * timeSlowed
+    const mdy = ball.dy * timeSlowed
+    const dist = Math.sqrt(mdx * mdx + mdy * mdy)
+    const steps = Math.max(1, Math.ceil(dist / 6))
+    for (let s = 0; s < steps && ball.launched; s++) {
+      updateBall(ball, mdx / steps, mdy / steps, ballsToRemove)
     }
 
     // Normalize speed
@@ -563,8 +585,9 @@ function update() {
   }
 
   // Remove lost balls
-  for (let i = ballsToRemove.length - 1; i >= 0; i--) {
-    balls.splice(ballsToRemove[i], 1)
+  for (const b of ballsToRemove) {
+    const idx = balls.indexOf(b)
+    if (idx >= 0) balls.splice(idx, 1)
   }
 
   // All balls lost
