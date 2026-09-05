@@ -321,14 +321,15 @@ function endGame() {
   }
 
   gameState.value = 'result'
-  level.value++
   // isEnding은 다음 startGame()에서 리셋 — 타이머 콜백 중복 호출 완전 차단
+
+  // 일일 챌린지 진행 체크 — 레벨 증가 전에 판정해야 SHAPE 난이도가 정확함
+  checkChallengeProgress(result, timeLeft.value / timeLimit.value)
+
+  level.value++
 
   addScore({ gameId: 'draw-trace', score: result.score, name: '나', detail: `${currentShape.value?.name} ${result.score}점` })
   emit('score', result)
-
-  // 일일 챌린지 진행 체크
-  checkChallengeProgress(result, timeLeft.value / timeLimit.value)
 
   drawFrame()
 }
@@ -564,6 +565,8 @@ function drawTarget() {
 function drawUserPath() {
   if (userPath.length < 2) return
 
+  let pathColor = '#4D9BC6'
+
   // 렌더링 성능: 긴 경로는 150포인트로 간춌려서 드로잉 (채점은 전체 포인트 사용)
   const pts = userPath.length > 150 ? downsamplePath(userPath, 150) : userPath
 
@@ -572,12 +575,10 @@ function drawUserPath() {
   // 진행 중 색상 피드백 — 점수 예측에 따른 색상 변화
   if (gameState.value === 'playing' && userPath.length >= 10) {
     const progressScore = estimateProgressScore()
-    if (progressScore >= 80) ctx.strokeStyle = '#16A34A'
-    else if (progressScore >= 60) ctx.strokeStyle = '#4D9BC6'
-    else if (progressScore >= 40) ctx.strokeStyle = '#F59E0B'
-    else ctx.strokeStyle = '#EF4444'
-  } else {
-    ctx.strokeStyle = '#4D9BC6'
+    if (progressScore >= 80) pathColor = '#16A34A'
+    else if (progressScore >= 60) pathColor = '#4D9BC6'
+    else if (progressScore >= 40) pathColor = '#F59E0B'
+    else pathColor = '#EF4444'
   }
 
   // 그림자
@@ -585,6 +586,7 @@ function drawUserPath() {
   ctx.shadowBlur = 8
 
   // 메인 경로 — 베지어 곡선으로 부드러운 렌더링
+  // 위에서 계산한 진행 상태 색상 적용 (기존엔 하드코딩 색상이 덮어써 피드백이 무효화됨)
   ctx.beginPath()
   ctx.moveTo(pts[0].x, pts[0].y)
   if (pts.length === 2) {
@@ -598,7 +600,7 @@ function drawUserPath() {
     const last = pts[pts.length - 1]
     ctx.lineTo(last.x, last.y)
   }
-  ctx.strokeStyle = '#1B355A'
+  ctx.strokeStyle = pathColor
   ctx.lineWidth = 4
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
