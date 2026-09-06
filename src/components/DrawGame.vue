@@ -74,7 +74,7 @@
               <span>방향</span><span>{{ lastScore.details?.direction ?? '-' }}점</span>
               <span>위치</span><span>{{ lastScore.details?.position ?? '-' }}점</span>
             </div>
-            <button class="btn-retry" @click="startGame">⏱️ {{ level + 1 }}Lv 바로 도전</button>
+            <button class="btn-retry" @click="startGame">⏱️ {{ level }}Lv 바로 도전</button>
           </div>
         </div>
       </div>

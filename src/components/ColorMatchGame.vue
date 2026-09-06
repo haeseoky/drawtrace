@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { addScore, getBestScore } from '../lib/leaderboard'
 import { shuffle } from '../lib/utils'
 import { hapticSuccess } from '../lib/haptics'
@@ -94,6 +94,14 @@ const options = ref([])
 let timerInterval = null
 let gameStartTime = 0
 let feedbackTimeout = null
+
+// 데스크톱 키보드 지원 — 1~4번 키로 답 선택
+function onKeydown(e) {
+  if (gameState.value !== 'playing') return
+  const idx = ['1', '2', '3', '4'].indexOf(e.key)
+  if (idx >= 0 && options.value[idx]) selectAnswer(options.value[idx])
+}
+onMounted(() => { document.addEventListener('keydown', onKeydown) })
 
 function generateRound() {
   const textColor = COLORS[Math.floor(Math.random() * COLORS.length)]
@@ -176,7 +184,7 @@ function endGame() {
   emit('score', { score: score.value, detail: { rounds: round.value } })
 }
 
-onUnmounted(() => { clearInterval(timerInterval); clearTimeout(feedbackTimeout) })
+onUnmounted(() => { clearInterval(timerInterval); clearTimeout(feedbackTimeout); document.removeEventListener('keydown', onKeydown) })
 </script>
 
 <style scoped>
