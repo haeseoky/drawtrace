@@ -20,7 +20,7 @@
         </div>
       </div>
       <div class="header-right">
-        <span class="pairs-found">🧩 {{ found }}/{{ totalPairs }}</span>
+        <div class="pairs-found">🧩 {{ found }}/{{ totalPairs }}</div>
       </div>
     </header>
 
@@ -46,7 +46,10 @@
         <span class="score-label">SCORE</span>
         <span class="score-value">{{ score }}</span>
       </div>
-      <div class="moves-info" v-if="gameState === 'playing'">{{ moves }}수</div>
+      <div class="moves-info" v-if="gameState === 'playing'">
+        {{ moves }}수
+        <span v-if="combo >= 2" class="combo-badge">{{ combo }}연속!</span>
+      </div>
       <button v-if="gameState === 'idle'" class="btn-start" @click="startGame">시작!</button>
       <button v-if="gameState === 'done'" class="btn-start" @click="startGame">다시하기</button>
       <button v-if="gameState === 'done'" class="btn-share" @click="$emit('share')">📤 공유</button>
@@ -89,6 +92,7 @@ let timerInterval = null
 let gameStartTime = 0
 let flipTimeout = null
 let isChecking = false // 더블탭 치팅 방지
+const combo = ref(0) // 연속 매칭 콤보
 
 function startGame() {
   gameState.value = 'playing'
@@ -107,6 +111,7 @@ function setupRound() {
   moves.value = 0
   flipped.value = []
   isChecking = false
+  combo.value = 0
   clearTimeout(flipTimeout)
 
   const selected = shuffle(EMOJIS).slice(0, totalPairs.value)
@@ -139,13 +144,16 @@ function flipCard(index) {
       cards.value[a].matched = true
       cards.value[b].matched = true
       found.value++
+      combo.value++
       flipped.value = []
       if (navigator.vibrate) navigator.vibrate([10, 30, 10]) // 매칭 성공 햅틱 패턴
-      // 매칭 보너스: 쌍당 3초 연장 (트렌드: 진행 보상)
-      timeLeft.value += 3
-      timeLimit.value += 3
+      // 매칭 보너스: 쌍당 3초 + 콤보 보너스 (연속 매칭 시 +1초씩 가산, 최대 +5)
+      const comboBonus = Math.min(5, combo.value - 1)
+      timeLeft.value += 3 + comboBonus
+      timeLimit.value += 3 + comboBonus
       if (found.value >= totalPairs) endGame()
     } else {
+      combo.value = 0
       isChecking = true
       flipTimeout = setTimeout(() => {
         cards.value[a].flipped = false
@@ -229,4 +237,12 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout) })
 .btn-share { background: #1B355A; color: #fff; border: none; padding: 12px 20px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
 .btn-share:active { transform: scale(0.95); }
 .moves-info { font-size: 13px; color: #888; font-weight: 600; }
+.combo-badge { color: #E65100; font-weight: 700; margin-left: 6px; animation: combo-pop 0.3s ease-out; }
+@keyframes combo-pop {
+  0% { transform: scale(1.5); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .combo-badge { animation: none; }
+}
 </style>
