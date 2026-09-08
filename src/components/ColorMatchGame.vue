@@ -44,6 +44,11 @@
       <Transition name="pop">
         <div v-if="feedback" class="feedback" :class="feedback">{{ feedback === 'correct' ? '✅ 정답!' : '❌ 틀림!' }}</div>
       </Transition>
+      <div v-if="gameState === 'idle'" class="intro-overlay">
+        <div class="intro-title">컬러 매치</div>
+        <p class="intro-desc">글자의 의미가 아니라 <strong>글자의 색상</strong>을 보고 같은 색 버튼을 누르세요.
+          연속 정답 시 콤보 보너스가 붙습니다.</p>
+      </div>
     </main>
 
     <footer class="game-footer">
@@ -212,6 +217,9 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(feedbackTimeout);
 .color-btn { aspect-ratio: 1.6; border: none; border-radius: 16px; cursor: pointer; transition: transform 0.1s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; }
 .color-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 .color-btn:active { transform: scale(0.92); }
+.intro-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.92); z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; border-radius: 12px; }
+.intro-title { font-size: 28px; font-weight: 800; color: #4D9BC6; margin-bottom: 12px; }
+.intro-desc { font-size: 14px; color: #555; line-height: 1.6; }
 .feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: 700; z-index: 10; }
 .feedback.correct { color: #16A34A; }
 .feedback.wrong { color: #DC2626; }
