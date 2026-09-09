@@ -582,6 +582,16 @@ function update() {
       ball.dx = (ball.dx / sp) * ball.speed
       ball.dy = (ball.dy / sp) * ball.speed
     }
+
+    // 안티락: 벽돌 반사·카오스 왜곡 후에도 수직/수평 무한 반복 방지
+    const MIN_AXIS = ball.speed * 0.18
+    if (ball.launched && !stuckBall) {
+      if (Math.abs(ball.dy) < MIN_AXIS) ball.dy = (ball.dy >= 0 ? 1 : -1) * MIN_AXIS
+      if (Math.abs(ball.dx) < MIN_AXIS) ball.dx = (ball.dx >= 0 ? 1 : -1) * MIN_AXIS
+      const sp2 = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy)
+      ball.dx = (ball.dx / sp2) * ball.speed
+      ball.dy = (ball.dy / sp2) * ball.speed
+    }
   }
 
   // Remove lost balls
