@@ -177,8 +177,12 @@ function endGame() {
     // 다음 라운드로 진행 — 누적 점수
     const pairBonus = found.value * 100
     const timeBonus = Math.max(0, timeLeft.value) * 5
-    const movePenalty = Math.max(0, (moves.value - totalPairs.value * 2) * 3)
-    const roundScore = Math.max(0, pairBonus + timeBonus - movePenalty)
+    // 패널티 상한: 획득 보너스의 50% — 실수해도 라운드 보상감 유지 (백로그 #9)
+    const movePenalty = Math.min(
+      Math.max(0, (moves.value - totalPairs.value * 2) * 3),
+      (pairBonus + timeBonus) * 0.5
+    )
+    const roundScore = Math.max(0, Math.round(pairBonus + timeBonus - movePenalty))
     score.value += roundScore
     round.value++
     setupRound()
@@ -191,8 +195,11 @@ function endGame() {
   // 최종 라운드 점수 합산
   const pairBonus = found.value * 100
   const timeBonus = Math.max(0, timeLeft.value) * 5
-  const movePenalty = Math.max(0, (moves.value - totalPairs.value * 2) * 3)
-  const roundScore = Math.max(0, pairBonus + timeBonus - movePenalty)
+  const movePenalty = Math.min(
+    Math.max(0, (moves.value - totalPairs.value * 2) * 3),
+    (pairBonus + timeBonus) * 0.5
+  )
+  const roundScore = Math.max(0, Math.round(pairBonus + timeBonus - movePenalty))
   score.value += roundScore
 
   addScore({ gameId: 'memory', score: score.value, name: '나', detail: `Round ${round.value} ${moves.value}moves` })
