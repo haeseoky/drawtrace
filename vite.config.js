@@ -13,6 +13,9 @@ export default defineConfig({
           // Split large game components into separate chunks for better caching
           if (id.includes('components/BrickBreakerGame')) return 'brick-breaker'
           if (id.includes('components/DrawGame')) return 'draw-game'
+          if (id.includes('components/ColorMatchGame')) return 'color-match'
+          if (id.includes('components/MemoryGame')) return 'memory'
+          if (id.includes('components/ReactionGame')) return 'reaction'
           if (id.includes('lib/scorer')) return 'scorer'
         },
       },

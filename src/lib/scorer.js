@@ -107,15 +107,13 @@ class SpatialGrid {
   }
 
   _key(x, y) {
-    const cx = (x / this.cellSize) | 0
-    const cy = (y / this.cellSize) | 0
-    // 32비트 해시 — XOR 대신 곱셈+시프트로 충돌 최소화
-    return ((cx + 50000) * 1315423911) ^ ((cy + 50000) * 2654435761)
+    // 문자열 키 — 정수 해시의 XOR 충돌로 잘못된 셀 조회(점수 왜곡) 방지
+    return `${(x / this.cellSize) | 0},${(y / this.cellSize) | 0}`
   }
 
   /**
    * point에서 points 배열 내 최근접점까지의 거리 반환
-   * 인접 9셀만 검사 → 평균 O(1)
+   * 인접 9셀만 검사 → 평균 O(1), miss 시 전체 브루트포스 fallback
    */
   nearestDist(point) {
     const cellSize = this.cellSize
@@ -125,8 +123,7 @@ class SpatialGrid {
 
     for (let dx = -1; dx <= 1; dx++) {
       for (let dy = -1; dy <= 1; dy++) {
-        const key = ((cx + dx + 50000) * 1315423911) ^ ((cy + dy + 50000) * 2654435761)
-        const cell = this.cells[key]
+        const cell = this.cells[`${cx + dx},${cy + dy}`]
         if (!cell) continue
         for (let idx of cell) {
           const d = dist(point, this.points[idx])
@@ -135,6 +132,14 @@ class SpatialGrid {
             if (minD < MIN_DIST_THRESHOLD) return minD
           }
         }
+      }
+    }
+    // 9셀 모두 비어 근접 후보를 못 찾은 경우(드물지만 조밀하지 않은 경로에서 발생)
+    // Infinity 반환으로 평균거리가 NaN/Infinity가 되어 0점 처리되는 것 방지 — 전체 탐색 fallback
+    if (!isFinite(minD)) {
+      for (let i = 0; i < this.points.length; i++) {
+        const d = dist(point, this.points[i])
+        if (d < minD) minD = d
       }
     }
     return minD
