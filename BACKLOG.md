@@ -26,10 +26,10 @@
 - **현재:** 5종 게임 (따라그리기, 반응속도, 기억력카드, 컬러매치, 벽돌깨기)
 - **기대효과:** 타겟 오디언스 확대, 체류 시간 증가
 
-### 4. ⬜ PWA 및 오프라인 지원
+### 4. ✅ PWA 및 오프라인 지원
 - **설명:** 모바일 게임은 오프라인 플레이가 필수
 - **방법:** manifest.json + Workbox service worker (게임 에셋 캐싱)
-- **현재:** PWA 설정 없음, `viewport-fit=cover`, pull-to-refresh 방지만 있음
+- **완료 (2026-09-13):** manifest.json + 커스텀 service worker(shell precache, 정적 에셋 stale-while-revalidate, 네비게이션 network-first fallback). Workbox 의존성 없이 경량 구현. SW 등록은 프로덕션 빌드에서만.
 - **기대효과:** 네트워크 없이도 게임 플레이, 앱스토어 대체
 
 ### 5. ⬜ GA4 / 분석 도구 연동
@@ -139,4 +139,4 @@
 
 ---
 
-_최종 업데이트: 2026-09-12_
+_최종 업데이트: 2026-09-13_

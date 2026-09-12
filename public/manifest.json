@@ -1,0 +1,26 @@
+{
+  "name": "Draw Trace - 미니게임 허브",
+  "short_name": "DrawTrace",
+  "description": "따라그리기, 반응속도, 기억력, 컬러매치, 벽돌깨기 5종 미니게임 허브",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1B355A",
+  "theme_color": "#1B355A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
