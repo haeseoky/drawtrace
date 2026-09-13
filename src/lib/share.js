@@ -36,8 +36,13 @@ export async function shareResult(gameName, score) {
 }
 
 export function getKakaoShareUrl(gameName, score) {
+  // 카카오스토리 공유 (SDK 없이 작동하는 표준 URL)
+  return `https://story.kakao.com/share?url=${encodeURIComponent(BASE_URL)}`
+}
+
+export function getBandShareUrl(gameName, score) {
   const text = encodeURIComponent(getShareText(gameName, score))
-  return `https://sharer.kakao.com/talk/friends/picker/link?url=${encodeURIComponent(BASE_URL)}&text=${text}`
+  return `https://band.us/plugin/share?body=${text}&route=${encodeURIComponent(BASE_URL)}`
 }
 
 export function getTelegramShareUrl(gameName, score) {
@@ -47,5 +52,5 @@ export function getTelegramShareUrl(gameName, score) {
 
 export function getTwitterShareUrl(gameName, score) {
   const text = encodeURIComponent(getShareText(gameName, score))
-  return `https://twitter.com/intent/tweet?text=${text}`
+  return `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(BASE_URL)}`
 }

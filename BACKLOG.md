@@ -14,9 +14,9 @@
 - **현재:** `lib/leaderboard.js` — localStorage only, 기기 내 랭킹만 표시
 - **기대효과:** 실제 경쟁 요소, 재방문율 대폭 향상
 
-### 2. ⬜ 공유 기능 정상화
+### 2. ✅ 공유 기능 정상화
 - **설명:** 카카오 공유 URL이 비표준이라 작동 안 함
-- **방법:** Kakao JS SDK 연동 또는 `kakaotalk://` 스킴 사용, 네이버 밴드 공유 추가
+- **완료 (2026-09-14):** 비표준 sharer.kakao.com URL 제거 → SDK 불필요한 카카오스토리 공유(story.kakao.com)로 교체, 네이버 밴드 공유 추가, X 트윗 URL에 url 파라미터 보강
 - **현재:** `lib/share.js`의 `https://sharer.kakao.com/talk/friends/picker/link?url=...` 작동 안함
 - **기대효과:** 바이럴 확산, 유입 증가
 
@@ -139,4 +139,4 @@
 
 ---
 
-_최종 업데이트: 2026-09-13_
+_최종 업데이트: 2026-09-14_

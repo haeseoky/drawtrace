@@ -5,7 +5,8 @@
         <h3 class="share-title">📤 결과 공유하기</h3>
         <div class="share-score">{{ gameName }} {{ score }}점!</div>
         <div class="share-buttons">
-          <button class="share-btn kakao" @click="share('kakao')">💬 카카오톡</button>
+          <button class="share-btn kakao" @click="share('kakao')">💬 카카오스토리</button>
+          <button class="share-btn band" @click="share('band')">🎵 밴드</button>
           <button class="share-btn telegram" @click="share('telegram')">✈️ 텔레그램</button>
           <button class="share-btn twitter" @click="share('twitter')">🐦 X</button>
           <button class="share-btn copy" @click="share('copy')">📋 복사</button>
@@ -17,7 +18,7 @@
 </template>
 
 <script setup>
-import { shareResult, getKakaoShareUrl, getTelegramShareUrl, getTwitterShareUrl } from '../lib/share'
+import { shareResult, getKakaoShareUrl, getTelegramShareUrl, getTwitterShareUrl, getBandShareUrl } from '../lib/share'
 
 const props = defineProps({ visible: Boolean, gameName: String, score: Number })
 const emit = defineEmits(['close'])
@@ -28,6 +29,8 @@ async function share(type) {
     alert(result === 'clipboard' ? '클립보드에 복사되었습니다!' : '복사 실패')
   } else if (type === 'kakao') {
     window.open(getKakaoShareUrl(props.gameName, props.score ?? 0), '_blank')
+  } else if (type === 'band') {
+    window.open(getBandShareUrl(props.gameName, props.score ?? 0), '_blank')
   } else if (type === 'telegram') {
     window.open(getTelegramShareUrl(props.gameName, props.score ?? 0), '_blank')
   } else if (type === 'twitter') {
@@ -47,6 +50,7 @@ async function share(type) {
 .share-btn.kakao { background: #FEE500; color: #191919; }
 .share-btn.telegram { background: #0088cc; color: #fff; }
 .share-btn.twitter { background: #000; color: #fff; }
+.share-btn.band { background: #00C73C; color: #fff; }
 .share-btn.copy { background: #f0f0f0; color: #333; }
 .share-close { background: none; border: none; color: #888; font-size: 14px; cursor: pointer; padding: 8px; }
 .slide-enter-active, .slide-leave-active { transition: opacity 0.2s; }
