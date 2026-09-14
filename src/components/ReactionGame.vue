@@ -1,5 +1,7 @@
 <template>
   <div class="game-wrapper">
+    <!-- 스크린 리더 상태 발표 (a11y) -->
+    <div class="sr-only" role="status" aria-live="polite">{{ srAnnouncement }}</div>
     <header class="game-header">
       <div class="header-left"><span class="level-badge">Round {{ round }}</span></div>
       <div class="header-center">
@@ -93,6 +95,14 @@ const gradeText = computed(() => {
 const gradeEmoji = computed(() => {
   const map = { insane: '⚡', fast: '🔥', good: '👍', ok: '😊', slow: '🐢' }
   return map[grade.value]
+})
+
+// 스크린 리더용 상태 발표 (a11y)
+const srAnnouncement = computed(() => {
+  if (phase.value === 'result') return `${reactionTime.value}밀리초, ${gradeText.value}`
+  if (phase.value === 'fail') return '너무 빨리 터치했습니다. 재시도하세요.'
+  if (phase.value === 'go') return '지금 터치하세요'
+  return ''
 })
 
 function onTap() {

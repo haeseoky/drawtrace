@@ -1,5 +1,7 @@
 <template>
   <div class="game-wrapper">
+    <!-- 스크린 리더 점수 발표 -->
+    <div class="sr-only" role="status" aria-live="polite">{{ srAnnouncement }}</div>
     <!-- 헤더 -->
     <header class="game-header">
       <div class="header-left">
@@ -155,6 +157,12 @@ const timerCircumference = 2 * Math.PI * 17 // ≈ 106.81
 const resultEmoji = computed(() => {
   const map = { perfect: '💎', great: '🌟', good: '👍', ok: '🤔', miss: '😅' }
   return map[resultGrade.value]
+})
+
+// 스크린 리더용 점수 발표 (a11y)
+const srAnnouncement = computed(() => {
+  if (gameState.value !== 'result') return ''
+  return `게임 종료. ${lastScore.score}점, 등급 ${resultGrade.value}. 최고 점수 ${highScore.value}점.`
 })
 
 const emit = defineEmits(['score', 'share'])
