@@ -1,5 +1,7 @@
 <template>
   <div class="brick-breaker" ref="containerRef">
+    <!-- 스크린 리더 상태 발표 (a11y) -->
+    <div class="sr-only" role="status" aria-live="polite">{{ srAnnouncement }}</div>
     <div class="hud">
       <div class="hud-left">
         <span class="hud-score">⭐ {{ score }}</span>
@@ -51,6 +53,13 @@ import { addScore, getBestScore } from '../lib/leaderboard'
 import { hapticSuccess, hapticError } from '../lib/haptics'
 
 const emit = defineEmits(['score', 'share'])
+
+const srAnnouncement = computed(() => {
+  if (gameState.value === 'gameover') return `게임 오버. 최종 점수 ${score.value}점.`
+  if (gameState.value === 'stageclear') return `스테이지 ${stage.value} 클리어. 점수 ${score.value}점.`
+  if (gameState.value === 'playing') return `스테이지 ${stage.value} 진행 중. 점수 ${score.value}점, 남은 목숨 ${lives.value}.`
+  return '핑퐁 벽돌깨기 게임. 화면을 눌러 시작하세요.'
+})
 
 const containerRef = ref(null)
 const canvasRef = ref(null)

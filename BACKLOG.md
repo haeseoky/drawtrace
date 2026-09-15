@@ -98,7 +98,7 @@
 - **설명:** 스크린 리더, 키보드 플레이 지원
 - **방법:** 게임별 aria-live 영역, 키보드 컨트롤 매핑
 - **현재:** 기본 aria-label만 적용
-- **진행 (2026-09-15):** DrawGame/ReactionGame에 스크린리더 aria-live 점수/상태 발표 추가, 전역 .sr-only 클래스 적용. 남은 작업: 키보드 컨트롤, 나머지 3개 게임 발표
+- **진행 (2026-09-16):** DrawGame/ReactionGame에 이어 나머지 3개 게임(Memory/ColorMatch/BrickBreaker)도 aria-live 점수/상태 발표 추가 — 5개 게임 전체 발표 완료. 남은 작업: 키보드 컨트롤
 - **기대효과:** 웹 접근성 준수
 
 ---

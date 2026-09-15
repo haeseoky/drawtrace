@@ -1,5 +1,7 @@
 <template>
   <div class="game-wrapper">
+    <!-- 스크린 리더 상태 발표 (a11y) -->
+    <div class="sr-only" role="status" aria-live="polite">{{ srAnnouncement }}</div>
     <header class="game-header">
       <div class="header-left"><span class="level-badge">Round {{ round }}</span></div>
       <div class="header-center">
@@ -71,6 +73,12 @@ import { shuffle } from '../lib/utils'
 import { hapticSuccess } from '../lib/haptics'
 
 const emit = defineEmits(['score', 'share'])
+
+const srAnnouncement = computed(() => {
+  if (gameState.value === 'done') return `게임 종료. 최종 점수 ${score.value}점.`
+  if (gameState.value === 'playing') return `${round.value}라운드 진행 중. 점수 ${score.value}점.`
+  return '컬러 매치 게임. 시작 버튼을 눌러 플레이하세요.'
+})
 
 const COLORS = [
   { name: '빨강', hex: '#DC2626' },
