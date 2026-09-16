@@ -23,8 +23,7 @@
     <div v-if="gameState === 'idle'" class="overlay" @click="handleOverlayClick" @touchstart.prevent="handleOverlayTouch">
       <div class="overlay-content">
         <div class="overlay-icon">🧱</div>
-        <div class="overlay-title">핑퐁 벽돌깨기</div>
-        <div class="overlay-sub">터치해서 시작</div>
+        <div class="overlay-sub">터치해서 시작 (또는 스페이스키)</div>
       </div>
     </div>
     <div v-if="gameState === 'gameover'" class="overlay" @click="handleOverlayClick" @touchstart.prevent="handleOverlayTouch">
@@ -104,6 +103,8 @@ let stuckBall = null
 let touchX = null
 let mouseX = null
 let useMouseControl = false
+// Keyboard control (a11y backlog #16)
+const keysHeld = { left: false, right: false }
 
 const PADDLE_Y_OFFSET = 40
 const BALL_RADIUS = 7
@@ -553,6 +554,13 @@ function update() {
 
   const timeSlowed = stoptime.active ? 0.25 : 1
 
+  // Keyboard: move target relative to current paddle position each frame
+  if (keysHeld.left || keysHeld.right) {
+    const step = (keysHeld.right ? 14 : 0) - (keysHeld.left ? 14 : 0)
+    touchX = paddle.x + paddle.w / 2 + step
+    mouseX = null
+    useMouseControl = false
+  }
   // Move paddle
   let targetX = paddle.x
   if (useMouseControl && mouseX !== null) {
@@ -824,6 +832,51 @@ function handleMouseMove(e) {
   useMouseControl = true
 }
 
+function handleKeydown(e) {
+  const tag = (e.target?.tagName || '').toLowerCase()
+  if (tag === 'input' || tag === 'textarea') return
+  switch (e.key) {
+    case 'ArrowLeft':
+    case 'a':
+    case 'A':
+      keysHeld.left = true
+      e.preventDefault()
+      break
+    case 'ArrowRight':
+    case 'd':
+    case 'D':
+      keysHeld.right = true
+      e.preventDefault()
+      break
+    case ' ':
+    case 'Enter':
+      if (gameState.value === 'idle') startGame()
+      else if (gameState.value === 'stageclear') nextStage()
+      else if (gameState.value === 'playing' && stuckBall) launchBall(stuckBall)
+      e.preventDefault()
+      break
+    case 'r':
+    case 'R':
+      if (gameState.value === 'gameover') restart()
+      break
+  }
+}
+
+function handleKeyup(e) {
+  switch (e.key) {
+    case 'ArrowLeft':
+    case 'a':
+    case 'A':
+      keysHeld.left = false
+      break
+    case 'ArrowRight':
+    case 'd':
+    case 'D':
+      keysHeld.right = false
+      break
+  }
+}
+
 let resizeTimeout = null
 function handleResize() {
   clearTimeout(resizeTimeout)
@@ -838,6 +891,8 @@ onMounted(() => {
   // idle 상태에서는 루프를 돌지 않음 — 시작 시 ensureLoop()로 진입
   draw() // 초기 화면 1회 렌더링
   window.addEventListener('resize', handleResize)
+  window.addEventListener('keydown', handleKeydown)
+  window.addEventListener('keyup', handleKeyup)
   // 화면 방향 전환 감지 (모바일)
   screen.orientation?.addEventListener?.('change', handleResize)
 })
@@ -846,6 +901,8 @@ onUnmounted(() => {
   if (animId) { cancelAnimationFrame(animId); animId = null }
   clearTimeout(resizeTimeout)
   window.removeEventListener('resize', handleResize)
+  window.removeEventListener('keydown', handleKeydown)
+  window.removeEventListener('keyup', handleKeyup)
   screen.orientation?.removeEventListener?.('change', handleResize)
 })
 </script>
