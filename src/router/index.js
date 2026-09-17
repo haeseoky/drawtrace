@@ -32,6 +32,11 @@ const routes = [
     component: () => import('../views/BrickBreakerPage.vue'),
   },
   {
+    path: '/2048',
+    name: 'Game2048',
+    component: () => import('../views/Page2048.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },

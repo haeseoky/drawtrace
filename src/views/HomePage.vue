@@ -85,6 +85,13 @@ const games = [
     route: '/brick',
     status: 'playable',
   },
+  {
+    id: '2048',
+    name: '2048',
+    desc: '숫자 타일을 합쳐 2048을 만들어보세요!',
+    route: '/2048',
+    status: 'playable',
+  },
 ]
 
 const icons = {
@@ -93,6 +100,7 @@ const icons = {
   'memory': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 13l4-4 4 4 3-3 7 7"/></svg>',
   'color-match': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg>',
   'brick-breaker': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="6" height="5"/><rect x="10" y="4" width="6" height="5"/><rect x="17" y="4" width="4" height="5"/><rect x="3" y="10" width="6" height="5"/><rect x="10" y="10" width="6" height="5"/><circle cx="12" cy="19" r="1"/></svg>',
+  '2048': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>',
 }
 
 const gameLabels = {
@@ -101,6 +109,7 @@ const gameLabels = {
   'memory': '기억력카드',
   'color-match': '컬러매치',
   'brick-breaker': '벽돌깨기',
+  '2048': '2048',
 }
 
 onMounted(() => {

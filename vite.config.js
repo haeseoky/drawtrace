@@ -16,6 +16,7 @@ export default defineConfig({
           if (id.includes('components/ColorMatchGame')) return 'color-match'
           if (id.includes('components/MemoryGame')) return 'memory'
           if (id.includes('components/ReactionGame')) return 'reaction'
+          if (id.includes('components/Game2048')) return 'game-2048'
           if (id.includes('lib/scorer')) return 'scorer'
         },
       },
