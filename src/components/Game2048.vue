@@ -13,7 +13,7 @@
     </header>
 
     <main class="game-main">
-      <div class="board" ref="boardRef" tabindex="0" role="grid" aria-label="2048 보드">
+      <div class="board" ref="boardRef" tabindex="0" role="grid" aria-label="2048 보드" @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd">
         <div class="bg-cells">
           <div v-for="i in 16" :key="i" class="bg-cell"></div>
         </div>
@@ -26,6 +26,11 @@
             :style="tileStyle(tile)"
           >{{ tile.value }}</div>
         </TransitionGroup>
+        <div v-if="gameState === 'won'" class="over-overlay">
+          <div class="over-title win">2048 달성!</div>
+          <div class="over-score">{{ score }}점</div>
+          <button class="btn-continue" @click="gameState = 'playing'; boardRef?.focus()">계속하기</button>
+        </div>
         <div v-if="gameState === 'over'" class="over-overlay">
           <div class="over-title">게임 종료</div>
           <div class="over-score">{{ score }}점</div>
@@ -80,6 +85,7 @@ const score = ref(0)
 const bestScore = ref(getBestScore('2048'))
 const board = ref([]) // {id, value, r, c, merged}
 let tileId = 0
+let wonShown = false
 
 const srAnnouncement = computed(() => {
   if (gameState.value === 'over') return `게임 종료. 최종 점수 ${score.value}점.`
@@ -115,6 +121,7 @@ function spawnTile() {
 function startGame() {
   board.value = Array.from({ length: SIZE }, () => Array(SIZE).fill(null))
   score.value = 0
+  wonShown = false
   gameState.value = 'playing'
   spawnTile()
   spawnTile()
@@ -143,7 +150,7 @@ function setLine(dir, i, out) {
 }
 
 function move(dir) {
-  if (gameState.value !== 'playing') return
+  if (gameState.value !== 'playing' && gameState.value !== 'won') return
   let movedAny = false
   for (let i = 0; i < SIZE; i++) {
     const line = getLine(dir, i)
@@ -156,7 +163,20 @@ function move(dir) {
   if (navigator.vibrate) navigator.vibrate(8)
   spawnTile()
   if (score.value > bestScore.value) bestScore.value = score.value
+  if (!wonShown && hasWon()) {
+    wonShown = true
+    gameState.value = 'won'
+    hapticSuccess()
+    addScore({ gameId: '2048', score: score.value, name: '나', detail: '2048' })
+    emit('score', { score: score.value, detail: { game: '2048' } })
+    return
+  }
   if (isGameOver()) endGame()
+}
+
+function hasWon() {
+  for (const row of board.value) for (const t of row) if (t && t.value >= 2048) return true
+  return false
 }
 
 function isGameOver() {
@@ -256,6 +276,8 @@ onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
 
 .over-overlay { position: absolute; inset: 0; background: rgba(238, 228, 218, 0.8); z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; }
 .over-title { font-size: 26px; font-weight: 800; color: #776E65; }
+.over-title.win { color: #EDC22E; }
+.btn-continue { margin-top: 14px; background: #EDC22E; color: #fff; border: none; padding: 10px 24px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
 .over-score { font-size: 18px; font-weight: 700; color: #776E65; margin-top: 6px; }
 
 .intro-overlay { position: absolute; inset: 24px; max-width: 380px; margin: 0 auto; background: rgba(255,255,255,0.94); z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; border-radius: 12px; }
