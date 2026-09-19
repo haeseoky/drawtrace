@@ -2,7 +2,7 @@
   <div class="game-wrapper">
     <!-- 스크린 리더 상태 발표 (a11y) -->
     <div class="sr-only" role="status" aria-live="polite">{{ srAnnouncement }}</div>
-    <header class="game-header">
+    <header class="game-header" :class="{ shake: shaking }" @animationend="shaking = false">
       <div class="header-left"><span class="level-badge">2048</span></div>
       <div class="header-center">
         <span class="tile-hint">같은 숫자를 합쳐 <strong>2048</strong>을 만드세요</span>
@@ -86,6 +86,7 @@ const bestScore = ref(getBestScore('2048'))
 const board = ref([]) // {id, value, r, c, merged}
 let tileId = 0
 let wonShown = false
+const shaking = ref(false)
 
 const srAnnouncement = computed(() => {
   if (gameState.value === 'over') return `게임 종료. 최종 점수 ${score.value}점.`
@@ -159,7 +160,12 @@ function move(dir) {
     setLine(dir, i, out)
     if (gained) score.value += gained
   }
-  if (!movedAny) return
+  if (!movedAny) {
+    // 유효하지 않은 이동 — 흔들림 + 짧은 진동으로 피드백
+    shaking.value = true
+    if (navigator.vibrate) navigator.vibrate([30])
+    return
+  }
   if (navigator.vibrate) navigator.vibrate(8)
   spawnTile()
   if (score.value > bestScore.value) bestScore.value = score.value
@@ -283,6 +289,14 @@ onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
 .intro-overlay { position: absolute; inset: 24px; max-width: 380px; margin: 0 auto; background: rgba(255,255,255,0.94); z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; border-radius: 12px; }
 .intro-title { font-size: 28px; font-weight: 800; color: #1B355A; margin-bottom: 12px; }
 .intro-desc { font-size: 14px; color: #555; line-height: 1.6; }
+
+.game-header.shake { animation: header-shake 0.25s ease-in-out; }
+@keyframes header-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-3px); }
+}
 
 .game-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid #eee; flex-shrink: 0; gap: 8px; }
 .score-display { display: flex; flex-direction: column; }
