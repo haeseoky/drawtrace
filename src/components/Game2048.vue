@@ -47,6 +47,9 @@
       <div class="score-display">
         <span class="score-label">SCORE</span>
         <span class="score-value">{{ score }}</span>
+        <Transition name="gain">
+          <span v-if="gainPopup" :key="gainPopup.key" class="gain-popup">+{{ gainPopup.amount }}</span>
+        </Transition>
       </div>
       <div class="footer-btns">
         <button v-if="gameState === 'idle'" class="btn-start" @click="startGame">시작!</button>
@@ -87,6 +90,8 @@ const board = ref([]) // {id, value, r, c, merged}
 let tileId = 0
 let wonShown = false
 const shaking = ref(false)
+const gainPopup = ref(null) // { amount, key }
+let gainKey = 0
 
 const srAnnouncement = computed(() => {
   if (gameState.value === 'over') return `게임 종료. 최종 점수 ${score.value}점.`
@@ -158,7 +163,10 @@ function move(dir) {
     const { out, gained, moved } = slide(line)
     if (moved) movedAny = true
     setLine(dir, i, out)
-    if (gained) score.value += gained
+    if (gained) {
+      score.value += gained
+      gainPopup.value = { amount: gained, key: ++gainKey }
+    }
   }
   if (!movedAny) {
     // 유효하지 않은 이동 — 흔들림 + 짧은 진동으로 피드백
@@ -302,6 +310,12 @@ onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
 .score-display { display: flex; flex-direction: column; }
 .score-label { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 1px; }
 .score-value { font-size: 24px; font-weight: 700; color: #1B355A; }
+.score-display { position: relative; }
+.gain-popup { position: absolute; right: 0; top: 100%; font-size: 16px; font-weight: 800; color: #776E65; pointer-events: none; }
+.gain-enter-active { transition: transform 0.6s ease-out, opacity 0.6s; }
+.gain-enter-from { opacity: 1; }
+.gain-leave-to { opacity: 0; transform: translateY(18px); }
+.gain-leave-active { transition: opacity 0.3s, transform 0.5s ease-out; }
 .footer-btns { display: flex; gap: 8px; }
 .btn-start, .btn-restart { background: linear-gradient(135deg, #4D9BC6, #3A8AB5); color: #fff; border: none; padding: 12px 28px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: transform 0.1s; box-shadow: 0 4px 12px rgba(77, 155, 198, 0.3); }
 .btn-start:active, .btn-restart:active { transform: scale(0.95); }
