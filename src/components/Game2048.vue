@@ -34,6 +34,7 @@
         <div v-if="gameState === 'over'" class="over-overlay">
           <div class="over-title">게임 종료</div>
           <div class="over-score">{{ score }}점</div>
+          <button v-if="canUndo" class="btn-continue undo" @click="undo">↩ 되돌리기</button>
         </div>
       </div>
       <div v-if="gameState === 'idle'" class="intro-overlay">
@@ -52,6 +53,7 @@
         </Transition>
       </div>
       <div class="footer-btns">
+        <button v-if="gameState === 'playing' && canUndo" class="btn-undo" @click="undo">↩ 되돌리기</button>
         <button v-if="gameState === 'idle'" class="btn-start" @click="startGame">시작!</button>
         <button v-else class="btn-restart" @click="startGame">다시하기</button>
         <button v-if="gameState === 'over'" class="btn-share" @click="$emit('share')">📤 공유</button>
@@ -92,6 +94,8 @@ let wonShown = false
 const shaking = ref(false)
 const gainPopup = ref(null) // { amount, key }
 let gainKey = 0
+const undoSnapshot = ref(null) // { board, score } — 1스텝 되돌리기
+const canUndo = computed(() => !!undoSnapshot.value)
 
 const srAnnouncement = computed(() => {
   if (gameState.value === 'over') return `게임 종료. 최종 점수 ${score.value}점.`
@@ -128,6 +132,7 @@ function startGame() {
   board.value = Array.from({ length: SIZE }, () => Array(SIZE).fill(null))
   score.value = 0
   wonShown = false
+  undoSnapshot.value = null
   gameState.value = 'playing'
   spawnTile()
   spawnTile()
@@ -157,6 +162,7 @@ function setLine(dir, i, out) {
 
 function move(dir) {
   if (gameState.value !== 'playing' && gameState.value !== 'won') return
+  undoSnapshot.value = { board: board.value.map(row => row.map(t => t ? { ...t } : null)), score: score.value }
   let movedAny = false
   for (let i = 0; i < SIZE; i++) {
     const line = getLine(dir, i)
@@ -205,6 +211,16 @@ function isGameOver() {
   return true
 }
 
+function undo() {
+  if (!undoSnapshot.value || (gameState.value !== 'playing' && gameState.value !== 'over' && gameState.value !== 'won')) return
+  board.value = undoSnapshot.value.board
+  score.value = undoSnapshot.value.score
+  undoSnapshot.value = null
+  gameState.value = 'playing'
+  if (navigator.vibrate) navigator.vibrate([15])
+  boardRef.value?.focus()
+}
+
 function endGame() {
   gameState.value = 'over'
   hapticSuccess()
@@ -230,9 +246,10 @@ function onTouchEnd(e) {
 
 // 키보드 (a11y)
 function onKeydown(e) {
-  if (gameState.value !== 'playing') return
+  if (gameState.value !== 'playing' && gameState.value !== 'won') return
   const map = { ArrowLeft: 0, ArrowRight: 1, ArrowUp: 2, ArrowDown: 3 }
   if (e.key in map) { e.preventDefault(); move(map[e.key]) }
+  else if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); undo() }
 }
 onMounted(() => { document.addEventListener('keydown', onKeydown) })
 onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
@@ -292,6 +309,7 @@ onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
 .over-title { font-size: 26px; font-weight: 800; color: #776E65; }
 .over-title.win { color: #EDC22E; }
 .btn-continue { margin-top: 14px; background: #EDC22E; color: #fff; border: none; padding: 10px 24px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.btn-continue.undo { background: #8B7BC7; }
 .over-score { font-size: 18px; font-weight: 700; color: #776E65; margin-top: 6px; }
 
 .intro-overlay { position: absolute; inset: 24px; max-width: 380px; margin: 0 auto; background: rgba(255,255,255,0.94); z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; border-radius: 12px; }
@@ -321,6 +339,8 @@ onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
 .btn-start:active, .btn-restart:active { transform: scale(0.95); }
 .btn-share { background: #1B355A; color: #fff; border: none; padding: 12px 20px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
 .btn-share:active { transform: scale(0.95); }
+.btn-undo { background: #fff; color: #1B355A; border: 1.5px solid #1B355A; padding: 12px 18px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
+.btn-undo:active { transform: scale(0.95); }
 
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 </style>
