@@ -9,6 +9,7 @@
       </div>
       <div class="header-right">
         <span class="best-score">🏆 {{ bestScore }}</span>
+        <span v-if="maxTile > 2" class="best-tile" :class="'tt-' + maxTile">{{ maxTile }}</span>
       </div>
     </header>
 
@@ -101,6 +102,12 @@ const srAnnouncement = computed(() => {
   if (gameState.value === 'over') return `게임 종료. 최종 점수 ${score.value}점.`
   if (gameState.value === 'playing') return `2048 진행 중. 점수 ${score.value}점.`
   return '2048 게임. 시작 버튼을 눌러 플레이하세요.'
+})
+
+const maxTile = computed(() => {
+  let m = 0
+  for (const row of board.value) for (const t of row) if (t && t.value > m) m = t.value
+  return m
 })
 
 const tiles = computed(() => board.value.flat().filter(Boolean))
@@ -261,6 +268,9 @@ onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
 .level-badge { background: #1B355A; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px; }
 .tile-hint { font-size: 12px; color: #888; }
 .best-score { font-size: 13px; color: #666; }
+.best-tile { font-size: 12px; font-weight: 800; color: #fff; background: #8B7BC7; padding: 3px 8px; border-radius: 10px; margin-left: 6px; }
+.best-tile.tt-128, .best-tile.tt-256, .best-tile.tt-512 { background: #EDC850; }
+.best-tile.tt-1024, .best-tile.tt-2048 { background: #EDC22E; }
 .game-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; position: relative; }
 
 .board {
