@@ -84,6 +84,8 @@ const TILE_COLORS = {
   512:  { bg: '#EDC850', fg: '#FFF' },
   1024: { bg: '#EDC53F', fg: '#FFF' },
   2048: { bg: '#EDC22E', fg: '#FFF' },
+  4096: { bg: '#3C3A32', fg: '#FFF' },
+  8192: { bg: '#12110E', fg: '#FFF' },
 }
 
 const gameState = ref('idle')
@@ -169,7 +171,7 @@ function setLine(dir, i, out) {
 
 function move(dir) {
   if (gameState.value !== 'playing' && gameState.value !== 'won') return
-  undoSnapshot.value = { board: board.value.map(row => row.map(t => t ? { ...t } : null)), score: score.value }
+  const snapshot = { board: board.value.map(row => row.map(t => t ? { ...t } : null)), score: score.value }
   let movedAny = false
   for (let i = 0; i < SIZE; i++) {
     const line = getLine(dir, i)
@@ -187,6 +189,7 @@ function move(dir) {
     if (navigator.vibrate) navigator.vibrate([30])
     return
   }
+  undoSnapshot.value = snapshot // 유효한 이동에만 undo 스냅샷 확정
   if (navigator.vibrate) navigator.vibrate(8)
   spawnTile()
   if (score.value > bestScore.value) bestScore.value = score.value
