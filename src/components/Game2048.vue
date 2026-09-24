@@ -35,7 +35,11 @@
         <div v-if="gameState === 'over'" class="over-overlay">
           <div class="over-title">게임 종료</div>
           <div class="over-score">{{ score }}점</div>
-          <button v-if="canUndo" class="btn-continue undo" @click="undo">↩ 되돌리기</button>
+          <div v-if="maxTile > 2" class="over-best-tile" :class="'tt-' + maxTile">최고 타일 {{ maxTile }}</div>
+          <div class="over-btns">
+            <button v-if="canUndo" class="btn-continue undo" @click="undo">↩ 되돌리기</button>
+            <button class="btn-continue" @click="startGame">다시하기</button>
+          </div>
         </div>
       </div>
       <div v-if="gameState === 'idle'" class="intro-overlay">
@@ -101,7 +105,8 @@ const undoSnapshot = ref(null) // { board, score } — 1스텝 되돌리기
 const canUndo = computed(() => !!undoSnapshot.value)
 
 const srAnnouncement = computed(() => {
-  if (gameState.value === 'over') return `게임 종료. 최종 점수 ${score.value}점.`
+  if (gameState.value === 'won') return `2048 달성. 계속하거나 다시 시작할 수 있습니다.`
+  if (gameState.value === 'over') return `게임 종료. 최종 점수 ${score.value}점, 최고 타일 ${maxTile.value}.`
   if (gameState.value === 'playing') return `2048 진행 중. 점수 ${score.value}점.`
   return '2048 게임. 시작 버튼을 눌러 플레이하세요.'
 })
@@ -324,6 +329,10 @@ onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
 .btn-continue { margin-top: 14px; background: #EDC22E; color: #fff; border: none; padding: 10px 24px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
 .btn-continue.undo { background: #8B7BC7; }
 .over-score { font-size: 18px; font-weight: 700; color: #776E65; margin-top: 6px; }
+.over-best-tile { margin-top: 8px; font-size: 12px; font-weight: 800; color: #fff; background: #8B7BC7; padding: 4px 12px; border-radius: 10px; }
+.over-best-tile.tt-128, .over-best-tile.tt-256, .over-best-tile.tt-512, .over-best-tile.tt-1024, .over-best-tile.tt-2048, .over-best-tile.tt-4096, .over-best-tile.tt-8192 { background: #EDC22E; }
+.over-btns { display: flex; gap: 8px; margin-top: 14px; }
+.over-btns .btn-continue { margin-top: 0; }
 
 .intro-overlay { position: absolute; inset: 24px; max-width: 380px; margin: 0 auto; background: rgba(255,255,255,0.94); z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; border-radius: 12px; }
 .intro-title { font-size: 28px; font-weight: 800; color: #1B355A; margin-bottom: 12px; }
