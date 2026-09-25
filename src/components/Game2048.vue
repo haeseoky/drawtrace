@@ -23,7 +23,7 @@
             v-for="tile in tiles"
             :key="tile.id"
             class="tile"
-            :class="tileClass(tile.value)"
+            :class="tileClass(tile)"
             :style="tileStyle(tile)"
           >{{ tile.value }}</div>
         </TransitionGroup>
@@ -35,6 +35,7 @@
         <div v-if="gameState === 'over'" class="over-overlay">
           <div class="over-title">게임 종료</div>
           <div class="over-score">{{ score }}점</div>
+          <div v-if="score > 0 && score === bestScore" class="over-new-record">신기록!</div>
           <div v-if="maxTile > 2" class="over-best-tile" :class="'tt-' + maxTile">최고 타일 {{ maxTile }}</div>
           <div class="over-btns">
             <button v-if="canUndo" class="btn-continue undo" @click="undo">↩ 되돌리기</button>
@@ -119,7 +120,7 @@ const maxTile = computed(() => {
 
 const tiles = computed(() => board.value.flat().filter(Boolean))
 
-function tileClass(v) { return 'tile-' + v }
+function tileClass(t) { return 'tile-' + t.value + (t.merged ? ' tile-merged' : '') }
 function tileStyle(t) {
   return {
     transform: `translate(calc(${t.c} * (var(--cell) + var(--gap))), calc(${t.r} * (var(--cell) + var(--gap))))`,
@@ -337,6 +338,12 @@ onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
 .intro-overlay { position: absolute; inset: 24px; max-width: 380px; margin: 0 auto; background: rgba(255,255,255,0.94); z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; border-radius: 12px; }
 .intro-title { font-size: 28px; font-weight: 800; color: #1B355A; margin-bottom: 12px; }
 .intro-desc { font-size: 14px; color: #555; line-height: 1.6; }
+
+.over-new-record { margin-top: 8px; font-size: 14px; font-weight: 800; color: #EDC22E; animation: record-pulse 1s ease-in-out infinite; }
+@keyframes record-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+.tile-merged { animation: merge-pulse 0.2s ease-out; }
+@keyframes merge-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.18); } 100% { transform: scale(1); } }
 
 .game-header.shake { animation: header-shake 0.25s ease-in-out; }
 @keyframes header-shake {

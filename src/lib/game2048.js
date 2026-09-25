@@ -8,7 +8,7 @@ export function slide(line) {
   let moved = false
   for (let i = 0; i < vals.length; i++) {
     if (i + 1 < vals.length && vals[i].value === vals[i + 1].value) {
-      const merged = { id: vals[i].id, value: vals[i].value * 2, r: vals[i].r, c: vals[i].c }
+      const merged = { id: vals[i].id, value: vals[i].value * 2, r: vals[i].r, c: vals[i].c, merged: true }
       vals[i + 1].merged = true // 흡수되는 타일 제거 대상
       out.push(merged)
       gained += merged.value
