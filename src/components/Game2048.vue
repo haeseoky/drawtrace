@@ -263,9 +263,9 @@ function onTouchEnd(e) {
 // 키보드 (a11y)
 function onKeydown(e) {
   if (gameState.value !== 'playing' && gameState.value !== 'won') return
-  const map = { ArrowLeft: 0, ArrowRight: 1, ArrowUp: 2, ArrowDown: 3 }
+  const map = { ArrowLeft: 0, a: 0, A: 0, ArrowRight: 1, d: 1, D: 1, ArrowUp: 2, w: 2, W: 2, ArrowDown: 3, s: 3, S: 3 }
   if (e.key in map) { e.preventDefault(); move(map[e.key]) }
-  else if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); undo() }
+  else if (e.key === 'z' || e.key === 'Z' || e.key === 'u' || e.key === 'U') { e.preventDefault(); undo() }
 }
 onMounted(() => { document.addEventListener('keydown', onKeydown) })
 onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
