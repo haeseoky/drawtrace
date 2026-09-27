@@ -30,6 +30,7 @@
       <div class="overlay-content">
         <div class="overlay-icon">💥</div>
         <div class="overlay-title">게임 오버</div>
+        <div v-if="isNewRecord && score > 0" class="overlay-record">🏆 신기록!</div>
         <div class="overlay-score">점수: {{ score }}</div>
         <div class="overlay-best">최고: {{ bestScore }}</div>
         <button class="overlay-btn" @click.stop="restart" @touchstart.prevent.stop="restart">다시하기</button>
@@ -54,7 +55,7 @@ import { hapticSuccess, hapticError } from '../lib/haptics'
 const emit = defineEmits(['score', 'share'])
 
 const srAnnouncement = computed(() => {
-  if (gameState.value === 'gameover') return `게임 오버. 최종 점수 ${score.value}점.`
+  if (gameState.value === 'gameover') return `게임 오버. 최종 점수 ${score.value}점.${isNewRecord.value ? ' 신기록 달성!' : ''}`
   if (gameState.value === 'stageclear') return `스테이지 ${stage.value} 클리어. 점수 ${score.value}점.`
   if (gameState.value === 'playing') return `스테이지 ${stage.value} 진행 중. 점수 ${score.value}점, 남은 목숨 ${lives.value}.`
   return '핑퐁 벽돌깨기 게임. 화면을 눌러 시작하세요.'
@@ -67,6 +68,7 @@ const score = ref(0)
 const lives = ref(3)
 const stage = ref(1)
 const bestScore = ref(0)
+const isNewRecord = ref(false)
 const gameState = ref('idle') // idle, playing, gameover, stageclear
 
 // Active timed effects
@@ -283,6 +285,7 @@ function loseLife() {
 function endGame() {
   gameState.value = 'gameover'
   hapticError()
+  isNewRecord.value = score.value > bestScore.value && score.value > 0
   bestScore.value = Math.max(bestScore.value, score.value)
   addScore({ gameId: 'brick-breaker', score: score.value })
   emit('score', { score: score.value })
@@ -1005,6 +1008,19 @@ canvas {
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 8px;
+}
+
+.overlay-record {
+  font-size: 16px;
+  font-weight: 700;
+  color: #FECA57;
+  margin-bottom: 8px;
+  animation: record-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes record-pop {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
 }
 
 .overlay-score {
