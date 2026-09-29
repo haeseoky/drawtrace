@@ -68,7 +68,7 @@ import { hapticSuccess } from '../lib/haptics'
 const emit = defineEmits(['score', 'share'])
 
 const srAnnouncement = computed(() => {
-  if (gameState.value === 'done') return `게임 종료. 최종 점수 ${score.value}점.`
+  if (gameState.value === 'done') return `게임 종료. 최종 점수 ${score.value}점.${lastPerfect.value ? ' 퍼펙트 라운드 보너스가 포함되었습니다.' : ''}`
   if (gameState.value === 'playing') return `라운드 ${round.value} 진행 중. 점수 ${score.value}점.`
   return '기억력 카드 게임. 시작 버튼을 눌러 플레이하세요.'
 })
@@ -100,7 +100,9 @@ let timerInterval = null
 let gameStartTime = 0
 let flipTimeout = null
 let isChecking = false // 더블탭 치팅 방지
+let roundMistakes = 0 // 이번 라운드 실수 수 (퍼펙트 보너스용)
 const combo = ref(0) // 연속 매칭 콤보
+const lastPerfect = ref(false) // 마지막 라운드 퍼펙트 여부 (sr 발표용)
 
 function startGame() {
   gameState.value = 'playing'
@@ -120,6 +122,7 @@ function setupRound() {
   flipped.value = []
   isChecking = false
   combo.value = 0
+  roundMistakes = 0
   clearTimeout(flipTimeout)
 
   const selected = shuffle(EMOJIS).slice(0, totalPairs.value)
@@ -162,6 +165,7 @@ function flipCard(index) {
       if (found.value >= totalPairs) endGame()
     } else {
       combo.value = 0
+      roundMistakes++
       isChecking = true
       flipTimeout = setTimeout(() => {
         cards.value[a].flipped = false
@@ -191,7 +195,8 @@ function endGame() {
       (pairBonus + timeBonus) * 0.5
     )
     const roundScore = Math.max(0, Math.round(pairBonus + timeBonus - movePenalty))
-    score.value += roundScore
+    const perfectBonus = roundMistakes === 0 ? 500 : 0
+    score.value += roundScore + perfectBonus
     round.value++
     setupRound()
     return
@@ -208,10 +213,12 @@ function endGame() {
     (pairBonus + timeBonus) * 0.5
   )
   const roundScore = Math.max(0, Math.round(pairBonus + timeBonus - movePenalty))
-  score.value += roundScore
+  const perfectBonus = roundMistakes === 0 ? 500 : 0
+  lastPerfect.value = perfectBonus > 0
+  score.value += roundScore + perfectBonus
 
   addScore({ gameId: 'memory', score: score.value, name: '나', detail: `Round ${round.value} ${moves.value}moves` })
-  emit('score', { score: score.value, detail: { found: found.value, totalPairs: totalPairs.value, moves: moves.value, timeLeft: timeLeft.value } })
+  emit('score', { score: score.value, detail: { found: found.value, totalPairs: totalPairs.value, moves: moves.value, timeLeft: timeLeft.value, perfectBonus } })
 }
 
 onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout) })
@@ -243,6 +250,15 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout) })
 .card-front { background: linear-gradient(135deg, #4D9BC6, #1B355A); color: #fff; }
 .card-back { background: #f0f5fa; transform: rotateY(180deg); }
 .card.matched .card-back { background: #E8F5E9; }
+.card.matched .card-inner { animation: match-pop 0.35s ease-out; }
+@keyframes match-pop {
+  0% { transform: rotateY(180deg) scale(1); }
+  50% { transform: rotateY(180deg) scale(1.1); }
+  100% { transform: rotateY(180deg) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card.matched .card-inner { animation: none; }
+}
 .game-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid #eee; flex-shrink: 0; gap: 8px; }
 .score-display { display: flex; flex-direction: column; }
 .score-label { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 1px; }
