@@ -3,6 +3,11 @@
     <header class="home-header">
       <h1 class="logo">🎮 Game Hub</h1>
       <p class="subtitle">원하는 게임을 선택하세요</p>
+      <div v-if="streak.count > 0" class="streak-badge" aria-live="polite">
+        <span class="streak-fire" aria-hidden="true">🔥</span>
+        <span>연속 {{ streak.count }}일 접속 중<template v-if="streak.isNewDay"> · 오늘 완료!</template></span>
+        <span class="streak-best">최고 {{ streak.best }}일</span>
+      </div>
     </header>
 
     <div class="game-grid">
@@ -44,9 +49,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getLeaderboard } from '../lib/leaderboard'
+import { checkStreak } from '../lib/streak'
 
 const router = useRouter()
 const globalRank = ref([])
+const streak = ref({ count: 0, best: 0, isNewDay: false })
 const medals = ['🥇', '🥈', '🥉']
 
 const games = [
@@ -113,6 +120,7 @@ const gameLabels = {
 }
 
 onMounted(() => {
+  streak.value = checkStreak()
   const all = getLeaderboard().map(e => ({
     ...e,
     gameLabel: gameLabels[e.gameId] || e.gameId,
@@ -140,6 +148,22 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 
 .logo { font-size: 26px; font-weight: 700; }
 .subtitle { font-size: 14px; opacity: 0.7; margin-top: 4px; }
+
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+.streak-fire { font-size: 15px; }
+.streak-best { opacity: 0.65; font-weight: 500; font-size: 12px; }
 
 .game-grid {
   display: flex;
