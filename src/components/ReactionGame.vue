@@ -28,6 +28,7 @@
       <div v-if="phase === 'result'" class="phase-content">
         <div class="reaction-time">{{ reactionTime }}ms</div>
         <div class="reaction-grade" :class="grade">{{ gradeEmoji }} {{ gradeText }}</div>
+        <div v-if="newRecord" class="reaction-new-record">🏆 신기록!</div>
         <div class="phase-hint">터치하면 다음 라운드</div>
       </div>
       <div v-if="phase === 'fail'" class="phase-content fail">
@@ -72,6 +73,7 @@ const getTimestamp = () => {
 
 // bestMs는 '반응시간 ms'이므로 localStorage에서 직접 읽기 (getBestScore는 점수 기준)
 const bestMs = ref(parseInt(localStorage.getItem('reaction-best-ms') || '0', 10))
+const newRecord = ref(false)
 
 const avgTime = computed(() => {
   if (rounds.value.length === 0) return 0
@@ -125,6 +127,7 @@ function onTap() {
       addScore({ gameId: 'reaction', score, name: '나', detail: `${avg}ms` })
       if (avg < bestMs.value || bestMs.value === 0) {
         bestMs.value = avg
+        newRecord.value = true
         localStorage.setItem('reaction-best-ms', String(avg))
       }
       emit('score', { score, detail: { avgMs: avg, rounds: [...rounds.value] } })
@@ -134,6 +137,7 @@ function onTap() {
       // 게임 종료 후 재시작
       rounds.value = []
       round.value = 1
+      newRecord.value = false
     } else {
       round.value++
     }
@@ -197,6 +201,8 @@ onUnmounted(() => {
 .reaction-grade.good { color: #16A34A; }
 .reaction-grade.ok { color: #F59E0B; }
 .reaction-grade.slow { color: #888; }
+.reaction-new-record { margin-top: 10px; font-size: 14px; font-weight: 800; color: #fff; background: #EAB308; padding: 5px 14px; border-radius: 14px; display: inline-block; animation: record-pop 0.3s ease-out; }
+@keyframes record-pop { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 .game-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid #eee; flex-shrink: 0; }
 .score-display { display: flex; flex-direction: column; }
 .score-label { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 1px; }
