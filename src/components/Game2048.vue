@@ -30,7 +30,10 @@
         <div v-if="gameState === 'won'" class="over-overlay">
           <div class="over-title win">2048 달성!</div>
           <div class="over-score">{{ score }}점</div>
-          <button class="btn-continue" @click="gameState = 'playing'; boardRef?.focus()">계속하기</button>
+          <div class="over-btns">
+            <button class="btn-share" @click="$emit('share')">📤 공유</button>
+            <button class="btn-continue" @click="gameState = 'playing'; boardRef?.focus()">계속하기</button>
+          </div>
         </div>
         <div v-if="gameState === 'over'" class="over-overlay">
           <div class="over-title">게임 종료</div>
