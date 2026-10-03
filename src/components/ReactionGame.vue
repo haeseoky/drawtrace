@@ -28,7 +28,11 @@
       <div v-if="phase === 'result'" class="phase-content">
         <div class="reaction-time">{{ reactionTime }}ms</div>
         <div class="reaction-grade" :class="grade">{{ gradeEmoji }} {{ gradeText }}</div>
+        <div v-if="roundRecord" class="reaction-round-record">⚡ 라운드 신기록!</div>
         <div v-if="newRecord" class="reaction-new-record">🏆 신기록!</div>
+        <div v-if="rounds.length" class="round-chips">
+          <span v-for="(r, i) in rounds" :key="i" class="round-chip" :class="{ best: r === bestOfRounds }">{{ r }}</span>
+        </div>
         <div class="phase-hint">터치하면 다음 라운드</div>
       </div>
       <div v-if="phase === 'fail'" class="phase-content fail">
@@ -74,6 +78,8 @@ const getTimestamp = () => {
 // bestMs는 '반응시간 ms'이므로 localStorage에서 직접 읽기 (getBestScore는 점수 기준)
 const bestMs = ref(parseInt(localStorage.getItem('reaction-best-ms') || '0', 10))
 const newRecord = ref(false)
+const roundRecord = ref(false)
+const bestOfRounds = computed(() => rounds.value.length ? Math.min(...rounds.value) : 0)
 
 const avgTime = computed(() => {
   if (rounds.value.length === 0) return 0
@@ -118,6 +124,12 @@ function onTap() {
   } else if (phase.value === 'go') {
     reactionTime.value = Math.round(getTimestamp() - goTimestamp)
     rounds.value.push(reactionTime.value)
+    // 라운드 단위 신기록: 개별 반응시간이 기존 최고 기록보다 빠르면 즉시 갱신
+    roundRecord.value = bestMs.value === 0 || reactionTime.value < bestMs.value
+    if (roundRecord.value) {
+      bestMs.value = reactionTime.value
+      localStorage.setItem('reaction-best-ms', String(reactionTime.value))
+    }
     phase.value = 'result'
     hapticTick()
 
@@ -125,11 +137,7 @@ function onTap() {
       const avg = avgTime.value
       const score = Math.max(0, Math.round(100 - (avg - 150) * 0.2))
       addScore({ gameId: 'reaction', score, name: '나', detail: `${avg}ms` })
-      if (avg < bestMs.value || bestMs.value === 0) {
-        bestMs.value = avg
-        newRecord.value = true
-        localStorage.setItem('reaction-best-ms', String(avg))
-      }
+      newRecord.value = avg <= bestMs.value
       emit('score', { score, detail: { avgMs: avg, rounds: [...rounds.value] } })
     }
   } else if (phase.value === 'result' || phase.value === 'fail') {
@@ -138,6 +146,7 @@ function onTap() {
       rounds.value = []
       round.value = 1
       newRecord.value = false
+      roundRecord.value = false
     } else {
       round.value++
     }
@@ -201,6 +210,10 @@ onUnmounted(() => {
 .reaction-grade.good { color: #16A34A; }
 .reaction-grade.ok { color: #F59E0B; }
 .reaction-grade.slow { color: #888; }
+.reaction-round-record { margin-top: 8px; font-size: 13px; font-weight: 800; color: #7C3AED; animation: record-pop 0.3s ease-out; }
+.round-chips { display: flex; gap: 6px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+.round-chip { background: #eef2f7; color: #666; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 10px; }
+.round-chip.best { background: #1B355A; color: #fff; }
 .reaction-new-record { margin-top: 10px; font-size: 14px; font-weight: 800; color: #fff; background: #EAB308; padding: 5px 14px; border-radius: 14px; display: inline-block; animation: record-pop 0.3s ease-out; }
 @keyframes record-pop { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 .game-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid #eee; flex-shrink: 0; }
