@@ -62,7 +62,7 @@
         </Transition>
       </div>
       <div class="footer-btns">
-        <button v-if="gameState === 'playing' && canUndo" class="btn-undo" @click="undo">↩ 되돌리기</button>
+        <button v-if="gameState === 'playing' && canUndo" class="btn-undo" @click="undo">↩ 되돌리기 ({{ undoHistory.length }})</button>
         <button v-if="gameState === 'idle'" class="btn-start" @click="startGame">시작!</button>
         <button v-else class="btn-restart" @click="startGame">다시하기</button>
         <button v-if="gameState === 'over'" class="btn-share" @click="$emit('share')">📤 공유</button>
@@ -105,8 +105,9 @@ let wonShown = false
 const shaking = ref(false)
 const gainPopup = ref(null) // { amount, key }
 let gainKey = 0
-const undoSnapshot = ref(null) // { board, score } — 1스텝 되돌리기
-const canUndo = computed(() => !!undoSnapshot.value)
+const undoHistory = ref([]) // { board, score }[] — 최대 5스텝 되돌리기
+const UNDO_MAX = 5
+const canUndo = computed(() => undoHistory.value.length > 0)
 
 const srAnnouncement = computed(() => {
   if (gameState.value === 'won') return `2048 달성. 계속하거나 다시 시작할 수 있습니다.`
@@ -150,7 +151,7 @@ function startGame() {
   board.value = Array.from({ length: SIZE }, () => Array(SIZE).fill(null))
   score.value = 0
   wonShown = false
-  undoSnapshot.value = null
+  undoHistory.value = []
   gameState.value = 'playing'
   spawnTile()
   spawnTile()
@@ -198,7 +199,8 @@ function move(dir) {
     if (navigator.vibrate) navigator.vibrate([30])
     return
   }
-  undoSnapshot.value = snapshot // 유효한 이동에만 undo 스냅샷 확정
+  undoHistory.value.push(snapshot) // 유효한 이동에만 undo 히스토리 적립
+  if (undoHistory.value.length > UNDO_MAX) undoHistory.value.shift()
   if (navigator.vibrate) navigator.vibrate(8)
   spawnTile()
   if (score.value > bestScore.value) bestScore.value = score.value
@@ -231,10 +233,10 @@ function isGameOver() {
 }
 
 function undo() {
-  if (!undoSnapshot.value || (gameState.value !== 'playing' && gameState.value !== 'over' && gameState.value !== 'won')) return
-  board.value = undoSnapshot.value.board
-  score.value = undoSnapshot.value.score
-  undoSnapshot.value = null
+  if (!undoHistory.value.length || (gameState.value !== 'playing' && gameState.value !== 'over' && gameState.value !== 'won')) return
+  const snap = undoHistory.value.pop()
+  board.value = snap.board
+  score.value = snap.score
   gameState.value = 'playing'
   if (navigator.vibrate) navigator.vibrate([15])
   boardRef.value?.focus()
