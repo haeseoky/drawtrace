@@ -180,7 +180,7 @@ function setLine(dir, i, out) {
 }
 
 function move(dir) {
-  if (gameState.value !== 'playing' && gameState.value !== 'won') return
+  if (gameState.value !== 'playing') return // 'won' 오버레이 중 입력은 계속하기 후에만 허용
   const snapshot = { board: board.value.map(row => row.map(t => t ? { ...t } : null)), score: score.value }
   let movedAny = false
   for (let i = 0; i < SIZE; i++) {
@@ -267,7 +267,7 @@ function onTouchEnd(e) {
 
 // 키보드 (a11y)
 function onKeydown(e) {
-  if (gameState.value !== 'playing' && gameState.value !== 'won') return
+  if (gameState.value !== 'playing') return
   const map = { ArrowLeft: 0, a: 0, A: 0, ArrowRight: 1, d: 1, D: 1, ArrowUp: 2, w: 2, W: 2, ArrowDown: 3, s: 3, S: 3 }
   if (e.key in map) { e.preventDefault(); move(map[e.key]) }
   else if (e.key === 'z' || e.key === 'Z' || e.key === 'u' || e.key === 'U') { e.preventDefault(); undo() }
