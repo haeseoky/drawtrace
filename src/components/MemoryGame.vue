@@ -3,7 +3,7 @@
     <!-- 스크린 리더 상태 발표 (a11y) -->
     <div class="sr-only" role="status" aria-live="polite">{{ srAnnouncement }}</div>
     <header class="game-header">
-      <div class="header-left"><span class="level-badge">Round {{ round }}</span></div>
+      <div class="header-left"><span class="level-badge">Round {{ round }}/{{ TOTAL_ROUNDS }}</span></div>
       <div class="header-center">
         <div class="timer" :class="{ urgent: timeLeft <= 10 }">
           <svg viewBox="0 0 40 40" class="timer-ring">
@@ -74,6 +74,7 @@ const srAnnouncement = computed(() => {
 })
 
 const EMOJIS = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐸', '🐵', '🦄', '🐉']
+const TOTAL_ROUNDS = ROUND_CONFIGS.length
 const timerCircumference = 2 * Math.PI * 17
 
 // 라운드별 그리드 설정 — 난이도 상승
