@@ -77,6 +77,8 @@ const getTimestamp = () => {
 
 // bestMs는 '반응시간 ms'이므로 localStorage에서 직접 읽기 (getBestScore는 점수 기준)
 const bestMs = ref(parseInt(localStorage.getItem('reaction-best-ms') || '0', 10))
+// 신기록 판정용: 5라운드 시작 시점의 개인 최고 기록 스냅샷 (라운드 중 갱신돼도 영향 없음)
+let baselineBestMs = 0
 const newRecord = ref(false)
 const roundRecord = ref(false)
 const bestOfRounds = computed(() => rounds.value.length ? Math.min(...rounds.value) : 0)
@@ -115,6 +117,10 @@ const srAnnouncement = computed(() => {
 
 function onTap() {
   if (phase.value === 'ready') {
+    if (rounds.value.length === 0) {
+      // 세션 시작 시점 기준 기록 저장 — 평균 기록 신기록 판정용
+      baselineBestMs = bestMs.value
+    }
     startRound()
   } else if (phase.value === 'wait') {
     // 너무 빨리 누름
@@ -137,7 +143,8 @@ function onTap() {
       const avg = avgTime.value
       const score = Math.max(0, Math.round(100 - (avg - 150) * 0.2))
       addScore({ gameId: 'reaction', score, name: '나', detail: `${avg}ms` })
-      newRecord.value = avg <= bestMs.value
+      // 평균 기록이 세션 시작 시점 최고 기록(이전)보다 좋으면 신기록 (baseline 없으면 첫 판정 면제)
+      newRecord.value = baselineBestMs > 0 && avg < baselineBestMs
       emit('score', { score, detail: { avgMs: avg, rounds: [...rounds.value] } })
     }
   } else if (phase.value === 'result' || phase.value === 'fail') {
