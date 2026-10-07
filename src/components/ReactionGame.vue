@@ -33,7 +33,7 @@
         <div v-if="rounds.length" class="round-chips">
           <span v-for="(r, i) in rounds" :key="i" class="round-chip" :class="{ best: r === bestOfRounds }">{{ r }}</span>
         </div>
-        <div class="phase-hint">터치하면 다음 라운드</div>
+        <div class="phase-hint">{{ rounds.length >= totalRounds ? '터치하면 처음부터 다시' : '터치하면 다음 라운드' }}</div>
       </div>
       <div v-if="phase === 'fail'" class="phase-content fail">
         <div class="phase-icon">😅</div>
