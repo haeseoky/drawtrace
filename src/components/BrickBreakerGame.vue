@@ -880,6 +880,24 @@ function handleKeyup(e) {
   }
 }
 
+// 탭 숨김 보정 — 숨겨진 동안 아이템 효과 타이머가 흘러가지 않도록 종료 시각을 뒤로 밀기
+let hiddenAt = 0
+function handleVisibility() {
+  if (document.hidden) {
+    hiddenAt = Date.now()
+    if (animId) { cancelAnimationFrame(animId); animId = null }
+  } else {
+    const gap = Date.now() - hiddenAt
+    if (gap > 0 && hiddenAt > 0) {
+      const shift = (obj) => { if (obj.active) obj.endTime += gap }
+      shift(fireball); shift(magnet); shift(paddleExpand); shift(paddleShrink)
+      shift(reverseControl); shift(ghostBall); shift(chaosBounce); shift(stoptime)
+    }
+    hiddenAt = 0
+    if (gameState.value === 'playing') ensureLoop()
+  }
+}
+
 let resizeTimeout = null
 function handleResize() {
   clearTimeout(resizeTimeout)
@@ -896,6 +914,7 @@ onMounted(() => {
   window.addEventListener('resize', handleResize)
   window.addEventListener('keydown', handleKeydown)
   window.addEventListener('keyup', handleKeyup)
+  document.addEventListener('visibilitychange', handleVisibility)
   // 화면 방향 전환 감지 (모바일)
   screen.orientation?.addEventListener?.('change', handleResize)
 })
@@ -906,6 +925,7 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
   window.removeEventListener('keydown', handleKeydown)
   window.removeEventListener('keyup', handleKeyup)
+  document.removeEventListener('visibilitychange', handleVisibility)
   screen.orientation?.removeEventListener?.('change', handleResize)
 })
 </script>
