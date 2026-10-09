@@ -70,7 +70,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { addScore, getBestScore } from '../lib/leaderboard'
 import { shuffle } from '../lib/utils'
-import { hapticSuccess } from '../lib/haptics'
+import { hapticSuccess, hapticTick, haptic } from '../lib/haptics'
 
 const emit = defineEmits(['score', 'share'])
 
@@ -161,13 +161,13 @@ function nextRound() {
 function selectAnswer(opt) {
   if (gameState.value !== 'playing') return
   if (feedback.value) return // 피드백 표시 중 중복 클릭 방지
-  if (navigator.vibrate) navigator.vibrate(10)
+  hapticTick()
 
   if (opt.hex === correctHex.value) {
     combo.value++
     score.value += 10 * combo.value
     feedback.value = 'correct'
-    if (navigator.vibrate) navigator.vibrate([10, 30, 10]) // 정답 햅틱 패턴
+    haptic([10, 30, 10]) // 정답 햅틱 패턴
     // 콤보 5의 배수마다 5초 연장 (트렌드: 인터미턴트 리워드)
     if (combo.value > 0 && combo.value % 5 === 0) {
       timeLeft.value += 5

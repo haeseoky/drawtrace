@@ -74,7 +74,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { addScore, getBestScore } from '../lib/leaderboard'
-import { hapticSuccess } from '../lib/haptics'
+import { hapticSuccess, haptic } from '../lib/haptics'
 import { slide } from '../lib/game2048'
 
 const emit = defineEmits(['score', 'share'])
@@ -196,12 +196,12 @@ function move(dir) {
   if (!movedAny) {
     // 유효하지 않은 이동 — 흔들림 + 짧은 진동으로 피드백
     shaking.value = true
-    if (navigator.vibrate) navigator.vibrate([30])
+    haptic([30])
     return
   }
   undoHistory.value.push(snapshot) // 유효한 이동에만 undo 히스토리 적립
   if (undoHistory.value.length > UNDO_MAX) undoHistory.value.shift()
-  if (navigator.vibrate) navigator.vibrate(8)
+  haptic(8)
   spawnTile()
   if (score.value > bestScore.value) bestScore.value = score.value
   if (!wonShown && hasWon()) {
@@ -238,7 +238,7 @@ function undo() {
   board.value = snap.board
   score.value = snap.score
   gameState.value = 'playing'
-  if (navigator.vibrate) navigator.vibrate([15])
+  haptic([15])
   boardRef.value?.focus()
 }
 

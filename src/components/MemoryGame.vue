@@ -63,7 +63,7 @@
 import { ref, computed, onUnmounted } from 'vue'
 import { addScore } from '../lib/leaderboard'
 import { shuffle } from '../lib/utils'
-import { hapticSuccess } from '../lib/haptics'
+import { hapticSuccess, hapticTick, haptic } from '../lib/haptics'
 
 const emit = defineEmits(['score', 'share'])
 
@@ -145,7 +145,7 @@ function flipCard(index) {
   if (flipped.value.length >= 2) return
   if (isChecking) return // 매칭 체크 중에는 추가 클릭 무시
 
-  if (navigator.vibrate) navigator.vibrate(10)
+  hapticTick()
   cards.value[index].flipped = true
   flipped.value.push(index)
 
@@ -158,7 +158,7 @@ function flipCard(index) {
       found.value++
       combo.value++
       flipped.value = []
-      if (navigator.vibrate) navigator.vibrate([10, 30, 10]) // 매칭 성공 햅틱 패턴
+      haptic([10, 30, 10]) // 매칭 성공 햅틱 패턴
       // 매칭 보너스: 쌍당 3초 + 콤보 보너스 (연속 매칭 시 +1초씩 가산, 최대 +5)
       const comboBonus = Math.min(5, combo.value - 1)
       timeLeft.value += 3 + comboBonus

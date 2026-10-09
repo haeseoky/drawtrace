@@ -38,6 +38,12 @@
       <div v-if="globalRank.length === 0" class="rank-empty">아직 기록이 없습니다</div>
     </div>
 
+    <div class="settings-row">
+      <button type="button" class="haptic-toggle" :aria-pressed="hapticsOn" @click="toggleHaptics">
+        <span aria-hidden="true">📳</span> 진동 피드백: <strong>{{ hapticsOn ? '켬' : '끔' }}</strong>
+      </button>
+    </div>
+
     <div class="footer-info">
       <p>새 게임을 계속 준비하고 있어요</p>
       <a class="footer-link" href="https://nutalk.co.kr" target="_blank" rel="noopener">nutalk.co.kr</a>
@@ -50,6 +56,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getLeaderboard } from '../lib/leaderboard'
 import { checkStreak } from '../lib/streak'
+import { hapticsEnabled, setHapticsEnabled, hapticTick } from '../lib/haptics'
 
 const router = useRouter()
 const globalRank = ref([])
@@ -128,6 +135,13 @@ onMounted(() => {
   all.sort((a, b) => b.score - a.score)
   globalRank.value = all.slice(0, 5)
 })
+
+const hapticsOn = ref(hapticsEnabled())
+function toggleHaptics() {
+  hapticsOn.value = !hapticsOn.value
+  setHapticsEnabled(hapticsOn.value)
+  if (hapticsOn.value) hapticTick() // 켜짐 확인용 진동
+}
 
 function goGame(route) { router.push(route) }
 function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
@@ -255,6 +269,30 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 .rank-game { flex: 1; color: #555; }
 .rank-score { font-weight: 700; color: #3A3168; }
 .rank-empty { text-align: center; color: #aaa; font-size: 13px; padding: 20px 0; }
+
+.settings-row {
+  max-width: 480px;
+  margin: 24px auto 0;
+  padding: 0 20px;
+  text-align: center;
+}
+.haptic-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #e5e2ef;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.haptic-toggle:active { transform: scale(0.97); }
+.haptic-toggle strong { color: #3A3168; }
+.haptic-toggle[aria-pressed="false"] { color: #aaa; }
 
 .footer-info { text-align: center; margin-top: 28px; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); color: #aaa; font-size: 12px; }
 .footer-link { display: inline-block; margin-top: 4px; color: #6B5CA5; text-decoration: none; transition: color 0.2s; }

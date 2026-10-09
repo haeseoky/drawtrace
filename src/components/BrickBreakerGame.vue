@@ -50,7 +50,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { addScore, getBestScore } from '../lib/leaderboard'
-import { hapticSuccess, hapticError } from '../lib/haptics'
+import { hapticSuccess, hapticError, haptic } from '../lib/haptics'
 
 const emit = defineEmits(['score', 'share'])
 
@@ -274,7 +274,7 @@ function restart() {
 
 function loseLife() {
   lives.value--
-  if (navigator.vibrate) navigator.vibrate([20, 50, 20]) // 라이프 상실 햅틱
+  haptic([20, 50, 20]) // 라이프 상실 햅틱
   if (lives.value <= 0) {
     endGame()
   } else {
@@ -319,7 +319,7 @@ function spawnItem(x, y) {
 function activateItem(item) {
   score.value += 50
   // 아이템 획득 햅틱 피드백 — 좋은 아이템과 나쁜 아이템 구분
-  if (navigator.vibrate) navigator.vibrate(item.good ? [10, 30, 10] : [20, 50, 20, 50, 20])
+  haptic(item.good ? [10, 30, 10] : [20, 50, 20, 50, 20])
   const now = Date.now()
   switch (item.type) {
     case 'fireball':

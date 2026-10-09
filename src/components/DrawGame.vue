@@ -108,6 +108,7 @@ import { getRandomShape } from '../data/shapes.js'
 import { addScore, getBestScore } from '../lib/leaderboard.js'
 import { shareResult as shareUtil } from '../lib/share.js'
 import { getDailyChallenge, saveChallengeProgress, loadChallengeProgress, CHALLENGE_TYPES } from '../lib/challenge.js'
+import { hapticTick } from '../lib/haptics'
 
 // Refs
 const canvasRef = ref(null)
@@ -366,8 +367,8 @@ function onTouchStart(e) {
   const pos = getPos(e)
   touchStartPos = { x: pos.x, y: pos.y } // 시작점 기록
   userPath.push(pos)
-  // 햅틱 피드백 (모바일 터치 반응성 향상)
-  if (navigator.vibrate) navigator.vibrate(10)
+  // 햅틱 피드백 (모바일 터치 반응성 향상, 설정 토글 적용)
+  hapticTick()
   // 즉시 첫 프레임 드로잉 — rAF 지연 없이 터치 응답성 극대화
   drawFrame()
 }
