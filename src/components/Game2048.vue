@@ -108,6 +108,37 @@ let gainKey = 0
 const undoHistory = ref([]) // { board, score }[] — 최대 5스텝 되돌리기
 const UNDO_MAX = 5
 const canUndo = computed(() => undoHistory.value.length > 0)
+const SAVE_KEY = 'drawtrace-2048-save'
+
+function saveGame() {
+  if (gameState.value !== 'playing') return
+  try {
+    const data = {
+      board: board.value.map(row => row.map(t => t ? { v: t.value, r: t.r, c: t.c } : null)),
+      score: score.value,
+      wonShown,
+    }
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data))
+  } catch { /* 저장 실패 시 무시 */ }
+}
+
+function clearSave() {
+  try { localStorage.removeItem(SAVE_KEY) } catch { /* 무시 */ }
+}
+
+function tryRestore() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY)
+    if (!raw) return false
+    const data = JSON.parse(raw)
+    if (!Array.isArray(data.board) || data.board.length !== SIZE || typeof data.score !== 'number') return false
+    board.value = data.board.map(row => row.map(t => t ? { id: ++tileId, value: t.v, r: t.r, c: t.c, merged: false } : null))
+    score.value = data.score
+    wonShown = !!data.wonShown
+    gameState.value = 'playing'
+    return true
+  } catch { return false }
+}
 
 const srAnnouncement = computed(() => {
   if (gameState.value === 'won') return `2048 달성. 계속하거나 다시 시작할 수 있습니다.`
@@ -152,6 +183,7 @@ function startGame() {
   score.value = 0
   wonShown = false
   undoHistory.value = []
+  clearSave()
   gameState.value = 'playing'
   spawnTile()
   spawnTile()
@@ -203,6 +235,7 @@ function move(dir) {
   if (undoHistory.value.length > UNDO_MAX) undoHistory.value.shift()
   haptic(8)
   spawnTile()
+  saveGame()
   if (score.value > bestScore.value) bestScore.value = score.value
   if (!wonShown && hasWon()) {
     wonShown = true
@@ -238,12 +271,14 @@ function undo() {
   board.value = snap.board
   score.value = snap.score
   gameState.value = 'playing'
+  saveGame()
   haptic([15])
   boardRef.value?.focus()
 }
 
 function endGame() {
   gameState.value = 'over'
+  clearSave()
   hapticSuccess()
   addScore({ gameId: '2048', score: score.value, name: '나', detail: '2048' })
   emit('score', { score: score.value, detail: { game: '2048' } })
@@ -272,7 +307,11 @@ function onKeydown(e) {
   if (e.key in map) { e.preventDefault(); move(map[e.key]) }
   else if (e.key === 'z' || e.key === 'Z' || e.key === 'u' || e.key === 'U') { e.preventDefault(); undo() }
 }
-onMounted(() => { document.addEventListener('keydown', onKeydown) })
+onMounted(() => {
+  document.addEventListener('keydown', onKeydown)
+  // 저장된 게임이 있으면 이어하기 (새로고침/재방문)
+  tryRestore()
+})
 onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
 </script>
 
