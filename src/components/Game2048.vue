@@ -27,7 +27,11 @@
             :style="tileStyle(tile)"
           >{{ tile.value }}</div>
         </TransitionGroup>
-        <div v-if="gameState === 'won'" class="over-overlay">
+        <!-- 세션 내 고 타일 첫 도달 축하 토스트 -->
+      <Transition name="gain">
+        <div v-if="milestoneToast" :key="milestoneToast.key" class="milestone-toast">{{ milestoneToast.text }}</div>
+      </Transition>
+      <div v-if="gameState === 'won'" class="over-overlay">
           <div class="over-title win">2048 달성!</div>
           <div class="over-score">{{ score }}점</div>
           <div class="over-btns">
@@ -109,6 +113,10 @@ const undoHistory = ref([]) // { board, score }[] — 최대 5스텝 되돌리�
 const UNDO_MAX = 5
 const canUndo = computed(() => undoHistory.value.length > 0)
 const SAVE_KEY = 'drawtrace-2048-save'
+const milestoneToast = ref(null) // { text, key }
+let toastKey = 0
+let sessionBestTile = 0 // 이번 판에서 이미 축하한 최고 타일
+const MILESTONES = [128, 256, 512, 1024, 2048, 4096, 8192]
 
 function saveGame() {
   if (gameState.value !== 'playing') return
@@ -183,6 +191,7 @@ function startGame() {
   score.value = 0
   wonShown = false
   undoHistory.value = []
+  sessionBestTile = 0
   clearSave()
   gameState.value = 'playing'
   spawnTile()
@@ -236,6 +245,7 @@ function move(dir) {
   haptic(8)
   spawnTile()
   saveGame()
+  checkMilestone()
   if (score.value > bestScore.value) bestScore.value = score.value
   if (!wonShown && hasWon()) {
     wonShown = true
@@ -246,6 +256,17 @@ function move(dir) {
     return
   }
   if (isGameOver()) endGame()
+}
+
+function checkMilestone() {
+  const m = maxTile.value
+  if (m <= sessionBestTile) return
+  const hit = MILESTONES.find(v => v > sessionBestTile && v <= m)
+  if (!hit) { sessionBestTile = m; return }
+  sessionBestTile = hit
+  milestoneToast.value = { text: `${hit} 타일 달성!`, key: ++toastKey }
+  haptic([20, 60, 20])
+  setTimeout(() => { milestoneToast.value = null }, 1800)
 }
 
 function hasWon() {
@@ -367,6 +388,11 @@ onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
 .tile-enter-from { transform: scale(0.3) !important; opacity: 0; }
 .tile-leave-active { transition: opacity 0.1s; z-index: 1; }
 .tile-leave-to { opacity: 0; }
+
+.milestone-toast { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); background: #EDC22E; color: #fff; font-size: 15px; font-weight: 800; padding: 10px 22px; border-radius: 16px; z-index: 7; pointer-events: none; box-shadow: 0 4px 14px rgba(237, 194, 46, 0.5); }
+.milestone-toast.gain-enter-active { transition: transform 0.3s ease-out, opacity 0.3s; }
+.milestone-toast.gain-leave-to { opacity: 0; transform: translateX(-50%) translateY(10px); }
+.milestone-toast.gain-leave-active { transition: opacity 0.4s, transform 0.4s; }
 
 .over-overlay { position: absolute; inset: 0; background: rgba(238, 228, 218, 0.8); z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; }
 .over-title { font-size: 26px; font-weight: 800; color: #776E65; }
