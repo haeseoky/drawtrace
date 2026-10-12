@@ -31,6 +31,9 @@
       <Transition name="gain">
         <div v-if="milestoneToast" :key="milestoneToast.key" class="milestone-toast">{{ milestoneToast.text }}</div>
       </Transition>
+      <Transition name="gain">
+        <div v-if="restoreToast" :key="restoreToast.key" class="milestone-toast restore">이전 게임을 이어합니다</div>
+      </Transition>
       <div v-if="gameState === 'won'" class="over-overlay">
           <div class="over-title win">2048 달성!</div>
           <div class="over-score">{{ score }}점</div>
@@ -114,6 +117,7 @@ const UNDO_MAX = 5
 const canUndo = computed(() => undoHistory.value.length > 0)
 const SAVE_KEY = 'drawtrace-2048-save'
 const milestoneToast = ref(null) // { text, key }
+const restoreToast = ref(null) // { key } — 저장 게임 이어하기 알림
 let toastKey = 0
 let sessionBestTile = 0 // 이번 판에서 이미 축하한 최고 타일
 const MILESTONES = [128, 256, 512, 1024, 2048, 4096, 8192]
@@ -125,6 +129,11 @@ function saveGame() {
       board: board.value.map(row => row.map(t => t ? { v: t.value, r: t.r, c: t.c } : null)),
       score: score.value,
       wonShown,
+      // undo 히스토리도 함께 저장 (최대 3스텝 — 저장 크기 절충)
+      undo: undoHistory.value.slice(-3).map(s => ({
+        board: s.board.map(row => row.map(t => t ? { v: t.value, r: t.r, c: t.c } : null)),
+        score: s.score,
+      })),
     }
     localStorage.setItem(SAVE_KEY, JSON.stringify(data))
   } catch { /* 저장 실패 시 무시 */ }
@@ -143,7 +152,15 @@ function tryRestore() {
     board.value = data.board.map(row => row.map(t => t ? { id: ++tileId, value: t.v, r: t.r, c: t.c, merged: false } : null))
     score.value = data.score
     wonShown = !!data.wonShown
+    undoHistory.value = Array.isArray(data.undo)
+      ? data.undo.map(s => ({
+          board: s.board.map(row => row.map(t => t ? { value: t.v, r: t.r, c: t.c, merged: false } : null)),
+          score: s.score,
+        }))
+      : []
     gameState.value = 'playing'
+    restoreToast.value = { key: ++toastKey }
+    setTimeout(() => { restoreToast.value = null }, 1800)
     return true
   } catch { return false }
 }
@@ -394,6 +411,7 @@ onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
 .milestone-toast.gain-leave-to { opacity: 0; transform: translateX(-50%) translateY(10px); }
 .milestone-toast.gain-leave-active { transition: opacity 0.4s, transform 0.4s; }
 
+.milestone-toast.restore { background: #4D9BC6; box-shadow: 0 4px 14px rgba(77, 155, 198, 0.5); }
 .over-overlay { position: absolute; inset: 0; background: rgba(238, 228, 218, 0.8); z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; }
 .over-title { font-size: 26px; font-weight: 800; color: #776E65; }
 .over-title.win { color: #EDC22E; }
