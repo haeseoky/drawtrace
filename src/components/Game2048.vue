@@ -71,7 +71,7 @@
       <div class="footer-btns">
         <button v-if="gameState === 'playing' && canUndo" class="btn-undo" @click="undo">↩ 되돌리기 ({{ undoHistory.length }})</button>
         <button v-if="gameState === 'idle'" class="btn-start" @click="startGame">시작!</button>
-        <button v-else class="btn-restart" @click="startGame">다시하기</button>
+        <button v-else class="btn-restart" @click="requestRestart">다시하기</button>
         <button v-if="gameState === 'over'" class="btn-share" @click="$emit('share')">📤 공유</button>
       </div>
     </footer>
@@ -201,6 +201,12 @@ function spawnTile() {
   const { r, c } = cells[Math.floor(Math.random() * cells.length)]
   // 90% 2, 10% 4 (원작 난이도)
   board.value[r][c] = { id: ++tileId, value: Math.random() < 0.9 ? 2 : 4, r, c }
+}
+
+// 진행 중인 게임(점수 있음) 재시작 시 실수 방지 확인
+function requestRestart() {
+  if (gameState.value === 'playing' && score.value > 0 && !window.confirm('진행 중인 게임을 포기하고 새로 시작할까요? 현재 점수: ' + score.value + '점')) return
+  startGame()
 }
 
 function startGame() {
