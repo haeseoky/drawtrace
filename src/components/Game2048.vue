@@ -112,6 +112,12 @@ let wonShown = false
 const shaking = ref(false)
 const gainPopup = ref(null) // { amount, key }
 let gainKey = 0
+let gainTimer = null
+function showGain(amount) {
+  clearTimeout(gainTimer)
+  gainPopup.value = { amount, key: ++gainKey }
+  gainTimer = setTimeout(() => { gainPopup.value = null }, 1000)
+}
 const undoHistory = ref([]) // { board, score }[] — 최대 5스텝 되돌리기
 const UNDO_MAX = 5
 const canUndo = computed(() => undoHistory.value.length > 0)
@@ -212,6 +218,8 @@ function requestRestart() {
 function startGame() {
   board.value = Array.from({ length: SIZE }, () => Array(SIZE).fill(null))
   score.value = 0
+  clearTimeout(gainTimer)
+  gainPopup.value = null
   wonShown = false
   undoHistory.value = []
   sessionBestTile = 0
@@ -254,7 +262,7 @@ function move(dir) {
     setLine(dir, i, out)
     if (gained) {
       score.value += gained
-      gainPopup.value = { amount: gained, key: ++gainKey }
+      showGain(gained)
     }
   }
   if (!movedAny) {
@@ -312,6 +320,8 @@ function isGameOver() {
 function undo() {
   if (!undoHistory.value.length || (gameState.value !== 'playing' && gameState.value !== 'over' && gameState.value !== 'won')) return
   const snap = undoHistory.value.pop()
+  clearTimeout(gainTimer)
+  gainPopup.value = null
   board.value = snap.board
   score.value = snap.score
   gameState.value = 'playing'
@@ -356,7 +366,7 @@ onMounted(() => {
   // 저장된 게임이 있으면 이어하기 (새로고침/재방문)
   tryRestore()
 })
-onUnmounted(() => { document.removeEventListener('keydown', onKeydown) })
+onUnmounted(() => { document.removeEventListener('keydown', onKeydown); clearTimeout(gainTimer) })
 </script>
 
 <style scoped>
