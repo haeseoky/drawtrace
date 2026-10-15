@@ -25,7 +25,7 @@
             class="tile"
             :class="tileClass(tile)"
             :style="tileStyle(tile)"
-          >{{ tile.value }}</div>
+          ><span class="tile-inner">{{ tile.value }}</span></div>
         </TransitionGroup>
         <!-- 세션 내 고 타일 첫 도달 축하 토스트 -->
       <Transition name="gain">
@@ -446,7 +446,8 @@ onUnmounted(() => { document.removeEventListener('keydown', onKeydown); clearTim
 .over-new-record { margin-top: 8px; font-size: 14px; font-weight: 800; color: #EDC22E; animation: record-pulse 1s ease-in-out infinite; }
 @keyframes record-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
-.tile-merged { animation: merge-pulse 0.2s ease-out; }
+.tile-inner { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; border-radius: 6px; }
+.tile-merged .tile-inner { animation: merge-pulse 0.2s ease-out; }
 @keyframes merge-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.18); } 100% { transform: scale(1); } }
 
 .game-header.shake { animation: header-shake 0.25s ease-in-out; }
