@@ -56,7 +56,7 @@
       <div v-if="gameState === 'idle'" class="intro-overlay">
         <div class="intro-title">2048</div>
         <p class="intro-desc">스와이프(또는 방향키)로 타일을 밀어 <strong>같은 숫자</strong>를 합치세요.
-          타일이 더 이상 움직일 수 없으면 게임이 끝납니다.</p>
+          타일이 더 이상 움직일 수 없으면 게임이 끝납니다. 실수했다면 <strong>Z키(되돌리기)</strong>로 최근 5수를 취소할 수 있어요.</p>
       </div>
     </main>
 
