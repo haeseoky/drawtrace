@@ -356,10 +356,15 @@ function onTouchEnd(e) {
 
 // 키보드 (a11y)
 function onKeydown(e) {
+  const undoKey = e.key === 'z' || e.key === 'Z' || e.key === 'u' || e.key === 'U'
+  // 되돌리기는 게임 오버 화면에서도 허용 (되돌리기 버튼과 동일하게)
+  if (undoKey) {
+    if (gameState.value === 'playing' || gameState.value === 'over' || gameState.value === 'won') { e.preventDefault(); undo() }
+    return
+  }
   if (gameState.value !== 'playing') return
   const map = { ArrowLeft: 0, a: 0, A: 0, ArrowRight: 1, d: 1, D: 1, ArrowUp: 2, w: 2, W: 2, ArrowDown: 3, s: 3, S: 3 }
   if (e.key in map) { e.preventDefault(); move(map[e.key]) }
-  else if (e.key === 'z' || e.key === 'Z' || e.key === 'u' || e.key === 'U') { e.preventDefault(); undo() }
 }
 onMounted(() => {
   document.addEventListener('keydown', onKeydown)
