@@ -322,7 +322,8 @@ function undo() {
   const snap = undoHistory.value.pop()
   clearTimeout(gainTimer)
   gainPopup.value = null
-  board.value = snap.board
+  // 저장 게임 복원 스냅샷은 id가 없음 — 없는 타일에만 새 id 부여 (키 충돌 방지, 기존 id는 슬라이드 애니메이션 유지)
+  board.value = snap.board.map(row => row.map(t => t ? (t.id ? t : { ...t, id: ++tileId }) : null))
   score.value = snap.score
   gameState.value = 'playing'
   saveGame()
