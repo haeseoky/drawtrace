@@ -79,7 +79,17 @@ export function getRank(gameId, score) {
 
 export function getBestScore(gameId) {
   const board = getLeaderboard(gameId)
-  return board.length > 0 ? board[0].score : 0
+  const lbBest = board.length > 0 ? board[0].score : 0
+  let savedBest = 0
+  try { savedBest = Number(localStorage.getItem('drawtrace-best-' + gameId)) || 0 } catch { /* ignore */ }
+  return Math.max(lbBest, savedBest)
+}
+
+// 게임 중 기록한 최고 점수 저장 (리더보드 엔트리 없이 베스트 표시용만 갱신)
+export function recordBest(gameId, score) {
+  try {
+    if (score > getBestScore(gameId)) localStorage.setItem('drawtrace-best-' + gameId, String(score))
+  } catch { /* ignore */ }
 }
 
 export function clearLeaderboard(gameId = null) {

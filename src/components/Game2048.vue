@@ -80,7 +80,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { addScore, getBestScore } from '../lib/leaderboard'
+import { addScore, getBestScore, recordBest } from '../lib/leaderboard'
 import { hapticSuccess, haptic } from '../lib/haptics'
 import { slide } from '../lib/game2048'
 
@@ -158,6 +158,8 @@ function tryRestore() {
     board.value = data.board.map(row => row.map(t => t ? { id: ++tileId, value: t.v, r: t.r, c: t.c, merged: false } : null))
     score.value = data.score
     wonShown = !!data.wonShown
+    // 복원 점수가 기존 베스트보다 높으면 베스트도 갱신 (중단 게임 점수 유지)
+    if (score.value > bestScore.value) { bestScore.value = score.value; recordBest('2048', score.value) }
     undoHistory.value = Array.isArray(data.undo)
       ? data.undo.map(s => ({
           board: s.board.map(row => row.map(t => t ? { value: t.v, r: t.r, c: t.c, merged: false } : null)),
@@ -277,7 +279,7 @@ function move(dir) {
   spawnTile()
   saveGame()
   checkMilestone()
-  if (score.value > bestScore.value) bestScore.value = score.value
+  if (score.value > bestScore.value) { bestScore.value = score.value; recordBest('2048', score.value) }
   if (!wonShown && hasWon()) {
     wonShown = true
     gameState.value = 'won'
