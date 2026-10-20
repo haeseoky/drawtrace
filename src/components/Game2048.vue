@@ -167,6 +167,7 @@ function tryRestore() {
         }))
       : []
     gameState.value = 'playing'
+    sessionBestTile = maxTile.value // 복원 판 기준으로 마일스톤 기준선 설정 (이미 달성한 토스트 중복 방지)
     restoreToast.value = { key: ++toastKey }
     setTimeout(() => { restoreToast.value = null }, 1800)
     return true
