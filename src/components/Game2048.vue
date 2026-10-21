@@ -56,7 +56,7 @@
       <div v-if="gameState === 'idle'" class="intro-overlay">
         <div class="intro-title">2048</div>
         <p class="intro-desc">스와이프(또는 방향키)로 타일을 밀어 <strong>같은 숫자</strong>를 합치세요.
-          타일이 더 이상 움직일 수 없으면 게임이 끝납니다. 실수했다면 <strong>Z키(되돌리기)</strong>로 최근 5수를 취소할 수 있어요.</p>
+          타일이 더 이상 움직일 수 없으면 게임이 끝납니다. 실수했다면 <strong>Z키(되돌리기)</strong>로 최근 5수를 취소하고, 게임이 끝나면 <strong>R키</strong>로 바로 재시작할 수 있어요.</p>
       </div>
     </main>
 
@@ -366,6 +366,8 @@ function onKeydown(e) {
     if (gameState.value === 'playing' || gameState.value === 'over' || gameState.value === 'won') { e.preventDefault(); undo() }
     return
   }
+  // R키 재시작 — 게임 오버 화면에서 (BrickBreaker와 동일한 키보드 컨트롤)
+  if ((e.key === 'r' || e.key === 'R') && gameState.value === 'over') { e.preventDefault(); startGame(); return }
   if (gameState.value !== 'playing') return
   const map = { ArrowLeft: 0, a: 0, A: 0, ArrowRight: 1, d: 1, D: 1, ArrowUp: 2, w: 2, W: 2, ArrowDown: 3, s: 3, S: 3 }
   if (e.key in map) { e.preventDefault(); move(map[e.key]) }
