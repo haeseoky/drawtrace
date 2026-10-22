@@ -38,6 +38,7 @@
           <div class="over-title win">2048 달성!</div>
           <div class="over-score">{{ score }}점</div>
           <div class="over-btns">
+            <button v-if="canUndo" class="btn-continue undo" @click="undo">↩ 되돌리기</button>
             <button class="btn-share" @click="$emit('share')">📤 공유</button>
             <button class="btn-continue" @click="gameState = 'playing'; boardRef?.focus()">계속하기</button>
           </div>
@@ -368,6 +369,11 @@ function onKeydown(e) {
   }
   // R키 재시작 — 게임 오버 화면에서 (BrickBreaker와 동일한 키보드 컨트롤)
   if ((e.key === 'r' || e.key === 'R') && gameState.value === 'over') { e.preventDefault(); startGame(); return }
+  // Enter/Space — 오버레이 화면에서 기본 동작 (won: 계속하기, over: 다시하기)
+  if (e.key === 'Enter' || e.key === ' ') {
+    if (gameState.value === 'won') { e.preventDefault(); gameState.value = 'playing'; boardRef.value?.focus(); return }
+    if (gameState.value === 'over') { e.preventDefault(); startGame(); return }
+  }
   if (gameState.value !== 'playing') return
   const map = { ArrowLeft: 0, a: 0, A: 0, ArrowRight: 1, d: 1, D: 1, ArrowUp: 2, w: 2, W: 2, ArrowDown: 3, s: 3, S: 3 }
   if (e.key in map) { e.preventDefault(); move(map[e.key]) }
