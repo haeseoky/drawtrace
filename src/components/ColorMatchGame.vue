@@ -46,10 +46,11 @@
       <Transition name="pop">
         <div v-if="feedback" class="feedback" :class="feedback">{{ feedback === 'correct' ? '✅ 정답!' : '❌ 틀림!' }}</div>
       </Transition>
-      <div v-if="gameState === 'idle'" class="intro-overlay">
+      <div v-if="gameState === 'idle'" class="intro-overlay" @click="startGame">
         <div class="intro-title">컬러 매치</div>
         <p class="intro-desc">글자의 의미가 아니라 <strong>글자의 색상</strong>을 보고 같은 색 버튼을 누르세요.
           연속 정답 시 콤보 보너스가 붙습니다.</p>
+        <p class="intro-tap">탭하여 시작</p>
       </div>
     </main>
 
@@ -108,9 +109,15 @@ let timerInterval = null
 let gameStartTime = 0
 let feedbackTimeout = null
 
-// 데스크톱 키보드 지원 — 1~4번 키로 답 선택
+// 데스크톱 키보드 지원 — 1~4번 키로 답 선택, Enter/Space로 시작·재시작
 function onKeydown(e) {
-  if (gameState.value !== 'playing') return
+  if (gameState.value !== 'playing') {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      startGame()
+    }
+    return
+  }
   const idx = ['1', '2', '3', '4'].indexOf(e.key)
   if (idx >= 0 && options.value[idx]) selectAnswer(options.value[idx])
 }
@@ -228,6 +235,9 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(feedbackTimeout);
 .intro-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.92); z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; border-radius: 12px; }
 .intro-title { font-size: 28px; font-weight: 800; color: #4D9BC6; margin-bottom: 12px; }
 .intro-desc { font-size: 14px; color: #555; line-height: 1.6; }
+.intro-tap { margin-top: 16px; font-size: 13px; font-weight: 700; color: #4D9BC6; animation: tap-blink 1.4s ease-in-out infinite; }
+@keyframes tap-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .intro-tap { animation: none; } }
 .feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: 700; z-index: 10; }
 .feedback.correct { color: #16A34A; }
 .feedback.wrong { color: #DC2626; }
