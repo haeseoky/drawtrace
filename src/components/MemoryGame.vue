@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { addScore } from '../lib/leaderboard'
 import { shuffle } from '../lib/utils'
 import { hapticSuccess, hapticTick, haptic } from '../lib/haptics'
@@ -222,7 +222,15 @@ function endGame() {
   emit('score', { score: score.value, detail: { found: found.value, totalPairs: totalPairs.value, moves: moves.value, timeLeft: timeLeft.value, perfectBonus } })
 }
 
-onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout) })
+function onKeyDown(e) {
+  if (e.key !== 'Enter' && e.key !== ' ') return
+  if (gameState.value === 'idle' || gameState.value === 'done') {
+    e.preventDefault()
+    startGame()
+  }
+}
+onMounted(() => window.addEventListener('keydown', onKeyDown))
+onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout); window.removeEventListener('keydown', onKeyDown) })
 </script>
 
 <style scoped>
