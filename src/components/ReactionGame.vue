@@ -15,11 +15,11 @@
     <main class="game-main" :class="phase" @click="onTap">
       <div v-if="phase === 'ready'" class="phase-content">
         <div class="phase-icon">⚡</div>
-        <div class="phase-text">화면을 터치하면 시작합니다</div>
+        <div class="phase-text">화면을 터치하거나 Space 키를 누르면 시작합니다</div>
       </div>
       <div v-if="phase === 'wait'" class="phase-content wait">
         <div class="phase-icon">🔴</div>
-        <div class="phase-text">초록색이 되면 터치!</div>
+        <div class="phase-text">초록색이 되면 터치! (Space 키도 가능)</div>
       </div>
       <div v-if="phase === 'go'" class="phase-content go">
         <div class="phase-icon">🟢</div>
@@ -188,9 +188,19 @@ const onVisibilityChange = () => {
 }
 document.addEventListener('visibilitychange', onVisibilityChange)
 
+// 키보드 조작 (Space/Enter) — 터치/클릭과 동일하게 onTap 트리거
+const onKeydown = (e) => {
+  if (e.code === 'Space' || e.code === 'Enter') {
+    e.preventDefault()
+    onTap()
+  }
+}
+document.addEventListener('keydown', onKeydown)
+
 onUnmounted(() => {
   clearTimeout(waitTimeout)
   document.removeEventListener('visibilitychange', onVisibilityChange)
+  document.removeEventListener('keydown', onKeydown)
 })
 </script>
 
