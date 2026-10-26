@@ -94,7 +94,7 @@
             <div class="hint-item">• 화살표 방향을 따르세요</div>
             <div class="hint-item">• 시간 내에 완성하세요</div>
           </div>
-          <div class="intro-hint">아래 '시작!' 버튼을 눌러주세요</div>
+          <div class="intro-hint">아래 '시작!' 버튼 또는 Enter/Space 키로 시작하세요</div>
         </div>
       </div>
     </Transition>
@@ -175,6 +175,7 @@ onMounted(() => {
   loadDailyChallenge()
   window.addEventListener('resize', onResize)
   document.addEventListener('visibilitychange', onVisibilityChange)
+  window.addEventListener('keydown', onKeydown)
 })
 
 onUnmounted(() => {
@@ -183,6 +184,7 @@ onUnmounted(() => {
   cancelAnimationFrame(animFrameId)
   window.removeEventListener('resize', onResize)
   document.removeEventListener('visibilitychange', onVisibilityChange)
+  window.removeEventListener('keydown', onKeydown)
   if (gridCanvas) {
     gridCanvas.width = 0
     gridCanvas.height = 0
@@ -190,6 +192,18 @@ onUnmounted(() => {
   }
   ctx = null
 })
+
+// 키보드 조작 — Enter/Space 시작·재시작, R 재시작 (다른 게임과 일관성)
+function onKeydown(e) {
+  if (gameState.value === 'playing') return
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    startGame()
+  } else if ((e.key === 'r' || e.key === 'R') && gameState.value === 'result') {
+    e.preventDefault()
+    startGame()
+  }
+}
 
 function onVisibilityChange() {
   if (document.hidden) {
