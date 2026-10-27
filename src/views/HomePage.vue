@@ -8,6 +8,14 @@
         <span>연속 {{ streak.count }}일 접속 중<template v-if="streak.isNewDay"> · 오늘 완료!</template></span>
         <span class="streak-best">최고 {{ streak.best }}일</span>
       </div>
+      <button type="button" class="challenge-card" :class="{ done: challenge.completed }" :aria-label="`오늘의 챌린지: ${challenge.description}. 따라그리기 게임으로 이동`" @click="goGame('/draw-trace')">
+        <span class="challenge-icon" aria-hidden="true">🎯</span>
+        <span class="challenge-body">
+          <span class="challenge-title">오늘의 챌린지 <template v-if="challenge.completed">· 완료!</template></span>
+          <span class="challenge-desc">{{ challenge.description }}</span>
+        </span>
+        <span class="challenge-go" aria-hidden="true">›</span>
+      </button>
     </header>
 
     <div class="game-grid">
@@ -57,11 +65,13 @@ import { useRouter } from 'vue-router'
 import { getLeaderboard } from '../lib/leaderboard'
 import { checkStreak } from '../lib/streak'
 import { hapticsEnabled, setHapticsEnabled, hapticTick } from '../lib/haptics'
+import { getDailyChallenge, loadChallengeProgress } from '../lib/challenge'
 
 const router = useRouter()
 const globalRank = ref([])
 const streak = ref({ count: 0, best: 0, isNewDay: false })
 const medals = ['🥇', '🥈', '🥉']
+const challenge = ref({ description: '', goal: 0, progress: 0, completed: false })
 
 const games = [
   {
@@ -128,6 +138,9 @@ const gameLabels = {
 
 onMounted(() => {
   streak.value = checkStreak()
+  const c = getDailyChallenge()
+  const p = loadChallengeProgress(c.id)
+  challenge.value = { description: c.description, goal: c.goal, progress: p.progress, completed: p.completed }
   const all = getLeaderboard().map(e => ({
     ...e,
     gameLabel: gameLabels[e.gameId] || e.gameId,
@@ -178,6 +191,31 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 }
 .streak-fire { font-size: 15px; }
 .streak-best { opacity: 0.65; font-weight: 500; font-size: 12px; }
+
+.challenge-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  width: 100%;
+  max-width: 340px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  padding: 10px 14px;
+  text-align: left;
+  cursor: pointer;
+  color: #fff;
+  transition: background 0.15s;
+}
+.challenge-card:active { transform: scale(0.98); }
+.challenge-card:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.challenge-card.done { opacity: 0.75; }
+.challenge-icon { font-size: 18px; flex-shrink: 0; }
+.challenge-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.challenge-title { font-size: 12px; font-weight: 700; }
+.challenge-desc { font-size: 12px; opacity: 0.8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.challenge-go { font-size: 18px; opacity: 0.6; flex-shrink: 0; }
 
 .game-grid {
   display: flex;
