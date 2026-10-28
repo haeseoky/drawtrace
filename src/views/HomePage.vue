@@ -3,9 +3,10 @@
     <header class="home-header">
       <h1 class="logo">🎮 Game Hub</h1>
       <p class="subtitle">원하는 게임을 선택하세요</p>
-      <div v-if="streak.count > 0" class="streak-badge" aria-live="polite">
+      <div v-if="streak.count > 0" class="streak-badge" :class="{ milestone: !!streak.milestone }" aria-live="polite">
         <span class="streak-fire" aria-hidden="true">🔥</span>
-        <span>연속 {{ streak.count }}일 접속 중<template v-if="streak.isNewDay"> · 오늘 완료!</template></span>
+        <span v-if="streak.milestone" class="streak-milestone">{{ streak.milestone }}일 달성! 🎉</span>
+        <span v-else>연속 {{ streak.count }}일 접속 중<template v-if="streak.isNewDay"> · 오늘 완료!</template></span>
         <span class="streak-best">최고 {{ streak.best }}일</span>
       </div>
       <button type="button" class="challenge-card" :class="{ done: challenge.completed }" :aria-label="`오늘의 챌린지: ${challenge.description}. 따라그리기 게임으로 이동`" @click="goGame('/draw-trace')">
@@ -188,6 +189,20 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
   font-size: 13px;
   font-weight: 600;
   color: #fff;
+}
+.streak-badge.milestone {
+  background: rgba(255, 214, 79, 0.28);
+  border-color: rgba(255, 214, 79, 0.6);
+  animation: milestone-pop 0.5s ease;
+}
+.streak-milestone { font-weight: 800; }
+@keyframes milestone-pop {
+  0% { transform: scale(0.8); }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .streak-badge.milestone { animation: none; }
 }
 .streak-fire { font-size: 15px; }
 .streak-best { opacity: 0.65; font-weight: 500; font-size: 12px; }
