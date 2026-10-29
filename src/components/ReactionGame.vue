@@ -30,6 +30,7 @@
         <div class="reaction-grade" :class="grade">{{ gradeEmoji }} {{ gradeText }}</div>
         <div v-if="roundRecord" class="reaction-round-record">⚡ 라운드 신기록!</div>
         <div v-if="newRecord" class="reaction-new-record">🏆 신기록!</div>
+        <div v-if="avgRecord" class="reaction-new-record avg">📊 평균 신기록! (최고 평균 {{ bestAvgMs }}ms)</div>
         <div v-if="rounds.length" class="round-chips">
           <span v-for="(r, i) in rounds" :key="i" class="round-chip" :class="{ best: r === bestOfRounds }">{{ r }}</span>
         </div>
@@ -80,6 +81,8 @@ const bestMs = ref(parseInt(localStorage.getItem('reaction-best-ms') || '0', 10)
 // 신기록 판정용: 5라운드 시작 시점의 개인 최고 기록 스냅샷 (라운드 중 갱신돼도 영향 없음)
 let baselineBestMs = 0
 const newRecord = ref(false)
+const avgRecord = ref(false)
+const bestAvgMs = ref(parseInt(localStorage.getItem('reaction-best-avg-ms') || '0', 10))
 const roundRecord = ref(false)
 const bestOfRounds = computed(() => rounds.value.length ? Math.min(...rounds.value) : 0)
 
@@ -145,6 +148,12 @@ function onTap() {
       addScore({ gameId: 'reaction', score, name: '나', detail: `${avg}ms` })
       // 평균 기록이 세션 시작 시점 최고 기록(이전)보다 좋으면 신기록 (baseline 없으면 첫 판정 면제)
       newRecord.value = baselineBestMs > 0 && avg < baselineBestMs
+      // 평균 기록 별도 저장 — 5라운드 평균 기준 최고 기록 추적 (리텐션 루프)
+      avgRecord.value = bestAvgMs.value === 0 || avg < bestAvgMs.value
+      if (avgRecord.value) {
+        bestAvgMs.value = avg
+        localStorage.setItem('reaction-best-avg-ms', String(avg))
+      }
       emit('score', { score, detail: { avgMs: avg, rounds: [...rounds.value] } })
     }
   } else if (phase.value === 'result' || phase.value === 'fail') {
@@ -154,6 +163,7 @@ function onTap() {
       round.value = 1
       newRecord.value = false
       roundRecord.value = false
+      avgRecord.value = false
     } else {
       round.value++
     }
@@ -232,6 +242,7 @@ onUnmounted(() => {
 .round-chip { background: #eef2f7; color: #666; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 10px; }
 .round-chip.best { background: #1B355A; color: #fff; }
 .reaction-new-record { margin-top: 10px; font-size: 14px; font-weight: 800; color: #fff; background: #EAB308; padding: 5px 14px; border-radius: 14px; display: inline-block; animation: record-pop 0.3s ease-out; }
+.reaction-new-record.avg { background: #7C3AED; animation: record-pop 0.3s ease-out 0.15s backwards; }
 @keyframes record-pop { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 .game-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid #eee; flex-shrink: 0; }
 .score-display { display: flex; flex-direction: column; }
