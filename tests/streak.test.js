@@ -56,11 +56,12 @@ describe('streak', () => {
     // 7일 연속 시뮬레이션
     mockDate('2026-10-24T09:00:00+09:00')
     checkStreak()
-    for (let d = 1; d <= 6; d++) {
+    for (let d = 1; d <= 5; d++) {
       mockDate(`2026-10-${24 + d}T09:00:00+09:00`)
       checkStreak()
     }
-    const r = checkStreak() // 10-31 = 7일째
+    mockDate('2026-10-30T09:00:00+09:00')
+    const r = checkStreak() // 7일째
     expect(r.count).toBe(7)
     expect(r.milestone).toBe(7)
     expect(r.isNewRecord).toBe(true)
