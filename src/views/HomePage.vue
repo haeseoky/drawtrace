@@ -6,7 +6,7 @@
       <div v-if="streak.count > 0" class="streak-badge" :class="{ milestone: !!streak.milestone }" aria-live="polite">
         <span class="streak-fire" aria-hidden="true">🔥</span>
         <span v-if="streak.milestone" class="streak-milestone">{{ streak.milestone }}일 달성! 🎉</span>
-        <span v-else>연속 {{ streak.count }}일 접속 중<template v-if="streak.isNewDay"> · 오늘 완료!</template></span>
+        <span v-else>연속 {{ streak.count }}일 접속 중<template v-if="streak.isNewDay"> · 오늘 완료!</template><template v-if="streak.isNewRecord"> · 신기록! ⭐</template></span>
         <span class="streak-best">최고 {{ streak.best }}일</span>
       </div>
       <button type="button" class="challenge-card" :class="{ done: challenge.completed }" :aria-label="`오늘의 챌린지: ${challenge.description}. 따라그리기 게임으로 이동`" @click="goGame('/draw-trace')">
@@ -70,7 +70,7 @@ import { getDailyChallenge, loadChallengeProgress } from '../lib/challenge'
 
 const router = useRouter()
 const globalRank = ref([])
-const streak = ref({ count: 0, best: 0, isNewDay: false })
+const streak = ref({ count: 0, best: 0, isNewDay: false, isNewRecord: false })
 const medals = ['🥇', '🥈', '🥉']
 const challenge = ref({ description: '', goal: 0, progress: 0, completed: false })
 
