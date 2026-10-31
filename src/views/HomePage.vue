@@ -30,7 +30,7 @@
       >
         <div class="game-icon" v-html="icons[game.id]"></div>
         <div class="game-info">
-          <div class="game-name">{{ game.name }}</div>
+          <div class="game-name">{{ game.name }}<span v-if="bests[game.id]" class="game-best">최고 {{ bests[game.id] }}점</span></div>
           <div class="game-desc">{{ game.desc }}</div>
         </div>
         <div class="game-badge" :class="game.status">{{ statusText(game.status) }}</div>
@@ -63,7 +63,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getLeaderboard } from '../lib/leaderboard'
+import { getLeaderboard, getBestScore } from '../lib/leaderboard'
 import { checkStreak } from '../lib/streak'
 import { hapticsEnabled, setHapticsEnabled, hapticTick } from '../lib/haptics'
 import { getDailyChallenge, loadChallengeProgress } from '../lib/challenge'
@@ -73,6 +73,7 @@ const globalRank = ref([])
 const streak = ref({ count: 0, best: 0, isNewDay: false, isNewRecord: false })
 const medals = ['🥇', '🥈', '🥉']
 const challenge = ref({ description: '', goal: 0, progress: 0, completed: false })
+const bests = ref({})
 
 const games = [
   {
@@ -139,6 +140,12 @@ const gameLabels = {
 
 onMounted(() => {
   streak.value = checkStreak()
+  const bestMap = {}
+  for (const g of games) {
+    const b = getBestScore(g.id)
+    if (b > 0) bestMap[g.id] = b
+  }
+  bests.value = bestMap
   const c = getDailyChallenge()
   const p = loadChallengeProgress(c.id)
   challenge.value = { description: c.description, goal: c.goal, progress: p.progress, completed: p.completed }
@@ -282,7 +289,8 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 }
 
 .game-info { flex: 1; min-width: 0; }
-.game-name { font-size: 15px; font-weight: 700; color: #3A3168; }
+.game-name { font-size: 15px; font-weight: 700; color: #3A3168; display: flex; align-items: center; gap: 6px; }
+.game-best { font-size: 11px; font-weight: 600; color: #8B7BC7; background: #F1EEF9; border-radius: 6px; padding: 2px 6px; }
 .game-desc { font-size: 12px; color: #888; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 .game-badge { flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 8px; }
