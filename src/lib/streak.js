@@ -31,7 +31,7 @@ function save(data) {
 
 /**
  * 오늘 스트릭 체크(갱신). 앱 진입 시 1회 호출.
- * @returns {{ count:number, best:number, isNewDay:boolean, isNewRecord:boolean }}
+ * @returns {{ count:number, best:number, isNewDay:boolean, isNewRecord:boolean, wasBroken:boolean }}
  */
 /**
  * 스트릭 마일스톤 판정 (7일 단위). 달성 시 홈에서 축하 강조용.
@@ -45,9 +45,10 @@ export function checkStreak() {
   const previousBest = data.best
   const today = todayKey()
   if (data.lastVisit === today) {
-    return { count: data.count, best: data.best, isNewDay: false, isNewRecord: false, milestone: null }
+    return { count: data.count, best: data.best, isNewDay: false, isNewRecord: false, milestone: null, wasBroken: false }
   }
   const isNewDay = true
+  const wasBroken = data.count > 1 && data.lastVisit !== yesterdayKey()
   if (data.lastVisit === yesterdayKey()) {
     data.count += 1
   } else {
@@ -58,5 +59,5 @@ export function checkStreak() {
   data.lastVisit = today
   save(data)
   const milestone = milestoneFor(data.count)
-  return { count: data.count, best: data.best, isNewDay, isNewRecord, milestone }
+  return { count: data.count, best: data.best, isNewDay, isNewRecord, milestone, wasBroken }
 }

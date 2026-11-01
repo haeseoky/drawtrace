@@ -82,6 +82,23 @@ describe('streak', () => {
     expect(r.count).toBe(1)
     expect(r.best).toBe(6)
     expect(r.isNewRecord).toBe(false)
+    expect(r.wasBroken).toBe(true)
+    vi.useRealTimers()
+  })
+
+  it('복귀 첫날 wasBroken, 다음날 연속이면 해제', () => {
+    mockDate('2026-10-01T09:00:00+09:00')
+    checkStreak()
+    for (let d = 2; d <= 4; d++) {
+      mockDate(`2026-10-${String(d).padStart(2, '0')}T09:00:00+09:00`)
+      checkStreak()
+    }
+    mockDate('2026-10-20T09:00:00+09:00')
+    expect(checkStreak().wasBroken).toBe(true)
+    mockDate('2026-10-21T09:00:00+09:00')
+    const r = checkStreak()
+    expect(r.count).toBe(2)
+    expect(r.wasBroken).toBe(false)
     vi.useRealTimers()
   })
 })
