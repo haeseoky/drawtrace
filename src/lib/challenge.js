@@ -117,3 +117,54 @@ export function isChallengeCompleted(challengeId) {
   const data = loadChallengeProgress(challengeId)
   return data.completed || false
 }
+
+const STREAK_KEY = 'drawtrace_challenge_streak'
+
+function dayKey(date = new Date()) {
+  return formatDate(date)
+}
+
+function yesterdayKey() {
+  return formatDate(new Date(Date.now() - 86400000))
+}
+
+function loadStreak() {
+  try {
+    const raw = localStorage.getItem(STREAK_KEY)
+    if (raw) return JSON.parse(raw)
+  } catch (e) { /* ignore */ }
+  return { lastDone: null, count: 0, best: 0 }
+}
+
+/**
+ * 챌린지 완료 시 호출 — 완료 연속일 스트릭 갱신.
+ * @returns {{ count:number, best:number, isNewRecord:boolean }}
+ */
+export function recordChallengeCompletion() {
+  const data = loadStreak()
+  const prevBest = data.best
+  const today = dayKey()
+  if (data.lastDone === today) {
+    return { count: data.count, best: data.best, isNewRecord: false }
+  }
+  data.count = data.lastDone === yesterdayKey() ? data.count + 1 : 1
+  data.lastDone = today
+  data.best = Math.max(data.best, data.count)
+  try {
+    localStorage.setItem(STREAK_KEY, JSON.stringify(data))
+  } catch (e) {
+    console.error('챌린지 스트릭 저장 실패:', e)
+  }
+  return { count: data.count, best: data.best, isNewRecord: data.count > prevBest }
+}
+
+/**
+ * 챌린지 완료 연속일 조회. 오늘/어제 완료분만 유효, 그 외 0.
+ * @returns {{ count:number, best:number, doneToday:boolean }}
+ */
+export function getChallengeStreak() {
+  const data = loadStreak()
+  const doneToday = data.lastDone === dayKey()
+  const active = doneToday || data.lastDone === yesterdayKey()
+  return { count: active ? data.count : 0, best: data.best, doneToday }
+}

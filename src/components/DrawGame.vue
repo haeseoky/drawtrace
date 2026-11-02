@@ -107,7 +107,7 @@ import { calculateScore } from '../lib/scorer.js'
 import { getRandomShape } from '../data/shapes.js'
 import { addScore, getBestScore } from '../lib/leaderboard.js'
 import { shareResult as shareUtil } from '../lib/share.js'
-import { getDailyChallenge, saveChallengeProgress, loadChallengeProgress, CHALLENGE_TYPES } from '../lib/challenge.js'
+import { getDailyChallenge, saveChallengeProgress, loadChallengeProgress, recordChallengeCompletion, CHALLENGE_TYPES } from '../lib/challenge.js'
 import { hapticTick } from '../lib/haptics'
 
 // Refs
@@ -747,6 +747,10 @@ function checkChallengeProgress(result, timeRatio) {
   challengeProgress.current = newProgress
   challengeProgress.completed = completed
   saveChallengeProgress(dailyChallenge.value.id, newProgress, completed)
+  if (completed) {
+    // 완료 연속일 스트릭 갱신 (이미 완료된 챌린지는 함수 초반 리턴으로 재기록 안 됨)
+    recordChallengeCompletion()
+  }
 }
 
 function shareResult() {

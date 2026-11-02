@@ -14,7 +14,7 @@
         <span class="challenge-icon" aria-hidden="true">🎯</span>
         <span class="challenge-body">
           <span class="challenge-title">오늘의 챌린지 <template v-if="challenge.completed">· 완료!</template></span>
-          <span class="challenge-desc">{{ challenge.description }}</span>
+          <span class="challenge-desc">{{ challenge.description }}<template v-if="challengeStreak.count > 1"> · 연속 완료 {{ challengeStreak.count }}일</template></span>
         </span>
         <span class="challenge-go" aria-hidden="true">›</span>
       </button>
@@ -67,13 +67,14 @@ import { useRouter } from 'vue-router'
 import { getLeaderboard, getBestScore } from '../lib/leaderboard'
 import { checkStreak } from '../lib/streak'
 import { hapticsEnabled, setHapticsEnabled, hapticTick } from '../lib/haptics'
-import { getDailyChallenge, loadChallengeProgress } from '../lib/challenge'
+import { getDailyChallenge, loadChallengeProgress, getChallengeStreak } from '../lib/challenge'
 
 const router = useRouter()
 const globalRank = ref([])
 const streak = ref({ count: 0, best: 0, isNewDay: false, isNewRecord: false, wasBroken: false })
 const medals = ['🥇', '🥈', '🥉']
 const challenge = ref({ description: '', goal: 0, progress: 0, completed: false })
+const challengeStreak = ref({ count: 0, best: 0, doneToday: false })
 const bests = ref({})
 
 const games = [
@@ -150,6 +151,7 @@ onMounted(() => {
   const c = getDailyChallenge()
   const p = loadChallengeProgress(c.id)
   challenge.value = { description: c.description, goal: c.goal, progress: p.progress, completed: p.completed }
+  challengeStreak.value = getChallengeStreak()
   const all = getLeaderboard().map(e => ({
     ...e,
     gameLabel: gameLabels[e.gameId] || e.gameId,
