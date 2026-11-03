@@ -15,6 +15,9 @@
         <span class="challenge-body">
           <span class="challenge-title">오늘의 챌린지 <template v-if="challenge.completed">· 완료!</template></span>
           <span class="challenge-desc">{{ challenge.description }}<template v-if="challengeStreak.count > 1"> · 연속 완료 {{ challengeStreak.count }}일</template></span>
+          <span class="challenge-week" aria-hidden="true">
+            <span v-for="day in last7Days" :key="day.date" class="week-dot" :class="{ done: day.done }"></span>
+          </span>
         </span>
         <span class="challenge-go" aria-hidden="true">›</span>
       </button>
@@ -67,7 +70,7 @@ import { useRouter } from 'vue-router'
 import { getLeaderboard, getBestScore } from '../lib/leaderboard'
 import { checkStreak } from '../lib/streak'
 import { hapticsEnabled, setHapticsEnabled, hapticTick } from '../lib/haptics'
-import { getDailyChallenge, loadChallengeProgress, getChallengeStreak } from '../lib/challenge'
+import { getDailyChallenge, loadChallengeProgress, getChallengeStreak, getLast7Days } from '../lib/challenge'
 
 const router = useRouter()
 const globalRank = ref([])
@@ -75,6 +78,7 @@ const streak = ref({ count: 0, best: 0, isNewDay: false, isNewRecord: false, was
 const medals = ['🥇', '🥈', '🥉']
 const challenge = ref({ description: '', goal: 0, progress: 0, completed: false })
 const challengeStreak = ref({ count: 0, best: 0, doneToday: false })
+const last7Days = ref([])
 const bests = ref({})
 
 const games = [
@@ -152,6 +156,7 @@ onMounted(() => {
   const p = loadChallengeProgress(c.id)
   challenge.value = { description: c.description, goal: c.goal, progress: p.progress, completed: p.completed }
   challengeStreak.value = getChallengeStreak()
+  last7Days.value = getLast7Days()
   const all = getLeaderboard().map(e => ({
     ...e,
     gameLabel: gameLabels[e.gameId] || e.gameId,
@@ -240,6 +245,9 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 .challenge-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .challenge-title { font-size: 12px; font-weight: 700; }
 .challenge-desc { font-size: 12px; opacity: 0.8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.challenge-week { display: flex; gap: 4px; margin-top: 3px; }
+.week-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.25); }
+.week-dot.done { background: #ffd54f; }
 .challenge-go { font-size: 18px; opacity: 0.6; flex-shrink: 0; }
 
 .game-grid {

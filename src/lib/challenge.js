@@ -131,9 +131,9 @@ function yesterdayKey() {
 function loadStreak() {
   try {
     const raw = localStorage.getItem(STREAK_KEY)
-    if (raw) return JSON.parse(raw)
+    if (raw) return { history: [], ...JSON.parse(raw) }
   } catch (e) { /* ignore */ }
-  return { lastDone: null, count: 0, best: 0 }
+  return { lastDone: null, count: 0, best: 0, history: [] }
 }
 
 /**
@@ -150,6 +150,9 @@ export function recordChallengeCompletion() {
   data.count = data.lastDone === yesterdayKey() ? data.count + 1 : 1
   data.lastDone = today
   data.best = Math.max(data.best, data.count)
+  if (!Array.isArray(data.history)) data.history = []
+  if (!data.history.includes(today)) data.history.push(today)
+  data.history = data.history.slice(-30)
   try {
     localStorage.setItem(STREAK_KEY, JSON.stringify(data))
   } catch (e) {
@@ -167,4 +170,19 @@ export function getChallengeStreak() {
   const doneToday = data.lastDone === dayKey()
   const active = doneToday || data.lastDone === yesterdayKey()
   return { count: active ? data.count : 0, best: data.best, doneToday }
+}
+
+/**
+ * 최근 7일(오늘 포함, 과거→오늘 순) 챌린지 완료 여부.
+ * @returns {{ date:string, done:boolean }[]}
+ */
+export function getLast7Days() {
+  const data = loadStreak()
+  const history = Array.isArray(data.history) ? data.history : []
+  const days = []
+  for (let i = 6; i >= 0; i--) {
+    const key = formatDate(new Date(Date.now() - i * 86400000))
+    days.push({ date: key, done: history.includes(key) })
+  }
+  return days
 }
