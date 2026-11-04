@@ -69,4 +69,26 @@ describe('challenge streak', () => {
     expect(s.count).toBe(3)
     expect(s.doneToday).toBe(false)
   })
+
+  it('7일 도달 시 milestone 7 반환', () => {
+    localStorage.setItem('drawtrace_challenge_streak', JSON.stringify({ lastDone: dayKey(-1), count: 6, best: 6, history: [] }))
+    const r = recordChallengeCompletion()
+    expect(r.count).toBe(7)
+    expect(r.milestone).toBe(7)
+    const s = getChallengeStreak()
+    expect(s.milestone).toBe(7)
+  })
+
+  it('마일스톤 아닌 날은 milestone null', () => {
+    localStorage.setItem('drawtrace_challenge_streak', JSON.stringify({ lastDone: dayKey(-1), count: 4, best: 4, history: [] }))
+    const r = recordChallengeCompletion()
+    expect(r.count).toBe(5)
+    expect(r.milestone).toBeNull()
+    expect(getChallengeStreak().milestone).toBeNull()
+  })
+
+  it('마일스톤은 오늘 완료 시에만 표시(어제 완료분이면 null)', () => {
+    localStorage.setItem('drawtrace_challenge_streak', JSON.stringify({ lastDone: dayKey(-1), count: 7, best: 7, history: [] }))
+    expect(getChallengeStreak().milestone).toBeNull()
+  })
 })

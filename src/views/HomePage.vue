@@ -10,11 +10,11 @@
         <span v-else>연속 {{ streak.count }}일 접속 중<template v-if="streak.isNewDay"> · 오늘 완료!</template><template v-if="streak.isNewRecord"> · 신기록! ⭐</template></span>
         <span class="streak-best">최고 {{ streak.best }}일</span>
       </div>
-      <button type="button" class="challenge-card" :class="{ done: challenge.completed }" :aria-label="`오늘의 챌린지: ${challenge.description}. 따라그리기 게임으로 이동`" @click="goGame('/draw-trace')">
+      <button type="button" class="challenge-card" :class="{ done: challenge.completed, milestone: !!challengeStreak.milestone }" :aria-label="`오늘의 챌린지: ${challenge.description}. 따라그리기 게임으로 이동`" @click="goGame('/draw-trace')">
         <span class="challenge-icon" aria-hidden="true">🎯</span>
         <span class="challenge-body">
           <span class="challenge-title">오늘의 챌린지 <template v-if="challenge.completed">· 완료!</template></span>
-          <span class="challenge-desc">{{ challenge.description }}<template v-if="challengeStreak.count > 1"> · 연속 완료 {{ challengeStreak.count }}일</template></span>
+          <span class="challenge-desc">{{ challenge.description }}<template v-if="challengeStreak.count > 1"> · 연속 완료 {{ challengeStreak.count }}일</template><template v-if="challengeStreak.milestone"> · {{ challengeStreak.milestone }}일 달성! 🎉</template></span>
           <span class="challenge-week" aria-hidden="true">
             <span v-for="day in last7Days" :key="day.date" class="week-dot" :class="{ done: day.done }"></span>
           </span>
@@ -241,6 +241,7 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 .challenge-card:active { transform: scale(0.98); }
 .challenge-card:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .challenge-card.done { opacity: 0.75; }
+.challenge-card.milestone { border-color: rgba(255, 214, 79, 0.6); animation: milestone-pop 0.5s ease; }
 .challenge-icon { font-size: 18px; flex-shrink: 0; }
 .challenge-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .challenge-title { font-size: 12px; font-weight: 700; }

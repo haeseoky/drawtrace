@@ -140,6 +140,13 @@ function loadStreak() {
  * 챌린지 완료 시 호출 — 완료 연속일 스트릭 갱신.
  * @returns {{ count:number, best:number, isNewRecord:boolean }}
  */
+/**
+ * 스트릭 마일스톤 판정 (7일 단위). 달성 시 홈에서 축하 강조용.
+ */
+export function milestoneFor(count) {
+  return count > 0 && count % 7 === 0 ? count : null
+}
+
 export function recordChallengeCompletion() {
   const data = loadStreak()
   const prevBest = data.best
@@ -158,18 +165,18 @@ export function recordChallengeCompletion() {
   } catch (e) {
     console.error('챌린지 스트릭 저장 실패:', e)
   }
-  return { count: data.count, best: data.best, isNewRecord: data.count > prevBest }
+  return { count: data.count, best: data.best, isNewRecord: data.count > prevBest, milestone: milestoneFor(data.count) }
 }
 
 /**
  * 챌린지 완료 연속일 조회. 오늘/어제 완료분만 유효, 그 외 0.
- * @returns {{ count:number, best:number, doneToday:boolean }}
+ * @returns {{ count:number, best:number, doneToday:boolean, milestone:number|null }}
  */
 export function getChallengeStreak() {
   const data = loadStreak()
   const doneToday = data.lastDone === dayKey()
   const active = doneToday || data.lastDone === yesterdayKey()
-  return { count: active ? data.count : 0, best: data.best, doneToday }
+  return { count: active ? data.count : 0, best: data.best, doneToday, milestone: doneToday ? milestoneFor(data.count) : null }
 }
 
 /**
