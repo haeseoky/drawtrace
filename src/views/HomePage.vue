@@ -8,7 +8,7 @@
         <span v-if="streak.milestone" class="streak-milestone">{{ streak.milestone }}일 달성! 🎉</span>
         <span v-else-if="streak.wasBroken && streak.best > 1">스트릭이 끊겼네요 — 오늘부터 다시 시작! 최고 {{ streak.best }}일</span>
         <span v-else>연속 {{ streak.count }}일 접속 중<template v-if="streak.isNewDay"> · 오늘 완료!</template><template v-if="streak.isNewRecord"> · 신기록! ⭐</template></span>
-        <span class="streak-best">최고 {{ streak.best }}일</span>
+        <span class="streak-best">최고 {{ streak.best }}일<template v-if="nextMilestone"> · 다음 배지까지 {{ nextMilestone }}일</template></span>
       </div>
       <button type="button" class="challenge-card" :class="{ done: challenge.completed, milestone: !!challengeStreak.milestone }" :aria-label="`오늘의 챌린지: ${challenge.description}. 따라그리기 게임으로 이동`" @click="goGame('/draw-trace')">
         <span class="challenge-icon" aria-hidden="true">🎯</span>
@@ -80,6 +80,13 @@ const challenge = ref({ description: '', goal: 0, progress: 0, completed: false 
 const challengeStreak = ref({ count: 0, best: 0, doneToday: false })
 const last7Days = ref([])
 const bests = ref({})
+// 다음 마일스톤(7일 단위)까지 남은 일수 — 7·14·21… 직전에 동기 부여 힌트
+const nextMilestone = computed(() => {
+  const c = streak.value.count
+  if (c <= 0) return null
+  const rem = c % 7
+  return rem === 0 ? null : 7 - rem
+})
 
 const games = [
   {
