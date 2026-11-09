@@ -14,7 +14,7 @@
         <span class="challenge-icon" aria-hidden="true">🎯</span>
         <span class="challenge-body">
           <span class="challenge-title">오늘의 챌린지 <template v-if="challenge.completed">· 완료!</template></span>
-          <span class="challenge-desc">{{ challenge.description }}<template v-if="challengeStreak.count > 1"> · 연속 완료 {{ challengeStreak.count }}일</template><template v-if="challengeStreak.milestone"> · {{ challengeStreak.milestone }}일 달성! 🎉</template></span>
+          <span class="challenge-desc">{{ challenge.description }}<template v-if="challengeStreak.count > 1"> · 연속 완료 {{ challengeStreak.count }}일</template><template v-if="challengeStreak.milestone"> · {{ challengeStreak.milestone }}일 달성! 🎉</template><template v-else-if="challengeStreak.best > 1 && challengeStreak.best > challengeStreak.count"> · 최고 {{ challengeStreak.best }}일</template></span>
           <span class="challenge-week" aria-hidden="true">
             <span v-for="day in last7Days" :key="day.date" class="week-dot" :class="{ done: day.done }"></span>
           </span>
