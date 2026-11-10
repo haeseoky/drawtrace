@@ -147,6 +147,15 @@ export function milestoneFor(count) {
   return count > 0 && count % 7 === 0 ? count : null
 }
 
+/**
+ * 다음 마일스톤(7일 단위)까지 남은 일수. 0 또는 마일스톤 당일이면 null.
+ */
+export function nextMilestoneIn(count) {
+  if (count <= 0) return null
+  const rem = count % 7
+  return rem === 0 ? null : 7 - rem
+}
+
 export function recordChallengeCompletion() {
   const data = loadStreak()
   const prevBest = data.best

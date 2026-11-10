@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { recordChallengeCompletion, getChallengeStreak } from '../src/lib/challenge'
+import { recordChallengeCompletion, getChallengeStreak, nextMilestoneIn } from '../src/lib/challenge'
 
 // localStorage 모킹 (node 환경)
 const store = new Map()
@@ -90,5 +90,14 @@ describe('challenge streak', () => {
   it('마일스톤은 오늘 완료 시에만 표시(어제 완료분이면 null)', () => {
     localStorage.setItem('drawtrace_challenge_streak', JSON.stringify({ lastDone: dayKey(-1), count: 7, best: 7, history: [] }))
     expect(getChallengeStreak().milestone).toBeNull()
+  })
+
+  it('nextMilestoneIn: 0이면 null, 1~6은 7-count, 7이면 null', () => {
+    expect(nextMilestoneIn(0)).toBeNull()
+    expect(nextMilestoneIn(-1)).toBeNull()
+    expect(nextMilestoneIn(1)).toBe(6)
+    expect(nextMilestoneIn(6)).toBe(1)
+    expect(nextMilestoneIn(7)).toBeNull()
+    expect(nextMilestoneIn(8)).toBe(6)
   })
 })
