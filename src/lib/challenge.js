@@ -167,6 +167,7 @@ export function recordChallengeCompletion() {
   data.lastDone = today
   data.best = Math.max(data.best, data.count)
   if (!Array.isArray(data.history)) data.history = []
+  data.history = data.history.filter((d) => last30DayKeys().has(d))
   if (!data.history.includes(today)) data.history.push(today)
   data.history = data.history.slice(-30)
   try {
@@ -189,11 +190,24 @@ export function getChallengeStreak() {
 }
 
 /**
- * 최근 30일 챌린지 완료 횟수 (history는 최근 30일만 보관).
+ * 최근 30일 날짜 키 집합 (오늘 포함).
+ */
+function last30DayKeys() {
+  const keys = []
+  for (let i = 0; i < 30; i++) {
+    keys.push(formatDate(new Date(Date.now() - i * 86400000)))
+  }
+  return new Set(keys)
+}
+
+/**
+ * 최근 30일 챌린지 완료 횟수 (30일 이전 날짜는 제외 — 장기 미접속 후 오염 방지).
  */
 export function getChallenge30DayCount() {
   const data = loadStreak()
-  return Array.isArray(data.history) ? data.history.length : 0
+  if (!Array.isArray(data.history)) return 0
+  const keys = last30DayKeys()
+  return data.history.filter((d) => keys.has(d)).length
 }
 
 /**
