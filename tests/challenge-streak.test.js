@@ -101,3 +101,4 @@ describe('challenge streak', () => {
     expect(nextMilestoneIn(8)).toBe(6)
   })
 })
+

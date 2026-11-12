@@ -14,7 +14,7 @@
         <span class="challenge-icon" aria-hidden="true">🎯</span>
         <span class="challenge-body">
           <span class="challenge-title">오늘의 챌린지 <template v-if="challenge.completed">· 완료!</template></span>
-          <span class="challenge-desc">{{ challenge.description }}<template v-if="challengeStreak.count > 1"> · 연속 완료 {{ challengeStreak.count }}일</template><template v-if="challengeStreak.milestone"> · {{ challengeStreak.milestone }}일 달성! 🎉</template><template v-else-if="challengeStreak.best > 1 && challengeStreak.best > challengeStreak.count"> · 최고 {{ challengeStreak.best }}일</template><template v-else-if="challengeNextMilestone"> · 다음 배지까지 {{ challengeNextMilestone }}일</template></span>
+          <span class="challenge-desc">{{ challenge.description }}<template v-if="challengeStreak.count > 1"> · 연속 완료 {{ challengeStreak.count }}일</template><template v-if="challengeStreak.milestone"> · {{ challengeStreak.milestone }}일 달성! 🎉</template><template v-else-if="challengeStreak.best > 1 && challengeStreak.best > challengeStreak.count"> · 최고 {{ challengeStreak.best }}일</template><template v-else-if="challengeNextMilestone"> · 다음 배지까지 {{ challengeNextMilestone }}일</template><template v-if="challenge30Count > 0"> · 최근 30일 {{ challenge30Count }}회 완료</template></span>
           <span class="challenge-week" aria-hidden="true">
             <span v-for="day in last7Days" :key="day.date" class="week-dot" :class="{ done: day.done }"></span>
           </span>
@@ -70,7 +70,7 @@ import { useRouter } from 'vue-router'
 import { getLeaderboard, getBestScore } from '../lib/leaderboard'
 import { checkStreak } from '../lib/streak'
 import { hapticsEnabled, setHapticsEnabled, hapticTick } from '../lib/haptics'
-import { getDailyChallenge, loadChallengeProgress, getChallengeStreak, getLast7Days, nextMilestoneIn } from '../lib/challenge'
+import { getDailyChallenge, loadChallengeProgress, getChallengeStreak, getLast7Days, nextMilestoneIn, getChallenge30DayCount } from '../lib/challenge'
 
 const router = useRouter()
 const globalRank = ref([])
@@ -81,6 +81,7 @@ const challengeStreak = ref({ count: 0, best: 0, doneToday: false })
 // 챌린지 스트릭 다음 마일스톤(7일 단위)까지 남은 일수 힌트
 const challengeNextMilestone = computed(() => nextMilestoneIn(challengeStreak.value.count))
 const last7Days = ref([])
+const challenge30Count = ref(0)
 const bests = ref({})
 // 다음 마일스톤(7일 단위)까지 남은 일수 — 7·14·21… 직전에 동기 부여 힌트
 const nextMilestone = computed(() => {
@@ -166,6 +167,7 @@ onMounted(() => {
   challenge.value = { description: c.description, goal: c.goal, progress: p.progress, completed: p.completed }
   challengeStreak.value = getChallengeStreak()
   last7Days.value = getLast7Days()
+  challenge30Count.value = getChallenge30DayCount()
   const all = getLeaderboard().map(e => ({
     ...e,
     gameLabel: gameLabels[e.gameId] || e.gameId,

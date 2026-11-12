@@ -189,6 +189,14 @@ export function getChallengeStreak() {
 }
 
 /**
+ * 최근 30일 챌린지 완료 횟수 (history는 최근 30일만 보관).
+ */
+export function getChallenge30DayCount() {
+  const data = loadStreak()
+  return Array.isArray(data.history) ? data.history.length : 0
+}
+
+/**
  * 최근 7일(오늘 포함, 과거→오늘 순) 챌린지 완료 여부.
  * @returns {{ date:string, done:boolean }[]}
  */
