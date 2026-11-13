@@ -13,7 +13,7 @@
       <button type="button" class="challenge-card" :class="{ done: challenge.completed, milestone: !!challengeStreak.milestone }" :aria-label="`오늘의 챌린지: ${challenge.description}. 따라그리기 게임으로 이동`" @click="goGame('/draw-trace')">
         <span class="challenge-icon" aria-hidden="true">🎯</span>
         <span class="challenge-body">
-          <span class="challenge-title">오늘의 챌린지 <template v-if="challenge.completed">· 완료!</template></span>
+          <span class="challenge-title">오늘의 챌린지 <template v-if="challenge.completed">· 완료!</template><template v-else-if="challenge.progress > 0"> · 진행 {{ challenge.progress }}/{{ challenge.goal }}</template></span>
           <span class="challenge-desc">{{ challenge.description }}<template v-if="challengeStreak.count > 1"> · 연속 완료 {{ challengeStreak.count }}일</template><template v-if="challengeStreak.milestone"> · {{ challengeStreak.milestone }}일 달성! 🎉</template><template v-else-if="challengeStreak.best > 1 && challengeStreak.best > challengeStreak.count"> · 최고 {{ challengeStreak.best }}일</template><template v-else-if="challengeNextMilestone"> · 다음 배지까지 {{ challengeNextMilestone }}일</template><template v-if="challenge30Count > 0"> · 최근 30일 {{ challenge30Count }}회 완료</template></span>
           <span class="challenge-week" aria-hidden="true">
             <span v-for="day in last7Days" :key="day.date" class="week-dot" :class="{ done: day.done }"></span>
