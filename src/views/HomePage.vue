@@ -155,6 +155,16 @@ const gameLabels = {
 }
 
 onMounted(() => {
+  // 유휴 시 게임 라우트 프리페치 — 첫 진입 체감 로딩 개선 (D1 리텐션)
+  const prefetch = () => {
+    for (const r of ['/draw-trace', '/reaction', '/memory', '/color-match', '/brick', '/2048']) {
+      const route = router.resolve(r)
+      if (route?.matched?.[0]?.components?.default) route.matched[0].components.default()
+    }
+  }
+  if ('requestIdleCallback' in window) requestIdleCallback(prefetch, { timeout: 3000 })
+  else setTimeout(prefetch, 1500)
+
   streak.value = checkStreak()
   const bestMap = {}
   for (const g of games) {
