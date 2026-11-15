@@ -190,7 +190,18 @@ export function getChallengeStreak() {
 }
 
 /**
- * 최근 30일 날짜 키 집합 (오늘 포함).
+ * 최근 7일(오늘 포함) 챌린지 완료 횟수.
+ */
+export function getChallenge7DayCount() {
+  const data = loadStreak()
+  if (!Array.isArray(data.history)) return 0
+  const keys = []
+  for (let i = 0; i < 7; i++) keys.push(formatDate(new Date(Date.now() - i * 86400000)))
+  return data.history.filter((d) => keys.includes(d)).length
+}
+
+/**
+ * 최근 7일 날짜 키 집합 (오늘 포함).
  */
 function last30DayKeys() {
   const keys = []
