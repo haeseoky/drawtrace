@@ -268,7 +268,7 @@ function statusText(s) { return s === 'playable' ? 'PLAY' : 'SOON' }
 .challenge-icon { font-size: 18px; flex-shrink: 0; }
 .challenge-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .challenge-title { font-size: 12px; font-weight: 700; }
-.challenge-desc { font-size: 12px; opacity: 0.8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.challenge-desc { font-size: 12px; opacity: 0.8; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; word-break: keep-all; }
 .challenge-week { display: flex; gap: 4px; margin-top: 3px; }
 .week-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.25); }
 .week-dot.done { background: #ffd54f; }
