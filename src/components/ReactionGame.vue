@@ -12,7 +12,7 @@
       <div class="header-right"><span class="best-score">🏆 {{ bestMs }}ms</span></div>
     </header>
 
-    <main class="game-main" :class="phase" @click="onTap">
+    <main class="game-main" :class="phase" @pointerdown="onTap">
       <div v-if="phase === 'ready'" class="phase-content">
         <div class="phase-icon">⚡</div>
         <div class="phase-text">화면을 터치하거나 Space 키를 누르면 시작합니다</div>
@@ -131,6 +131,7 @@ function onTap() {
     phase.value = 'fail'
     hapticError()
   } else if (phase.value === 'go') {
+    // pointerdown 기준 측정 — click 대비 모바일 지연(최대 ~100ms) 제거로 공정한 반응시간
     reactionTime.value = Math.round(getTimestamp() - goTimestamp)
     rounds.value.push(reactionTime.value)
     // 라운드 단위 신기록: 개별 반응시간이 기존 최고 기록보다 빠르면 즉시 갱신
