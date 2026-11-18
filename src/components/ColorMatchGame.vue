@@ -186,10 +186,12 @@ function selectAnswer(opt) {
   }
 
   clearTimeout(feedbackTimeout)
+  // 정답은 짧은 피드백으로 빠른 템포 유지, 오답은 실수 인지 시간 확보
+  const delay = opt.hex === correctHex.value ? 250 : 450
   feedbackTimeout = setTimeout(() => {
     feedback.value = null
     if (gameState.value === 'playing') nextRound()
-  }, 450)
+  }, delay)
 }
 
 function endGame() {
