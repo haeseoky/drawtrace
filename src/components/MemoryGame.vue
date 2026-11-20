@@ -32,7 +32,7 @@
           v-for="(card, i) in cards"
           :key="i"
           class="card"
-          :class="{ flipped: card.flipped, matched: card.matched }"
+          :class="{ flipped: card.flipped || previewing, matched: card.matched }"
           @click="flipCard(i)"
         >
           <div class="card-inner">
@@ -41,6 +41,9 @@
           </div>
         </div>
       </div>
+      <Transition name="banner">
+        <div v-if="previewing" class="preview-badge">미리보기 — 기억하세요!</div>
+      </Transition>
     </main>
 
     <Transition name="banner">
@@ -116,6 +119,8 @@ const roundClear = ref(false) // 라운드 클리어 배너 표시 중
 const lastRoundScore = ref(0)
 const lastPerfectRound = ref(false)
 let roundClearTimeout = null
+const previewing = ref(false) // 라운드 시작 카드 미리보기 중
+let previewTimeout = null
 
 function startGame() {
   gameState.value = 'playing'
@@ -144,6 +149,11 @@ function setupRound() {
   const pairs = shuffle([...selected, ...selected])
   cards.value = pairs.map(emoji => ({ emoji, flipped: false, matched: false }))
 
+  // 라운드 시작 미리보기: 전체 카드를 잠깐 공개 (라운드가 오를수록 짧아짐)
+  previewing.value = true
+  clearTimeout(previewTimeout)
+  previewTimeout = setTimeout(() => { previewing.value = false }, Math.max(900, 2300 - round.value * 300))
+
   const timer = setInterval(() => {
     const elapsed = Math.floor((Date.now() - gameStartTime) / 1000)
     timeLeft.value = Math.max(0, timeLimit.value - elapsed)
@@ -153,7 +163,7 @@ function setupRound() {
 }
 
 function flipCard(index) {
-  if (gameState.value !== 'playing') return
+  if (gameState.value !== 'playing' || previewing.value) return
   if (cards.value[index].flipped || cards.value[index].matched) return
   if (flipped.value.length >= 2) return
   if (isChecking) return // 매칭 체크 중에는 추가 클릭 무시
@@ -251,7 +261,7 @@ function onKeyDown(e) {
   }
 }
 onMounted(() => window.addEventListener('keydown', onKeyDown))
-onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout); clearTimeout(roundClearTimeout); window.removeEventListener('keydown', onKeyDown) })
+onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout); clearTimeout(roundClearTimeout); clearTimeout(previewTimeout); window.removeEventListener('keydown', onKeyDown) })
 </script>
 
 <style scoped>
@@ -281,6 +291,14 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout); cle
 .banner-leave-to { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   .banner-enter-active, .banner-leave-active { transition: none; }
+}
+.preview-badge { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); background: #1B355A; color: #fff; font-size: 13px; font-weight: 700; padding: 8px 18px; border-radius: 14px; z-index: 10; pointer-events: none; box-shadow: 0 4px 12px rgba(27, 53, 90, 0.3); }
+.preview-badge.banner-enter-active { transition: all 0.2s ease-out; }
+.preview-badge.banner-leave-active { transition: all 0.2s ease-in; }
+.preview-badge.banner-enter-from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+.preview-badge.banner-leave-to { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .preview-badge.banner-enter-active, .preview-badge.banner-leave-active { transition: none; }
 }
 .game-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; }
 .card-grid { display: grid; gap: 8px; width: 100%; max-width: 400px; }
