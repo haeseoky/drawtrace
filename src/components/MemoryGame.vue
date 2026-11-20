@@ -22,7 +22,7 @@
         </div>
       </div>
       <div class="header-right">
-        <div class="pairs-found">🧩 {{ found }}/{{ totalPairs }}</div>
+        <div v-if="gameState === 'playing'" class="pairs-found">🧩 {{ found }}/{{ totalPairs }}</div>
       </div>
     </header>
 
@@ -42,6 +42,14 @@
         </div>
       </div>
     </main>
+
+    <Transition name="banner">
+      <div v-if="roundClear" class="round-clear-overlay">
+        <div class="round-clear-title">Round {{ round }} 클리어!</div>
+        <div class="round-clear-score">+{{ lastRoundScore }}점</div>
+        <div v-if="lastPerfectRound" class="round-clear-perfect">퍼펙트 보너스 +500</div>
+      </div>
+    </Transition>
 
     <footer class="game-footer">
       <div class="score-display">
@@ -104,6 +112,10 @@ let isChecking = false // 더블탭 치팅 방지
 let roundMistakes = 0 // 이번 라운드 실수 수 (퍼펙트 보너스용)
 const combo = ref(0) // 연속 매칭 콤보
 const lastPerfect = ref(false) // 마지막 라운드 퍼펙트 여부 (sr 발표용)
+const roundClear = ref(false) // 라운드 클리어 배너 표시 중
+const lastRoundScore = ref(0)
+const lastPerfectRound = ref(false)
+let roundClearTimeout = null
 
 function startGame() {
   gameState.value = 'playing'
@@ -125,18 +137,19 @@ function setupRound() {
   combo.value = 0
   roundMistakes = 0
   clearTimeout(flipTimeout)
+  clearTimeout(roundClearTimeout)
+  roundClear.value = false
 
   const selected = shuffle(EMOJIS).slice(0, totalPairs.value)
   const pairs = shuffle([...selected, ...selected])
   cards.value = pairs.map(emoji => ({ emoji, flipped: false, matched: false }))
 
-  clearInterval(timerInterval)
-  gameStartTime = Date.now()
-  timerInterval = setInterval(() => {
+  const timer = setInterval(() => {
     const elapsed = Math.floor((Date.now() - gameStartTime) / 1000)
     timeLeft.value = Math.max(0, timeLimit.value - elapsed)
     if (timeLeft.value <= 0) endGame()
   }, 250)
+  timerInterval = timer
 }
 
 function flipCard(index) {
@@ -178,6 +191,18 @@ function flipCard(index) {
   }
 }
 
+// 라운드 점수 계산 (중복 제거)
+function calcRoundScore() {
+  const pairBonus = found.value * 100
+  const timeBonus = Math.max(0, timeLeft.value) * 5
+  // 패널티 상한: 획득 보너스의 50% — 실수해도 라운드 보상감 유지 (백로그 #9)
+  const movePenalty = Math.min(
+    Math.max(0, (moves.value - totalPairs.value * 2) * 3),
+    (pairBonus + timeBonus) * 0.5
+  )
+  return Math.max(0, Math.round(pairBonus + timeBonus - movePenalty))
+}
+
 function endGame() {
   clearInterval(timerInterval)
   clearTimeout(flipTimeout)
@@ -188,18 +213,20 @@ function endGame() {
 
   if (found.value >= totalPairs.value && !isAllClear) {
     // 다음 라운드로 진행 — 누적 점수
-    const pairBonus = found.value * 100
-    const timeBonus = Math.max(0, timeLeft.value) * 5
-    // 패널티 상한: 획득 보너스의 50% — 실수해도 라운드 보상감 유지 (백로그 #9)
-    const movePenalty = Math.min(
-      Math.max(0, (moves.value - totalPairs.value * 2) * 3),
-      (pairBonus + timeBonus) * 0.5
-    )
-    const roundScore = Math.max(0, Math.round(pairBonus + timeBonus - movePenalty))
+    const roundScore = calcRoundScore()
     const perfectBonus = roundMistakes === 0 ? 500 : 0
     score.value += roundScore + perfectBonus
-    round.value++
-    setupRound()
+    // 라운드 클리어 피드백: 배너 1.4초 표시 후 다음 라운드 시작
+    roundClear.value = true
+    lastRoundScore.value = roundScore + perfectBonus
+    lastPerfectRound.value = perfectBonus > 0
+    haptic([10, 30, 10, 30, 10])
+    clearTimeout(roundClearTimeout)
+    roundClearTimeout = setTimeout(() => {
+      roundClear.value = false
+      round.value++
+      setupRound()
+    }, 1400)
     return
   }
 
@@ -207,13 +234,7 @@ function endGame() {
   hapticSuccess()
 
   // 최종 라운드 점수 합산
-  const pairBonus = found.value * 100
-  const timeBonus = Math.max(0, timeLeft.value) * 5
-  const movePenalty = Math.min(
-    Math.max(0, (moves.value - totalPairs.value * 2) * 3),
-    (pairBonus + timeBonus) * 0.5
-  )
-  const roundScore = Math.max(0, Math.round(pairBonus + timeBonus - movePenalty))
+  const roundScore = calcRoundScore()
   const perfectBonus = roundMistakes === 0 ? 500 : 0
   lastPerfect.value = perfectBonus > 0
   score.value += roundScore + perfectBonus
@@ -230,11 +251,11 @@ function onKeyDown(e) {
   }
 }
 onMounted(() => window.addEventListener('keydown', onKeyDown))
-onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout); window.removeEventListener('keydown', onKeyDown) })
+onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout); clearTimeout(roundClearTimeout); window.removeEventListener('keydown', onKeyDown) })
 </script>
 
 <style scoped>
-.game-wrapper { display: flex; flex-direction: column; height: 100%; user-select: none; -webkit-user-select: none; touch-action: none; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+.game-wrapper { position: relative; display: flex; flex-direction: column; height: 100%; user-select: none; -webkit-user-select: none; touch-action: none; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .game-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid #eee; flex-shrink: 0; }
 .header-left { display: flex; align-items: center; gap: 10px; }
 .level-badge { background: #1B355A; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px; }
@@ -250,6 +271,17 @@ onUnmounted(() => { clearInterval(timerInterval); clearTimeout(flipTimeout); win
   .timer.urgent .timer-text { animation: none; }
 }
 .pairs-found { font-size: 13px; color: #666; }
+.round-clear-overlay { position: absolute; inset: 0; background: rgba(27, 53, 90, 0.88); z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; text-align: center; }
+.round-clear-title { font-size: 30px; font-weight: 800; color: #fff; margin-bottom: 10px; }
+.round-clear-score { font-size: 22px; font-weight: 700; color: #8FD3F4; }
+.round-clear-perfect { margin-top: 8px; font-size: 14px; font-weight: 700; color: #FFD54F; }
+.banner-enter-active { transition: all 0.25s ease-out; }
+.banner-leave-active { transition: all 0.2s ease-in; }
+.banner-enter-from { opacity: 0; transform: scale(0.92); }
+.banner-leave-to { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .banner-enter-active, .banner-leave-active { transition: none; }
+}
 .game-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; }
 .card-grid { display: grid; gap: 8px; width: 100%; max-width: 400px; }
 .card { aspect-ratio: 1; perspective: 600px; cursor: pointer; }
