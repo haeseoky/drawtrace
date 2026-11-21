@@ -139,6 +139,7 @@ function onTap() {
     if (roundRecord.value) {
       bestMs.value = reactionTime.value
       localStorage.setItem('reaction-best-ms', String(reactionTime.value))
+      hapticSuccess()
     }
     phase.value = 'result'
     hapticTick()
@@ -175,7 +176,9 @@ function onTap() {
 function startRound() {
   phase.value = 'wait'
   waitDone.value = false
-  const delay = 1500 + Math.random() * 3000
+  // 라운드가 올라갈수록 최소 대기와 랜덤 폭이 줄어 템포가 빨라짐 (900ms~4.5s → 900ms~2.4s)
+  const speedUp = (round.value - 1) * 300
+  const delay = Math.max(900, 1500 - speedUp) + Math.random() * Math.max(1500, 3000 - speedUp)
   waitTimeout = setTimeout(() => {
     phase.value = 'go'
     goTimestamp = getTimestamp()
