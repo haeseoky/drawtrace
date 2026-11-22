@@ -108,6 +108,20 @@ const options = ref([])
 let timerInterval = null
 let gameStartTime = 0
 let feedbackTimeout = null
+let hiddenAt = 0
+
+// 탭 숨김(앱 전환) 시 타이머 보정 — 숨겨진 동안 시간이 흘러 손해 보지 않도록 시작 시각을 뒤로 밀기
+function handleVisibility() {
+  if (document.hidden) {
+    hiddenAt = Date.now()
+  } else {
+    const gap = Date.now() - hiddenAt
+    if (gap > 0 && hiddenAt > 0 && gameState.value === 'playing') {
+      gameStartTime += gap
+    }
+    hiddenAt = 0
+  }
+}
 
 // 데스크톱 키보드 지원 — 1~4번 키로 답 선택, Enter/Space로 시작·재시작
 function onKeydown(e) {
@@ -121,7 +135,10 @@ function onKeydown(e) {
   const idx = ['1', '2', '3', '4'].indexOf(e.key)
   if (idx >= 0 && options.value[idx]) selectAnswer(options.value[idx])
 }
-onMounted(() => { document.addEventListener('keydown', onKeydown) })
+onMounted(() => {
+  document.addEventListener('keydown', onKeydown)
+  document.addEventListener('visibilitychange', handleVisibility)
+})
 
 function generateRound() {
   const textColor = COLORS[Math.floor(Math.random() * COLORS.length)]
@@ -206,7 +223,12 @@ function endGame() {
   emit('score', { score: score.value, detail: { rounds: round.value } })
 }
 
-onUnmounted(() => { clearInterval(timerInterval); clearTimeout(feedbackTimeout); document.removeEventListener('keydown', onKeydown) })
+onUnmounted(() => {
+  clearInterval(timerInterval)
+  clearTimeout(feedbackTimeout)
+  document.removeEventListener('keydown', onKeydown)
+  document.removeEventListener('visibilitychange', handleVisibility)
+})
 </script>
 
 <style scoped>
