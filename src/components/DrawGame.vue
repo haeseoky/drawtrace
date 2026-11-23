@@ -108,7 +108,7 @@ import { getRandomShape } from '../data/shapes.js'
 import { addScore, getBestScore } from '../lib/leaderboard.js'
 import { shareResult as shareUtil } from '../lib/share.js'
 import { getDailyChallenge, saveChallengeProgress, loadChallengeProgress, recordChallengeCompletion, CHALLENGE_TYPES } from '../lib/challenge.js'
-import { hapticTick } from '../lib/haptics'
+import { hapticTick, hapticSuccess, hapticError } from '../lib/haptics'
 
 // Refs
 const canvasRef = ref(null)
@@ -345,6 +345,10 @@ function endGame() {
 
   gameState.value = 'result'
   // isEnding은 다음 startGame()에서 리셋 — 타이머 콜백 중복 호출 완전 차단
+
+  // 결과 햅틱 피드백 — 고점수 성공 / 저점수 실패 구분 (설정 토글 적용)
+  if (result.score >= 70) hapticSuccess()
+  else hapticError()
 
   // 일일 챌린지 진행 체크 — 레벨 증가 전에 판정해야 SHAPE 난이도가 정확함
   checkChallengeProgress(result, timeLeft.value / timeLimit.value)

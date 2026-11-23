@@ -285,6 +285,7 @@ function loseLife() {
 function endGame() {
   gameState.value = 'gameover'
   hapticError()
+  haptic([15, 80, 15, 80, 40]) // 게임 오버 장의 햅틱 강조
   isNewRecord.value = score.value > bestScore.value && score.value > 0
   bestScore.value = Math.max(bestScore.value, score.value)
   addScore({ gameId: 'brick-breaker', score: score.value })
