@@ -14,7 +14,7 @@
     </header>
 
     <main class="game-main">
-      <div class="board" ref="boardRef" tabindex="0" role="grid" aria-label="2048 보드" @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd">
+  <div class="board" ref="boardRef" tabindex="0" role="grid" aria-label="2048 보드" @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd" @touchcancel.passive="onTouchCancel">
         <div class="bg-cells">
           <div v-for="i in 16" :key="i" class="bg-cell"></div>
         </div>
@@ -347,6 +347,9 @@ function endGame() {
 let touchStart = null
 function onTouchStart(e) {
   touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+}
+function onTouchCancel() {
+  touchStart = null
 }
 function onTouchEnd(e) {
   if (!touchStart) return
