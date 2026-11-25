@@ -19,7 +19,7 @@
         {{ ef.icon }}
       </span>
     </div>
-    <canvas ref="canvasRef" @click="handleClick" @touchstart.prevent="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend.prevent="handleTouchEnd" @mousemove="handleMouseMove"></canvas>
+    <canvas ref="canvasRef" @click="handleClick" @touchstart.prevent="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend.prevent="handleTouchEnd" @touchcancel.prevent="handleTouchEnd" @mousemove="handleMouseMove"></canvas>
     <div v-if="gameState === 'idle'" class="overlay" @click="handleOverlayClick" @touchstart.prevent="handleOverlayTouch">
       <div class="overlay-content">
         <div class="overlay-icon">🧱</div>
