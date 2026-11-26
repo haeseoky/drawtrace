@@ -166,9 +166,9 @@ function onTap() {
       newRecord.value = false
       roundRecord.value = false
       avgRecord.value = false
-    } else {
-      round.value++
     }
+    // fail은 기록 없는 실패 시도이므로 라운드 미진행 - 같은 라운드 재시도
+    if (phase.value === 'result') round.value++
     phase.value = 'ready'
   }
 }
