@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="game-wrapper">
     <!-- 스크린 리더 상태 발표 (a11y) -->
     <div class="sr-only" role="status" aria-live="polite">{{ srAnnouncement }}</div>
@@ -145,6 +145,7 @@ function setupRound() {
   clearTimeout(roundClearTimeout)
   roundClear.value = false
 
+  gameStartTime = Date.now()
   const selected = shuffle(EMOJIS).slice(0, totalPairs.value)
   const pairs = shuffle([...selected, ...selected])
   cards.value = pairs.map(emoji => ({ emoji, flipped: false, matched: false }))
